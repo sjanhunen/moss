@@ -35,7 +35,7 @@ MOLD_CC = gcc -c -o $2 $1
 MOLD_AR = ar -r $2 $1
 
 # Generate a list of object files for each target
-define MOLD_OBJ_VAR = 
+define MOLD_OBJ_VAR
 $1_object = $$(addsuffix $(MOLD_OBJEXT), $$(basename $$($1_source)))
 endef
 

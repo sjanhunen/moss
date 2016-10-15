@@ -1,4 +1,4 @@
-define MOLD_LIB_DEP =
+define MOLD_LIB_DEP
 $(MOLD_BINDIR)$$($1_archive)$(MOLD_AREXT): $$($1_object)
 endef
 
