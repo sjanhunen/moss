@@ -2,7 +2,7 @@
 
 define MOLD_C_RULES
 
-$(MOLD_OBJDIR)%.$(1)$(MOLD_OBJEXT): %.c
+$(MOLD_OBJ_DIR)%.$(1)$(MOLD_OBJ_EXT): %.c | $(MOLD_OBJ_DIR)
 	$(call MOLD_CC, $$<, $$@)
 
 endef
