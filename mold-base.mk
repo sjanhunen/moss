@@ -10,6 +10,9 @@ ifneq ($(MOLD_OBJDIR),)
 MOLD_OBJDIR := $(MOLD_OBJDIR)/
 endif
 
+MOLD_AREXT := $(MOLD_ARCH_EXT)$(MOLD_TOOL_EXT)$(MOLD_AREXT)
+MOLD_OBJEXT := $(MOLD_ARCH_EXT)$(MOLD_TOOL_EXT)$(MOLD_OBJEXT)
+
 .PHONY: all clean
 
 all: $(MOLD_TARGETS)
@@ -20,7 +23,7 @@ define MOLD_TARGET_RULES
 .PHONY: $1
 .PHONY: $1_clean
 
-$1_object = $$(addsuffix $(MOLD_OBJEXT), $$(basename $$($1_source)))
+$1_object = $$(addsuffix .$(1)$(MOLD_OBJEXT), $$(basename $$($1_source)))
 
 .PHONY: $1_clean_obj
 $1_clean_obj:

@@ -1,11 +1,13 @@
 MOLD_OBJDIR=
 MOLD_BINDIR=
 
-MOLD_TARGETS += test
+MOLD_TARGETS += lite heavy
 
-# A basic library used for testing
-test_source = test.c
-test_archive = libtest
+lite_source = test.c
+lite_archive = liblite
+
+heavy_source = test.c
+heavy_archive = libheavy
 
 include mold-gcc.mk
 include mold-base.mk

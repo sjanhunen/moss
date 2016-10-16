@@ -8,6 +8,6 @@ MOLD_AR = ar -r $2 $1
 # $2 = output
 MOLD_CC = gcc -c -o $2 $1
 
-MOLD_AREXT = $(MOLD_ARCH)$(MOLD_TOOL).ar
+MOLD_AREXT = .ar
 
-MOLD_OBJEXT = $(MOLD_ARCH)$(MOLD_TOOL).o
+MOLD_OBJEXT = .o
