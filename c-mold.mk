@@ -18,7 +18,7 @@ ifneq ($(MOLD_OBJDIR),)
 MOLD_OBJDIR := $(MOLD_OBJDIR)/
 endif
 
-# Mold configuration for gcc 
+# Mold configuration for gcc
 
 MOLD_OBJEXT = .o
 MOLD_AREXT = .ar
@@ -39,7 +39,7 @@ define MOLD_OBJ_VAR
 $1_object = $$(addsuffix $(MOLD_OBJEXT), $$(basename $$($1_source)))
 endef
 
-$(foreach t, $(MOLD_TARGETS), $(eval $(call MOLD_OBJ_VAR,$t))) 
+$(foreach t, $(MOLD_TARGETS), $(eval $(call MOLD_OBJ_VAR,$t)))
 
 
 # Mold for converting C source files to object files
