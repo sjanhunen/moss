@@ -7,5 +7,5 @@ MOLD_TARGETS += test
 test_source = test.c
 test_archive = libtest
 
-include c-mold.mk
-include ar-mold.mk
+include mold-c.mk
+include mold-ar.mk
