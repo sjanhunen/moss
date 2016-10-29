@@ -4,27 +4,45 @@ Molds for building software with GNU make
 Goals
 =====
 
-Cross-compiling:
+Cross-compiling
+---------------
 
 - Cross-compile embedded applications for different architectures with a single Makefile
 - Out-of-the-box support for gcc and clang x86/ARM
 - Create libaraies with different complier options (e.g. ARM vs Thumb code)
 
-Target generation:
+Target generation
+-----------------
 
 - Build the same source file with different compiler settings
 - Create multiple executable and library target outputs with ease
 - Separate definition of program source and structure from creating rules
 
-Large software projects:
+Large projects
+--------------
 
 - Manage large projects with multiple "sub-components"
 - Combine components from different parts of a filesystem (re-use installed library source in multiple projects)
 - Create release directory structures with libraries, binaries, and includes
-- Build against library components from either source or released binary
+- Build against libraries either from source or from released package
 
+Languages
+---------
 
-Usability:
+The initial vision is to support core languages in the GCC/LLVM toolchains:
+
+- C
+- C++
+- Objective C
+
+A longer term vision might be to expand this support to include languages such as
+
+- Rust
+- Swift
+- Go
+
+Usability
+---------
 
 - Tab auto-completion works with targets defined by Mold
 - Makes it easier to debug by dumping full commands with options
@@ -69,16 +87,129 @@ Good discussion on architecture naming here: http://clang.llvm.org/docs/CrossCom
 Target
 ------
 
-A target is the definition of a single linked binary and/or library output.
+A target is the definition of a single fully-linked executable or library
+output. A target is always created in machine code for the specified
+architecture.
 
-Different targets may compile the same source files with different compiler settings. But all targets for a given architecture and variant are compatible at a link level, even if it may not make sense to actuall link them together for a usable result.
+Different targets may compile the same source files with different compiler
+settings. But all targets for a given architecture and variant are compatible
+at a link level, even if it may not make sense to actuall link them together
+for a usable result.
 
-All targets for current toolchain and architecture: MOLD_TARGETS
+Targets for current toolchain and architecture are added to the variable
+MOLD_TARGETS
+
+Each target generates one or more outputs:
+
+	exe - binary executable
+	static_lib - library for static linking
+	dynamic_lib - library for dynamic (shared) linking
+	headers - directories of public header files for use with libraries
+
+Each of the outputs are placed in the following directories:
+
+	static_lib, dynamic_lib -> LIB_DIR (e.g. $PREFIX/lib)
+	exe -> EXE_DIR (e.g. $PREFIX/bin)
+	headers -> HEADER_DIR (e.g. $PREFIX/include)
+
+If no HEADER_DIR is present, header files cannot be installed. If LIB_DIR or
+EXE_DIR are not specified, outputs are simply placed in the current working
+directory.
+
+Embedded platforms may make use of some additional special targets:
+
+	memory_map - guidance for linker on how to place symbols
+	raw_image - raw read only code for execution out of flash
+	hex_image - hex output of raw flash image
+
+Each target also has a unique set of variables:
+
+	source - files required for target generation in any language supported by toolchain
+
+	c_defines - preprocessor defines for C compiler
+	c_include - include paths for C compiler
+
+	cpp_defines - preprocessor defines for CPP compiler
+	cpp_include - include paths for CPP compiler
+
+	exe_static_lib - static libraries linked into exe
+	exe_dynamic_lib - dynamic libraries linked against exe
+
+These target options may need to be extended to support system include paths
+and system libraries. However, this may also be achieved through an appropriate
+use of toolchains. The best option remains to be seen.
+
+Example of a static library:
+
+	freertos_headers_base = $(freertos_home)/include
+	freertos_headers_files = $(freertos_home)/include/core/*
+	freertos_headers_prefix = freertos
+
+	freertos_source = $(freertos_home)/src/*
+
+	freertos_c_defines = ENABLE_MPU=1 MEMORY_MODEL=1
+	freertos_c_include = targets/light
+	freertos_static_lib = libfreertos
+
+Ideally, producing an executable from libraries that are built from source
+would be identical (or as close as possible) to producing the same executable
+from an installed (pre-built) version of the library.
+
+Support for seamless source or compiled library use will probably require an
+'install' step that copies libraries, executables, and headers into the
+installation directory.  Targets can then link and include files seamlessly
+from these libraries just as they would from external system libraries.
+
+One way an executable might be built with dependencies:
+
+	main_dependencies = freertos core crypto
+	main_source = main.cpp
+	main_exe = main
+	main_exe_static_lib = libfreertos gcc m
+	main_exe_memory_map = main_flash_binary.ldf
+
+A file system example for this might be:
+
+	/opt/mylib
+		todo - where should these files go?
+			.freertos.armv5.gcc.installed
+			.core.armv5.gcc-debug.installed
+			.core.armv5.gcc.installed
+			.crypto.armv5.gcc-debug.installed
+			.crypto.armv5.gcc.installed
+		include
+			freertos
+			core
+			crypto
+		bin
+			armv5.gcc
+			armv5.gcc-debug
+		lib
+			armv5.gcc
+					libfreertos.a
+					libcore.a
+					libcrypto.a
+			armv5.gcc-debug
+					libcore.a
+					libcrypto.a
+
+The key point is that anything identified in <target>_dependencies simply
+creates a dependency on the appropriate .*.installed file in the installation
+directory. If all files are installed and actually exist on the system, no
+further work is performed by make. However, if the .*.installed target doesn't
+exist, make will try to build it. In this case, the appropriate make rules must
+exist for the target in question.
+
+A future consideration might be the versioning of installed libraries. How can
+we detect a version mismatch? Is this even something reasonable to attempt?
+What is the real use case of installing libraries like this? How do we avoid
+just recreating a package management system?
 
 Object File Organization
 ========================
 
-Object files may be built in place with the source tree or may be built out of place in a separate OBJ_DIR. If compiled in place, the convention is
+Object files may be built in place with the source tree or may be built out of
+place in a separate OBJ_DIR. If compiled in place, the convention is
 
 In-place object file naming convention:
 
@@ -95,21 +226,3 @@ Object file examples:
 	my_file.core_bare.host.gcc.o
 	my_file.core_freertos.cortex-m3.gcc-release.o
 
-Library and binary file examples:
-
-	libcore_bare.arm-cm3.gcc-debug.ar
-
-
-Release file structure examples:
-
-	<MOLD_RELDIR>/
-
-		<TOOL>/
-
-			include/
-				<ARCH>/
-				<ARCH>/
-
-			lib-<ARCH>/
-
-			bin-<ARCH>/
