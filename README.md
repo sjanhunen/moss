@@ -1,6 +1,9 @@
 # gnumake-molds
 Molds for building software with GNU make
 
+TODO: Consider name change from mold to yeast or possibly hyphae. Which one
+would be a better analogy for compiling and linking software?
+
 Goals
 =====
 
@@ -9,10 +12,9 @@ and executables for a variety of architectures using only GNU make.
 
 Highlights:
 
-- compile large code bases that bring together multiple libraries
 - manage multiple compilers, multiple build types, and multiple architectures
-- streamline library compilation and linking
-- streamline include path management by creating 'namespaces' for libraries
+- streamline library compilation, linking, and include path management
+- scale for large code bases that bring together multiple libraries
 
 There are a variety of package management systems and root filesystem creation
 tools available today that will build large systems from source code.  This is
@@ -20,6 +22,9 @@ not the focus of gnumake-mold. Instead, the focus is on creating complete,
 fully linked executables that are compiled completely from source code, or that
 are statically linked against a number of libraries that are also compiled from
 source.
+
+Features
+========
 
 Cross-compiling
 ---------------
@@ -100,62 +105,98 @@ Code generated for different architectures does not interoperate and cannot be l
 
 Good discussion on architecture naming here: http://clang.llvm.org/docs/CrossCompilation.html
 
-Target
-------
+Targets
+-------
 
-A target is a single output that is produced by mold. Mold can produce
-two different types of targets:
+Three different types of target outputs are currently supported:
 
 - Executable: a fully-linked binary executable
-- Library: a static library with header files
+- Library: a library (either static or dynamic)
+- Headers: a set of header files for stand-alone use or use with a library
 
-All targets share the following variables:
+Implementation
+==============
 
-- `target_<source>` - source files used to create target
-- `target_<name>` - base name used as part of output files
-- `target_<lib>` - libraries that are required by this target
+All mold targets are generated from small units called spores. Spores may
+produce one or more target output.
 
-If a library is used by an executable, the headers for that library are
-automatically included as part of the system includes. If external,
-pre-installed libraries are to be used, an appropriate mold template must be
-created for them.
+Spores
+------
 
-	test_name = mytester
-	test_lib = freertos libc lwip
+Mold manages a list of all spores through the variable `MOLD_SPORES`. If a new
+spore is created, it must be added to this list.
 
-Separate target lists for each of the above types:
+All spores share the following variables:
 
-	MOLD_EXE_TARGETS
-	MOLD_LIB_TARGETS
+- `<spore>_name` - base name used as part of output files
+- `<spore>_depends` - other spores required as dependencies of this spore
 
-Each of the outputs are placed in the following directories:
+Dependencies among spores is captured entirely through the above structure.
+This structure is managed through a series of hidden touch files that are
+created by mold.
 
-	static_lib, dynamic_lib -> LIB_DIR (e.g. $PREFIX/lib)
-	exe -> EXE_DIR (e.g. $PREFIX/bin)
-	headers -> HEADER_DIR (e.g. $PREFIX/include)
+Each spore has a number of variables that are specific to that spore and are
+used during the build process.
+
+Spore Generation
+----------------
+
+- `<spore>_exe` - name of executable output target
+- `<spore>_lib` - name of library output target
+- `<spore>_src` - source files used to generate executable and/or library
+- `<spore>_include` - list of header files to stage for system include
+
+All targets are placed in a target staging area once created. This keeps the
+directory structure organized and enables cleaner integration when multiple
+libraries are involved.
+
+Target outputs are staged in the following directories:
+
+	lib -> MOLD_LIB_DIR (e.g. $PREFIX/lib)
+	include -> MOLD_HEADER_DIR (e.g. $PREFIX/include)
+	exe -> MOLD_EXE_DIR (e.g. $PREFIX/bin)
+
+Headers that are staged into `MOLD_HEADER_DIR` are automatically included as part
+of the system include path. Libraries that are staged in `MOLD_LIB_DIR` are
+included as part of the library search path. This means that using libraries
+created with mold is identical to using libraries installed in the development
+system.
+
+Libraries
+---------
+
+TODO
+
+Headers
+-------
+
+TODO
+
+Executables
+-----------
+
+Executable targets make use of the following spore variables:
+
+	<spore>_c_defines - preprocessor defines for C compiler
+	<spore>_c_include - additional include paths for C compiler
+
+	<spore>_cpp_defines - preprocessor defines for CPP compiler
+	<spore>_cpp_include - additional include paths for CPP compiler
+
+	<spore>_static_lib - static libraries linked into exe
+	<spore>_dynamic_lib - dynamic libraries linked against exe
+
+The libraries listed for linking must be part of the library search path
+defined by either the tool chain or staged by a previous library target.
 
 Embedded platforms may make use of some additional special targets:
 
-	memory_map - guidance for linker on how to place symbols
-	raw_image - raw read only code for execution out of flash
-	hex_image - hex output of raw flash image
+	<spore>_memory_map - guidance for linker on how to place symbols
+	<spore>_raw_image - raw read only code for execution out of flash
+	<spore>_hex_image - hex output of raw flash image
 
-Each target also has a unique set of variables:
-
-	source - files required for target generation in any language supported by toolchain
-
-	c_defines - preprocessor defines for C compiler
-	c_include - include paths for C compiler
-
-	cpp_defines - preprocessor defines for CPP compiler
-	cpp_include - include paths for CPP compiler
-
-	exe_static_lib - static libraries linked into exe
-	exe_dynamic_lib - dynamic libraries linked against exe
-
-These target options may need to be extended to support system include paths
-and system libraries. However, this may also be achieved through an appropriate
-use of toolchains. The best option remains to be seen.
+Examples
+--------
 
 Example of a static library:
 
