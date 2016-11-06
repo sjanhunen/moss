@@ -27,15 +27,16 @@ define MOLD_TARGET_RULES
 .PHONY: $1
 .PHONY: $1_clean
 
-$1_object = $$(addsuffix .$(1)$(MOLD_OBJ_EXT), $$(basename $$($1_source)))
-$1_object := $$(addprefix $(MOLD_OBJ_DIR), $$($1_object))
+$1_spore = .$1$(MOLD_ARCH_EXT)$(MOLD_TOOL_EXT).spore
+$1_clean_files += $$($1_spore)
 
-.PHONY: $1_clean_obj
-$1_clean_obj:
-	rm -f $$($1_object)
+$1: $$($1_spore)
 
-.PHONY: $1_clean
-$1_clean: $1_clean_obj
+$$($1_spore):
+	touch $$@
+
+$1_clean:
+	rm -f $$($1_clean_files)
 
 endef
 

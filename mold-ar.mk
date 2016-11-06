@@ -1,15 +1,11 @@
 # Mold rules for creating target archives
 
 define MOLD_AR_RULES
+
+$1_clean_files += $(MOLD_BIN_DIR)$$($1_archive)$(MOLD_AR_EXT)
+
+$$($1_spore): $(MOLD_BIN_DIR)$$($1_archive)$(MOLD_AR_EXT)
 $(MOLD_BIN_DIR)$$($1_archive)$(MOLD_AR_EXT): $$($1_object)
-
-$1: $(MOLD_BIN_DIR)$$($1_archive)$(MOLD_AR_EXT)
-
-.PHONY: $1_clean_ar
-$1_clean_ar:
-	rm -f $(MOLD_BIN_DIR)$$($1_archive)$(MOLD_AR_EXT)
-
-$1_clean: $1_clean_ar
 
 endef
 
