@@ -1,11 +1,11 @@
 MOLD_OBJ_DIR = obj
 MOLD_BIN_DIR = bin
 
-MOLD_TARGETS += lite
+YEAST.SPORES += lite
 lite_source = test.c
 lite_archive = liblite
 
-MOLD_TARGETS += heavy
+YEAST.SPORES += heavy
 heavy_source = test.c
 heavy_archive = libheavy
 

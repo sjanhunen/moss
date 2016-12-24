@@ -19,8 +19,8 @@ MOLD_OBJ_EXT := $(MOLD_ARCH_EXT)$(MOLD_TOOL_EXT)$(MOLD_OBJ_EXT)
 
 .PHONY: all clean
 
-all: $(MOLD_TARGETS)
-clean: $(addsuffix _clean, $(MOLD_TARGETS))
+all: $(YEAST.SPORES)
+clean: $(addsuffix _clean, $(YEAST.SPORES))
 
 define MOLD_TARGET_RULES
 
@@ -40,7 +40,7 @@ $1_clean:
 
 endef
 
-$(foreach t, $(MOLD_TARGETS), $(eval $(call MOLD_TARGET_RULES,$t)))
+$(foreach t, $(YEAST.SPORES), $(eval $(call MOLD_TARGET_RULES,$t)))
 
 $(MOLD_OBJ_DIR) $(MOLD_BIN_DIR):
 	mkdir -p $@
