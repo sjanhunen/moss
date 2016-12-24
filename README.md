@@ -1,27 +1,26 @@
 # gnumake-molds
-Molds for building software with GNU make
 
-TODO: Consider name change from mold to yeast. A yeast spore is the smallest
-unit of software that can be built (a single target in make nomenclature).
+TODO: rename repository from gnumake-molds to yeast
 
 Goals
 =====
 
-The goal of gnumake-mold is to make it easy to create cross-compiled libraries
-and executables for a variety of architectures using only GNU make.
+Yeast streamlines creation of cross-compiled libraries and executables from
+large code bases for a variety of architectures and toolchains using only GNU
+make.
 
-Highlights:
+Yeast is a build system that is intended for use on a code base stored and
+versioned within a single repository. Yeast is not a package manager that
+brings together source code and libraries from multiple repositories across
+multiple versions. Integration of multiple code bases must either be solved at
+a lower level in the repository (e.g. using git submodules) or at a higher
+level using a package management system (e.g. Debian packages).
 
-- manage multiple compilers, multiple build types, and multiple architectures
-- streamline library compilation, linking, and include path management
-- scale for large code bases that bring together multiple libraries
-
-There are a variety of package management systems and root filesystem creation
-tools available today that will build large systems from source code.  This is
-not the focus of gnumake-mold. Instead, the focus is on creating complete,
-fully linked executables that are compiled completely from source code, or that
-are statically linked against a number of libraries that are also compiled from
-source.
+While the final releasable output from a yeast build will likely be a single
+library or executable, there are often many intermediate and secondary targets
+required to produce this target such as 3rd-party libraries, unit test
+executables, special debug and test builds, and so on. Yeast streamlines the
+creation and management of these targets.
 
 Features
 ========
@@ -110,7 +109,7 @@ Spores
 
 All output targets are generated from small units called spores. Each spores
 may produce one or more buds as outputs. Mold manages a list of all spores
-through the variable `MOLD_SPORES`. If a new spore is created, it must be added
+through the variable `YEAST.SPORES`. If a new spore is created, it must be added
 to this list.
 
 All spores share the following variables:
@@ -199,11 +198,11 @@ place in a separate `OBJ_DIR`. If compiled in place, the convention is
 
 In-place object file naming convention:
 
-	<SOURCE_PATH>/<SOURCE_BASENAME>.<MOLD_TARGET>.<MOLD_ARCH>.<MOLD_TOOL>.<MOLD_OBJ_EXT>
+	<SOURCE_PATH>/<SOURCE_BASENAME>.<YEAST_SPORE>.<YEAST_ARCH>.<YEAST_TOOL>.<YEAST.OBJ.SUFFIX>
 
 Out-of-place object file naming convention:
 
-	<MOLD_OBJDIR>/<SOURCE_PATH>/<SOURCE_BASENAME>.<MOLD_TARGET>.<MOLD_ARCH>.<MOLD_TOOL>.<MOLD_OBJ_EXT>
+	<YEAST.OBJ.PATH>/<SOURCE_PATH>/<SOURCE_BASENAME>.<YEAST_TARGET>.<YEAST_ARCH>.<YEAST_TOOL>.<YEAST.OBJ.SUFFIX>
 
 Object file examples:
 
