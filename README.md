@@ -1,8 +1,8 @@
 # gnumake-molds
 Molds for building software with GNU make
 
-TODO: Consider name change from mold to yeast or possibly hyphae. Which one
-would be a better analogy for compiling and linking software?
+TODO: Consider name change from mold to yeast. A yeast spore is the smallest
+unit of software that can be built (a single target in make nomenclature).
 
 Goals
 =====
@@ -88,8 +88,8 @@ While a toolchain must include all tools required to produce an executable binar
 
 Generally, debug versus release build variants are handled at the toolchain level due to the significant impact that may be present on generated code.
 
-- `MOLD_TOOLS`: All available toolchains
-- `MOLD_TOOL`: Current toolchain
+- `YEAST.TOOLS`: All available toolchains
+- `YEAST_TOOL`: Current toolchain
 
 Architecture
 ------------
@@ -100,51 +100,58 @@ Examples: host, amd64, cortex-m4, cortex-r7, avr, mipsel, etc.
 
 Code generated for different architectures does not interoperate and cannot be linked together.
 
-- `MOLD_ARCHS`: All available architectures for current toolchain
-- `MOLD_ARCH`: Current architecture for current toolchain
+- `YEAST.ARCHS`: All available architectures for current toolchain
+- `YEAST_ARCH`: Current architecture for current toolchain
 
 Good discussion on architecture naming here: http://clang.llvm.org/docs/CrossCompilation.html
 
-Targets
--------
+Spores
+------
 
-Three different types of target outputs are currently supported:
+All output targets are generated from small units called spores. Each spores
+may produce one or more buds as outputs. Mold manages a list of all spores
+through the variable `MOLD_SPORES`. If a new spore is created, it must be added
+to this list.
+
+All spores share the following variables:
+
+- `<spore>.name` - base name used as part of output files
+- `<spore>.depends` - other spores required as dependencies of this spore
+
+Dependencies among spores is captured entirely through the above structure.
+
+Buds
+----
+
+Three types of buds are currently supported:
 
 - Executable: a fully-linked binary executable
 - Library: a library (either static or dynamic)
 - Headers: a set of header files for stand-alone use or use with a library
 
-Implementation
-==============
+Buds are configured for each spore with the following variable naming convention:
 
-All mold targets are generated from small units called spores. Spores may
-produce one or more target output.
+	`<SPORE>.<BUD>.<VARIABLE>`
 
-Spores
-------
+For example:
 
-Mold manages a list of all spores through the variable `MOLD_SPORES`. If a new
-spore is created, it must be added to this list.
+	YEAST.SPORES += util
+	util.depends = common.headers
+	util.lib.source = bob.c larry.c
+	util.lib.name = util-bob
+	util.headers.source = util.h
 
-All spores share the following variables:
+Globally, yeast manages options for buds using the following variable naming convention:
 
-- `<spore>_name` - base name used as part of output files
-- `<spore>_depends` - other spores required as dependencies of this spore
+	`YEAST.<BUD>.<VARIABLE>`
 
-Dependencies among spores is captured entirely through the above structure.
-This structure is managed through a series of hidden touch files that are
-created by mold.
+For example
 
-Each spore has a number of variables that are specific to that spore and are
-used during the build process.
-
-Spore Generation
-----------------
-
-- `<spore>_exe` - name of executable output target
-- `<spore>_lib` - name of library output target
-- `<spore>_src` - source files used to generate executable and/or library
-- `<spore>_include` - list of header files to stage for system include
+    YEAST.HEADERS.PATH = include
+	YEAST.EXE.PATH = bin/$(YEAST_ARCH)
+	YEAST.EXE.SUFFIX = .exe
+	YEAST.LIB.PATH = lib/$(YEAST_ARCH)
+	YEAST.LIB.SUFFIX = .lib
 
 All targets are placed in a target staging area once created. This keeps the
 directory structure organized and enables cleaner integration when multiple
@@ -152,71 +159,18 @@ libraries are involved.
 
 Target outputs are staged in the following directories:
 
-	lib -> MOLD_LIB_DIR (e.g. $PREFIX/lib)
-	include -> MOLD_HEADER_DIR (e.g. $PREFIX/include)
-	exe -> MOLD_EXE_DIR (e.g. $PREFIX/bin)
+	lib -> YEAST.LIB.PATH (e.g. $PREFIX/lib)
+	include -> YEAST.HEADER.PATH (e.g. $PREFIX/include)
+	exe -> YEAST.EXE.PATH (e.g. $PREFIX/bin)
 
-Headers that are staged into `MOLD_HEADER_DIR` are automatically included as part
-of the system include path. Libraries that are staged in `MOLD_LIB_DIR` are
+Headers that are staged into `YEAST.HEADER.PATH` are automatically included as part
+of the system include path. Libraries that are staged in `YEAST.LIB.PATH` are
 included as part of the library search path. This means that using libraries
-created with mold is identical to using libraries installed in the development
+created with yeast is identical to using libraries installed in the development
 system.
 
-Libraries
----------
-
-TODO
-
-Headers
--------
-
-TODO
-
-Executables
------------
-
-Executable targets make use of the following spore variables:
-
-	<spore>_c_defines - preprocessor defines for C compiler
-	<spore>_c_include - additional include paths for C compiler
-
-	<spore>_cpp_defines - preprocessor defines for CPP compiler
-	<spore>_cpp_include - additional include paths for CPP compiler
-
-	<spore>_static_lib - static libraries linked into exe
-	<spore>_dynamic_lib - dynamic libraries linked against exe
-
-The libraries listed for linking must be part of the library search path
-defined by either the tool chain or staged by a previous library target.
-
-Embedded platforms may make use of some additional special targets:
-
-	<spore>_memory_map - guidance for linker on how to place symbols
-	<spore>_raw_image - raw read only code for execution out of flash
-	<spore>_hex_image - hex output of raw flash image
-
-Examples
---------
-
-Example of a static library:
-
-	freertos_headers = $(freertos_home)/include
-	freertos_headers_prefix = freertos
-	freertos_source = $(freertos_home)/src/*
-	freertos_c_defines = ENABLE_MPU=1 MEMORY_MODEL=1
-	freertos_c_include = targets/light
-	freertos_static_lib = libfreertos
-
-Ideally, producing an executable from libraries that are built from source
-would be identical (or as close as possible) to producing the same executable
-from an installed (pre-built) version of the library.
-
-One way an executable might be built with dependencies:
-
-	main_source = main.cpp
-	main_name = main
-	main_lib = freertos
-	main_exe_memory_map = main_flash_binary.ldf
+Target Path Organization
+========================
 
 A file system example for this might be:
 
