@@ -71,8 +71,8 @@ Usability
 - Work with in-place object files for the smallest projects
 - Support for automatic dependency generation
 
-Key Concepts
-============
+Core Concepts
+=============
 
 Toolchain
 ---------
@@ -104,53 +104,75 @@ Code generated for different architectures does not interoperate and cannot be l
 
 Good discussion on architecture naming here: http://clang.llvm.org/docs/CrossCompilation.html
 
+Language
+--------
+
+Each toolchain supports at least one language that is used by source files.
+Many toolchains support multiple languages (e.g. GCC and LLVM).
+
+Globally, language options are configured using the syntax `YEAST.<language>.<option> = <value>`.
+
+Language options can be configured specifically for each spore with the syntax
+`<spore>.<language>.<option> = <value>`. For example:
+
+	util.c.defines = POSIX_2001
+	util.c.include = util/inc
+
+The spore specific options override any global options. To include the global
+yeast options for a specific spore when overriding, simply include the global
+options as part of the spore-specific options. For example:
+
+	util.c.defines = $(YEAST.c.defines) UTIL_OPTION_X=1
+
 Spores
 ------
 
-All output targets are generated from small units called spores. Each spores
-may produce one or more buds as outputs. Mold manages a list of all spores
-through the variable `YEAST.SPORES`. If a new spore is created, it must be added
-to this list.
-
-All spores share the following variables:
-
-- `<spore>.name` - base name used as part of output files
-- `<spore>.depends` - other spores required as dependencies of this spore
-
-Dependencies among spores is captured entirely through the above structure.
-
-Buds
-----
-
-Three types of buds are currently supported:
-
-- Executable: a fully-linked binary executable
-- Library: a library (either static or dynamic)
-- Headers: a set of header files for stand-alone use or use with a library
-
-Buds are configured for each spore with the following variable naming convention:
-
-	`<SPORE>.<BUD>.<VARIABLE>`
+All outputs are generated from individual units of source code called spores.
+Each spore may produce one or more products as outputs during the build
+process. Yeast manages a list of all spores through the variable
+`YEAST.SPORES`. If a new spore is created, it must be added to this list.
 
 For example:
 
 	YEAST.SPORES += util
-	util.depends = common.headers
-	util.lib.source = bob.c larry.c
-	util.lib.name = util-bob
-	util.headers.source = util.h
+	util.name = utility
+	util.depends = common
+	util.products = shared_lib static_lib headers
 
-Globally, yeast manages options for buds using the following variable naming convention:
+Spores are defined with the following key variables:
 
-	`YEAST.<BUD>.<VARIABLE>`
+- `<spore>.name` - base name used as part of output products
+- `<spore>.depends` - other spores required as dependencies of this spore
+- `<spore>.products` - the list of final output products produced by this spore
+- `<spore>.source` - the list of source files required to generate products
+- `<spore>.headers` - the list of header files to be released with products
 
-For example
+Products
+--------
 
-    YEAST.HEADERS.PATH = include
-	YEAST.EXE.PATH = bin/$(YEAST_ARCH)
-	YEAST.EXE.SUFFIX = .exe
-	YEAST.LIB.PATH = lib/$(YEAST_ARCH)
-	YEAST.LIB.SUFFIX = .lib
+Four types of yeast products are currently supported:
+
+- Executable: a fully-linked binary executable
+- Static Library: a library for static linking into one or more executables
+- Shared Library: a dynamic library for use with one or more executable products
+- Headers: a set of header files for stand-alone use or use with a library
+
+Global product options may be configured using the syntax
+`YEAST.<product>.<option> = <value>`. For example:
+
+    YEAST.headers.path = include
+	YEAST.executable.path = bin/$(YEAST_ARCH)
+	YEAST.executable.suffix = .exe
+	YEAST.shared_lib.path = lib/$(YEAST_ARCH)
+	YEAST.shared_lib.suffix = .so
+
+Spore-specific product options are configured using the syntax `<spore>.<product>.<option> = <value>`.
+
+Path Organization
+=================
+
+Product Outputs
+---------------
 
 All targets are placed in a target staging area once created. This keeps the
 directory structure organized and enables cleaner integration when multiple
@@ -158,18 +180,16 @@ libraries are involved.
 
 Target outputs are staged in the following directories:
 
-	lib -> YEAST.LIB.PATH (e.g. $PREFIX/lib)
-	include -> YEAST.HEADER.PATH (e.g. $PREFIX/include)
-	exe -> YEAST.EXE.PATH (e.g. $PREFIX/bin)
+	libraries -> YEAST.SHARED_LIB.PATH (e.g. $PREFIX/lib)
+	libraries -> YEAST.STATIC_LIB.PATH (e.g. $PREFIX/lib)
+	headers -> YEAST.HEADER.PATH (e.g. $PREFIX/include)
+	executables -> YEAST.EXE.PATH (e.g. $PREFIX/bin)
 
 Headers that are staged into `YEAST.HEADER.PATH` are automatically included as part
 of the system include path. Libraries that are staged in `YEAST.LIB.PATH` are
 included as part of the library search path. This means that using libraries
 created with yeast is identical to using libraries installed in the development
 system.
-
-Target Path Organization
-========================
 
 A file system example for this might be:
 
@@ -190,17 +210,15 @@ A file system example for this might be:
 					libcore.a
 					libcrypto.a
 
-Object File Organization
-========================
+Object Files
+------------
 
 Object files may be built in place with the source tree or may be built out of
-place in a separate `OBJ_DIR`. If compiled in place, the convention is
-
-In-place object file naming convention:
+place in a separate object file directory. If compiled in place, the convention is
 
 	<SOURCE_PATH>/<SOURCE_BASENAME>.<YEAST_SPORE>.<YEAST_ARCH>.<YEAST_TOOL>.<YEAST.OBJ.SUFFIX>
 
-Out-of-place object file naming convention:
+If compiled out of place, the object file naming convention is
 
 	<YEAST.OBJ.PATH>/<SOURCE_PATH>/<SOURCE_BASENAME>.<YEAST_TARGET>.<YEAST_ARCH>.<YEAST_TOOL>.<YEAST.OBJ.SUFFIX>
 
@@ -210,4 +228,3 @@ Object file examples:
 	my_file.core_bare.arm-cm3.llvm-debug.o
 	my_file.core_bare.host.gcc.o
 	my_file.core_freertos.cortex-m3.gcc-release.o
-
