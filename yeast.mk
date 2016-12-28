@@ -20,7 +20,7 @@ ifneq ($(YEAST.STATIC_LIB.PATH),)
 YEAST.STATIC_LIB.PATH := $(YEAST.STATIC_LIB.PATH)/
 endif
 
-include mold-gcc.mk
-include mold-base.mk
-include mold-c.mk
-include mold-ar.mk
+include toolchains/*.mk
+include spore.mk
+include languages/*.mk
+include products/*.mk
