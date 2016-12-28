@@ -1,5 +1,5 @@
 MOLD_AR_EXT := $(MOLD_ARCH_EXT)$(MOLD_TOOL_EXT)$(MOLD_AR_EXT)
-MOLD_OBJ_EXT := $(MOLD_ARCH_EXT)$(MOLD_TOOL_EXT)$(MOLD_OBJ_EXT)
+TOOL.OBJECT.SUFFIX := $(MOLD_ARCH_EXT)$(MOLD_TOOL_EXT)$(TOOL.OBJECT.SUFFIX)
 
 .PHONY: all clean
 
@@ -14,7 +14,7 @@ define YEAST_SPORE_RULES
 $1_spore = .$1$(MOLD_ARCH_EXT)$(MOLD_TOOL_EXT).spore
 $1_clean_files += $$($1_spore)
 
-$1_object = $$(addsuffix .$(1)$(MOLD_OBJ_EXT), $$(basename $$($1_source)))
+$1_object = $$(addsuffix .$(1)$(TOOL.OBJECT.SUFFIX), $$(basename $$($1_source)))
 $1_object := $$(addprefix $(YEAST.OBJECT.PATH), $$($1_object))
 $1_clean_files += $$($1_object)
 
