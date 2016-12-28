@@ -9,7 +9,4 @@ YEAST.SPORES += heavy
 heavy_source = test.c
 heavy_archive = libheavy
 
-include mold-gcc.mk
-include mold-base.mk
-include mold-c.mk
-include mold-ar.mk
+include yeast.mk

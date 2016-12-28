@@ -1,19 +1,3 @@
-ifneq ($(MOLD_ARCH),)
-MOLD_ARCH_EXT = .$(MOLD_ARCH)
-endif
-
-ifneq ($(MOLD_TOOL),)
-MOLD_TOOL_EXT = .$(MOLD_TOOL)
-endif
-
-ifneq ($(MOLD_OBJ_DIR),)
-MOLD_OBJ_DIR := $(MOLD_OBJ_DIR)/
-endif
-
-ifneq ($(MOLD_BIN_DIR),)
-MOLD_BIN_DIR := $(MOLD_BIN_DIR)/
-endif
-
 MOLD_AR_EXT := $(MOLD_ARCH_EXT)$(MOLD_TOOL_EXT)$(MOLD_AR_EXT)
 MOLD_OBJ_EXT := $(MOLD_ARCH_EXT)$(MOLD_TOOL_EXT)$(MOLD_OBJ_EXT)
 
@@ -22,13 +6,17 @@ MOLD_OBJ_EXT := $(MOLD_ARCH_EXT)$(MOLD_TOOL_EXT)$(MOLD_OBJ_EXT)
 all: $(YEAST.SPORES)
 clean: $(addsuffix _clean, $(YEAST.SPORES))
 
-define MOLD_TARGET_RULES
+define YEAST_SPORE_RULES
 
 .PHONY: $1
 .PHONY: $1_clean
 
 $1_spore = .$1$(MOLD_ARCH_EXT)$(MOLD_TOOL_EXT).spore
 $1_clean_files += $$($1_spore)
+
+$1_object = $$(addsuffix .$(1)$(MOLD_OBJ_EXT), $$(basename $$($1_source)))
+$1_object := $$(addprefix $(MOLD_OBJ_DIR), $$($1_object))
+$1_clean_files += $$($1_object)
 
 $1: $$($1_spore)
 
@@ -40,7 +28,7 @@ $1_clean:
 
 endef
 
-$(foreach t, $(YEAST.SPORES), $(eval $(call MOLD_TARGET_RULES,$t)))
+$(foreach t, $(YEAST.SPORES), $(eval $(call YEAST_SPORE_RULES,$t)))
 
 $(MOLD_OBJ_DIR) $(MOLD_BIN_DIR):
 	mkdir -p $@
