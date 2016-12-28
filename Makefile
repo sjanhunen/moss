@@ -1,5 +1,5 @@
-MOLD_OBJ_DIR = obj
-MOLD_BIN_DIR = bin
+YEAST.OBJECT.PATH = obj
+YEAST.EXECUTABLE.PATH = bin
 
 YEAST.SPORES += lite
 lite_source = test.c

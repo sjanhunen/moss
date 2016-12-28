@@ -183,7 +183,7 @@ Target outputs are staged in the following directories:
 	libraries -> YEAST.SHARED_LIB.PATH (e.g. $PREFIX/lib)
 	libraries -> YEAST.STATIC_LIB.PATH (e.g. $PREFIX/lib)
 	headers -> YEAST.HEADER.PATH (e.g. $PREFIX/include)
-	executables -> YEAST.EXE.PATH (e.g. $PREFIX/bin)
+	executables -> YEAST.EXECUTABLE.PATH (e.g. $PREFIX/bin)
 
 Headers that are staged into `YEAST.HEADER.PATH` are automatically included as part
 of the system include path. Libraries that are staged in `YEAST.LIB.PATH` are

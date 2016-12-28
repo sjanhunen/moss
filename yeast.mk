@@ -8,12 +8,12 @@ ifneq ($(MOLD_TOOL),)
 MOLD_TOOL_EXT = .$(MOLD_TOOL)
 endif
 
-ifneq ($(MOLD_OBJ_DIR),)
-MOLD_OBJ_DIR := $(MOLD_OBJ_DIR)/
+ifneq ($(YEAST.OBJECT.PATH),)
+YEAST.OBJECT.PATH := $(YEAST.OBJECT.PATH)/
 endif
 
-ifneq ($(MOLD_BIN_DIR),)
-MOLD_BIN_DIR := $(MOLD_BIN_DIR)/
+ifneq ($(YEAST.EXECUTABLE.PATH),)
+YEAST.EXECUTABLE.PATH := $(YEAST.EXECUTABLE.PATH)/
 endif
 
 include mold-gcc.mk
