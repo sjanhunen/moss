@@ -16,6 +16,10 @@ ifneq ($(YEAST.EXECUTABLE.PATH),)
 YEAST.EXECUTABLE.PATH := $(YEAST.EXECUTABLE.PATH)/
 endif
 
+ifneq ($(YEAST.STATIC_LIB.PATH),)
+YEAST.STATIC_LIB.PATH := $(YEAST.STATIC_LIB.PATH)/
+endif
+
 include mold-gcc.mk
 include mold-base.mk
 include mold-c.mk

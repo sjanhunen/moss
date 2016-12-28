@@ -1,5 +1,6 @@
 YEAST.OBJECT.PATH = obj
 YEAST.EXECUTABLE.PATH = bin
+YEAST.STATIC_LIB.PATH = lib
 
 YEAST.SPORES += lite
 lite_source = test.c
