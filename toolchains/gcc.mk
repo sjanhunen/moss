@@ -1,5 +1,6 @@
 TOOL.STATIC_LIB.CMD = ar -r $2 $1
 TOOL.STATIC_LIB.SUFFIX = .ar
+TOOL.STATIC_LIB.PREFIX = lib
 
 TOOL.C.COMPILE = gcc -c -o $2 $1
 

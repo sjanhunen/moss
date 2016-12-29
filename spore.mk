@@ -11,20 +11,20 @@ define YEAST_SPORE_RULES
 .PHONY: $1
 .PHONY: $1_clean
 
-$1_spore = .$1$(MOLD_ARCH_EXT)$(MOLD_TOOL_EXT).spore
-$1_clean_files += $$($1_spore)
+$1.name ?= $1
+$1.spore = .$$($1.name)$(MOLD_ARCH_EXT)$(MOLD_TOOL_EXT).spore
 
-$1_object = $$(addsuffix .$(1)$(TOOL.OBJECT.SUFFIX), $$(basename $$($1_source)))
-$1_object := $$(addprefix $(YEAST.OBJECT.PATH), $$($1_object))
-$1_clean_files += $$($1_object)
+$1.object = $$(addsuffix .$(1)$(TOOL.OBJECT.SUFFIX), $$(basename $$($1.source)))
+$1.object := $$(addprefix $(YEAST.OBJECT.PATH), $$($1.object))
 
-$1: $$($1_spore)
+# TODO: .spore files should probably also go into a "products" directory
+$1: $$($1.spore)
 
-$$($1_spore):
+$$($1.spore):
 	touch $$@
 
 $1_clean:
-	rm -f $$($1_clean_files)
+	rm -f $$($1.products) $$($1.object) $$($1.spore)
 
 endef
 

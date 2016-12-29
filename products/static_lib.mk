@@ -10,12 +10,13 @@
 
 define YEAST.STATIC_LIB.RULES
 
-$1.static_lib.product = $(YEAST.STATIC_LIB.PATH)$$($1_archive)$(TOOL.STATIC_LIB.SUFFIX)
-$1_clean_files += $$($1.static_lib.product)
+$1.static_lib.product = \
+	$(YEAST.STATIC_LIB.PATH)$$(TOOL.STATIC_LIB.PREFIX)$$($1.name)$(TOOL.STATIC_LIB.SUFFIX)
+$1.products += $$($1.static_lib.product)
 
-$$($1_spore): $$($1.static_lib.product)
+$$($1.spore): $$($1.static_lib.product)
 
-$$($1.static_lib.product): $$($1_object) | $(YEAST.STATIC_LIB.PATH)
+$$($1.static_lib.product): $$($1.object) | $(YEAST.STATIC_LIB.PATH)
 	$(call TOOL.STATIC_LIB.CMD, $$<, $$@)
 
 endef

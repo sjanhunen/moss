@@ -3,11 +3,9 @@ YEAST.EXECUTABLE.PATH = bin
 YEAST.STATIC_LIB.PATH = lib
 
 YEAST.SPORES += lite
-lite_source = test.c
-lite_archive = liblite
+lite.source = test.c
 
 YEAST.SPORES += heavy
-heavy_source = test.c
-heavy_archive = libheavy
+heavy.source = test.c
 
 include yeast.mk
