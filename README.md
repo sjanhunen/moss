@@ -168,63 +168,66 @@ Global product options may be configured using the syntax
 
 Spore-specific product options are configured using the syntax `<spore>.<product>.<option> = <value>`.
 
-Path Organization
-=================
+Build Tree Structure
+====================
 
-Product Outputs
----------------
+All yeast build object files and products are placed in a yeast build tree
+structure called `yeast.build` by default.
 
-All targets are placed in a target staging area once created. This keeps the
-directory structure organized and enables cleaner integration when multiple
-libraries are involved.
+Build objects and products are placed according to the following guidelines:
 
-Target outputs are staged in the following directories:
+- headers -> `YEAST.HEADER.PATH`
+- static and shared libraries -> `YEAST.LIBRARY.PATH`
+- object files -> `YEAST.OBJECT.PATH`
+- executables -> `YEAST.EXECUTABLE.PATH`
 
-	libraries -> YEAST.SHARED_LIB.PATH (e.g. $PREFIX/lib)
-	libraries -> YEAST.STATIC_LIB.PATH (e.g. $PREFIX/lib)
-	headers -> YEAST.HEADER.PATH (e.g. $PREFIX/include)
-	executables -> YEAST.EXECUTABLE.PATH (e.g. $PREFIX/bin)
+Headers located in `YEAST.HEADER.PATH` are automatically included as part of
+the system include path when building spore products. Libraries located in
+`YEAST.LIB.PATH` are included as part of the library search path when linking
+spore products.
 
-Headers that are staged into `YEAST.HEADER.PATH` are automatically included as part
-of the system include path. Libraries that are staged in `YEAST.LIB.PATH` are
-included as part of the library search path. This means that using libraries
-created with yeast is identical to using libraries installed in the development
-system.
+An example `yeast.build` structure might look something like this:
 
-A file system example for this might be:
+	yeast.build/
+		include/
+			freertos/
+				task.h
+				mutex.h
+				...
+			core/
+				stuff.h
+				...
+			crypto/
+				hash.h
+				...
+		obj/
+			armv5.gcc-release/
+				crypto/
+					src/
+						sha1.crypto.o
+						md5.crypto.o
+				...
+			armv5.gcc-debug/
+				crypto/
+					src/
+						sha1.crypto.o
+						md5.crypto.o
+				...
+		bin/
+			armv5.gcc-release/
+				...
+			armv5.gcc-debug/
+				...
+		lib/
+			armv5.gcc-release/
+				libfreertos.a
+				libcore.a
+				libcrypto.a
+			armv5.gcc-debug/
+				libfreertos.a
+				libcore.a
+				libcrypto.a
 
-	/opt/mylib
-		include
-			freertos
-			core
-			crypto
-		bin
-			armv5.gcc
-			armv5.gcc-debug
-		lib
-			armv5.gcc
-					libfreertos.a
-					libcore.a
-					libcrypto.a
-			armv5.gcc-debug
-					libcore.a
-					libcrypto.a
-
-Object Files
-------------
-
-Object files may be built in place with the source tree or may be built out of
-place in a separate object file directory. If compiled in place, the convention is
-
-	<SOURCE_PATH>/<SOURCE_BASENAME>.<YEAST_SPORE>.<YEAST_ARCH>.<YEAST_TOOL>.<YEAST.OBJ.SUFFIX>
-
-If compiled out of place, the object file naming convention is
-
-	<YEAST.OBJ.PATH>/<SOURCE_PATH>/<SOURCE_BASENAME>.<YEAST_TARGET>.<YEAST_ARCH>.<YEAST_TOOL>.<YEAST.OBJ.SUFFIX>
-
-Object file examples:
-
-	my_file.core_bare.arm-cm3.gcc-debug.o
-	my_file.core_bare.arm-cm3.llvm-debug.o
-	my_file.core_bare.host.gcc.o
-	my_file.core_freertos.cortex-m3.gcc-release.o
+Yeast assumes that header files are shared across all architectures and
+toolchains. Any architecture-specific header files are an internal
+implementation detail of the source code for a spore that defines them.
