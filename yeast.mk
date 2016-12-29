@@ -21,10 +21,10 @@ include toolchains/*.mk
 
 YEAST.BUILD.TREE ?= yeast.build
 
-ifdef YEAST_TOOL
-YEAST.ARCH_TOOL.NAME = $(addprefix $(addsuffix .,$(YEAST_ARCH)),$(YEAST_TOOL))
+ifdef YEAST.TOOL
+YEAST.ARCH_TOOL.NAME = $(addprefix $(addsuffix .,$(YEAST.ARCH)),$(YEAST.TOOL))
 else
-YEAST.ARCH_TOOL.NAME = $(YEAST_ARCH)
+YEAST.ARCH_TOOL.NAME = $(YEAST.ARCH)
 endif
 
 ifneq ($(strip $(YEAST.BUILD.TREE)),)

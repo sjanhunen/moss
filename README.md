@@ -88,7 +88,7 @@ While a toolchain must include all tools required to produce an executable binar
 Generally, debug versus release build variants are handled at the toolchain level due to the significant impact that may be present on generated code.
 
 - `YEAST.TOOLS`: All available toolchains
-- `YEAST_TOOL`: Current toolchain
+- `YEAST.TOOL`: Current toolchain
 
 Architecture
 ------------
@@ -100,7 +100,7 @@ Examples: host, amd64, cortex-m4, cortex-r7, avr, mipsel, etc.
 Code generated for different architectures does not interoperate and cannot be linked together.
 
 - `YEAST.ARCHS`: All available architectures for current toolchain
-- `YEAST_ARCH`: Current architecture for current toolchain
+- `YEAST.ARCH`: Current architecture for current toolchain
 
 Good discussion on architecture naming here: http://clang.llvm.org/docs/CrossCompilation.html
 
@@ -161,9 +161,9 @@ Global product options may be configured using the syntax
 `YEAST.<product>.<option> = <value>`. For example:
 
     YEAST.headers.path = include
-	YEAST.executable.path = bin/$(YEAST_ARCH)
+	YEAST.executable.path = bin/$(YEAST.ARCH)
 	YEAST.executable.suffix = .exe
-	YEAST.shared_lib.path = lib/$(YEAST_ARCH)
+	YEAST.shared_lib.path = lib/$(YEAST.ARCH)
 	YEAST.shared_lib.suffix = .so
 
 Spore-specific product options are configured using the syntax `<spore>.<product>.<option> = <value>`.
