@@ -13,7 +13,11 @@ clean: $(addsuffix _clean, $(YEAST.SPORES))
 # Include toolchain definitions
 #
 
-include toolchains/*.mk
+ifdef YEAST.TOOL
+include toolchains/$(YEAST.TOOL).mk
+else
+include toolchains/default.mk
+endif
 
 #
 # Define build tree structure
@@ -41,7 +45,6 @@ endif
 # Create spore definitions 
 #
 
-include toolchains/*.mk
 define YEAST_SPORE_RULES
 
 .PHONY: $1
