@@ -1,6 +1,3 @@
-TOOL.STATIC_LIB.SUFFIX := $(MOLD_ARCH_EXT)$(MOLD_TOOL_EXT)$(TOOL.STATIC_LIB.SUFFIX)
-TOOL.OBJECT.SUFFIX := $(MOLD_ARCH_EXT)$(MOLD_TOOL_EXT)$(TOOL.OBJECT.SUFFIX)
-
 .PHONY: all clean
 
 all: $(YEAST.SPORES)
@@ -12,12 +9,11 @@ define YEAST_SPORE_RULES
 .PHONY: $1_clean
 
 $1.name ?= $1
-$1.spore = .$$($1.name)$(MOLD_ARCH_EXT)$(MOLD_TOOL_EXT).spore
+$1.spore = $(YEAST.SPORE.PATH).$$($1.name)$(YEAST.SPORE.SUFFIX)
 
 $1.object = $$(addsuffix .$(1)$(TOOL.OBJECT.SUFFIX), $$(basename $$($1.source)))
 $1.object := $$(addprefix $(YEAST.OBJECT.PATH), $$($1.object))
 
-# TODO: .spore files should probably also go into a "products" directory
 $1: $$($1.spore)
 
 $$($1.spore):

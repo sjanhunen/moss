@@ -5,13 +5,14 @@
 # $2 = output
 # TOOL.STATIC_LIB.CMD - command-line invocation of archiver
 #
-# TOOL.STATIC_LIB.SUFFIX - libraries have this suffix appended
+# TOOL.STATIC_LIB.PREFIX - libraries have this prefix prepended to name
+# TOOL.STATIC_LIB.SUFFIX - libraries have this suffix appended to name
 # YEAST.STATIC_LIB.PATH - path for placing completed library products
 
 define YEAST.STATIC_LIB.RULES
 
 $1.static_lib.product = \
-	$(YEAST.STATIC_LIB.PATH)$$(TOOL.STATIC_LIB.PREFIX)$$($1.name)$(TOOL.STATIC_LIB.SUFFIX)
+	$(YEAST.STATIC_LIB.PATH)$(TOOL.STATIC_LIB.PREFIX)$$($1.name)$(TOOL.STATIC_LIB.SUFFIX)
 $1.products += $$($1.static_lib.product)
 
 $$($1.spore): $$($1.static_lib.product)

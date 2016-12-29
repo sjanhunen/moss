@@ -1,25 +1,5 @@
 # Top-level Makefile include for yeast
 
-ifneq ($(MOLD_ARCH),)
-MOLD_ARCH_EXT = .$(MOLD_ARCH)
-endif
-
-ifneq ($(MOLD_TOOL),)
-MOLD_TOOL_EXT = .$(MOLD_TOOL)
-endif
-
-ifneq ($(YEAST.OBJECT.PATH),)
-YEAST.OBJECT.PATH := $(YEAST.OBJECT.PATH)/
-endif
-
-ifneq ($(YEAST.EXECUTABLE.PATH),)
-YEAST.EXECUTABLE.PATH := $(YEAST.EXECUTABLE.PATH)/
-endif
-
-ifneq ($(YEAST.STATIC_LIB.PATH),)
-YEAST.STATIC_LIB.PATH := $(YEAST.STATIC_LIB.PATH)/
-endif
-
 include toolchains/*.mk
 include spore.mk
 include languages/*.mk
