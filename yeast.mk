@@ -1,22 +1,21 @@
 # Makefile for the yeast build system
 
+# TODO: Confirm we are using a sufficient version of GNU make
+
 #
-# Top-level phony targets
+# Determine where yeast is installed
 #
 
-.PHONY: all clean
-
-all: $(YEAST.SPORES)
-clean: $(addsuffix _clean, $(YEAST.SPORES))
+YEAST.HOME := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 #
 # Include toolchain definitions
 #
 
 ifdef YEAST.TOOL
-include toolchains/$(YEAST.TOOL).mk
+include $(YEAST.HOME)/toolchains/$(YEAST.TOOL).mk
 else
-include toolchains/default.mk
+include $(YEAST.HOME)/toolchains/default.mk
 endif
 
 #
@@ -40,6 +39,15 @@ YEAST.SPORE.PATH = $(YEAST.BUILD.TREE)/
 else
 YEAST.SPORE.SUFFIX = .spore
 endif
+
+#
+# Top-level phony targets
+#
+
+.PHONY: all clean
+
+all: $(YEAST.SPORES)
+clean: $(addsuffix _clean, $(YEAST.SPORES))
 
 #
 # Create spore definitions 
@@ -79,10 +87,10 @@ $(YEAST.OBJECT.PATH) $(YEAST.EXECUTABLE.PATH) $(YEAST.STATIC_LIB.PATH):
 # Include source language-specific rules
 #
 
-include languages/*.mk
+include $(YEAST.HOME)/languages/*.mk
 
 #
 # Include build product-specific rules
 #
 
-include products/*.mk
+include $(YEAST.HOME)/products/*.mk

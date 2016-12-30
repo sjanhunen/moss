@@ -1,3 +1,3 @@
 TOOL.C.FLAGS = -O0 -g
 
-include toolchains/gcc.mk
+include $(YEAST.HOME)/toolchains/gcc.mk

@@ -1,1 +1,1 @@
-include toolchains/gcc-debug.mk
+include $(YEAST.HOME)/toolchains/gcc-debug.mk
