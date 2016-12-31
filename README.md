@@ -1,20 +1,16 @@
-# gnumake-molds
-
-TODO: rename repository from gnumake-molds to yeast
-
 Goals
 =====
 
-Yeast streamlines creation of cross-compiled libraries and executables from
-large code bases for a variety of architectures and toolchains using only GNU
-make.
+Yeast provides the essential ingredients for streamlined creation of GNU make
+build systems for large code base that must be compiled for a variety of
+architectures and toolchains.
 
-Yeast is a build system that is intended for use on a code base stored and
-versioned within a single repository. Yeast is not a package manager that
-brings together source code and libraries from multiple repositories across
-multiple versions. Integration of multiple code bases must either be solved at
-a lower level in the repository (e.g. using git submodules) or at a higher
-level using a package management system (e.g. Debian packages).
+Yeast is intended for use on a code base stored and versioned within a single
+repository. Yeast is not a package manager that brings together source code and
+libraries from multiple repositories across multiple versions. Integration of
+multiple code bases must either be solved at a lower level in the repository
+(e.g. using git submodules) or at a higher level using a package management
+system (e.g. Debian packages).
 
 While the final releasable output from a yeast build will likely be a single
 library or executable, there are often many intermediate and secondary targets
@@ -56,16 +52,13 @@ The initial vision is to support core languages in the GCC/LLVM toolchains:
 - C++
 - Objective C
 
-A longer term vision might be to expand this support to include languages such as
-
-- Rust
-- Swift
-- Go
+Longer term, the vision is to expand this support to include languages such as
+Rust and Swift.
 
 Usability
 ---------
 
-- Tab auto-completion works with targets defined by Mold
+- Tab auto-completion works with targets defined by yeast
 - Makes it easier to debug by dumping full commands with options
 - Unit testable for validation and performance testing
 - Work with in-place object files for the smallest projects
