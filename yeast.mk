@@ -6,29 +6,63 @@
 # Determine where yeast is installed
 #
 
-YEAST.HOME := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+YEAST.MAKEFILE := $(abspath $(lastword $(MAKEFILE_LIST)))
+YEAST.HOME := $(dir $(YEAST.MAKEFILE))
 
 #
 # Include toolchain definitions
 #
 
+define Yeast.tool.help
+
+Toolchain Settings
+==================
+
+Toolchain and target architecture settings are configured using the following options.
+
+	YEAST.TOOL=$(YEAST.TOOL)
+	YEAST.ARCH=$(YEAST.ARCH)
+
+endef
+
+# TODO: ARCH should really be a tool-specific setting
+
 ifdef YEAST.TOOL
 include $(YEAST.HOME)/toolchains/$(YEAST.TOOL).mk
+YEAST.ARCH_TOOL.NAME = $(addprefix $(addsuffix .,$(YEAST.ARCH)),$(YEAST.TOOL))
 else
 include $(YEAST.HOME)/toolchains/default.mk
+YEAST.ARCH_TOOL.NAME = $(YEAST.ARCH)
 endif
 
 #
 # Define build tree structure
 #
 
-YEAST.BUILD.TREE ?= yeast.build
+define Yeast.path.help
 
-ifdef YEAST.TOOL
-YEAST.ARCH_TOOL.NAME = $(addprefix $(addsuffix .,$(YEAST.ARCH)),$(YEAST.TOOL))
-else
-YEAST.ARCH_TOOL.NAME = $(YEAST.ARCH)
-endif
+Path Settings
+=============
+
+A number of configuration variables exist for customizing the build paths used
+to store object and product files.
+
+	## Location where yeast is installed
+	YEAST.HOME=$(YEAST.HOME)
+
+	## Root directory of generated build tree
+	YEAST.BUILD.TREE=$(YEAST.BUILD.TREE)
+
+	## Root directory of generated object files
+	YEAST.OBJECT.PATH=$(YEAST.OBJECT.PATH)
+
+	YEAST.EXECUTABLE.PATH=$(YEAST.EXECUTABLE.PATH)
+
+	YEAST.STATIC_LIB.PATH=$(YEAST.STATIC_LIB.PATH)
+
+endef
+
+YEAST.BUILD.TREE ?= yeast.build
 
 ifneq ($(strip $(YEAST.BUILD.TREE)),)
 YEAST.OBJECT.PATH = $(YEAST.BUILD.TREE)/obj/$(YEAST.ARCH_TOOL.NAME)/
@@ -94,3 +128,21 @@ include $(YEAST.HOME)/languages/*.mk
 #
 
 include $(YEAST.HOME)/products/*.mk
+
+#
+# Targets for creating markdown and HTML help output
+#
+
+.PHONY: help Yeast.help
+
+help: Yeast.help.html Yeast.help.markdown
+
+Yeast.help:
+	@echo $(info $(Yeast.tool.help))
+	@echo $(info $(Yeast.path.help))
+
+Yeast.help.markdown: $(MAKEFILE_LIST)
+	make -f $(YEAST.MAKEFILE) Yeast.help > $@
+
+Yeast.help.html: Yeast.help.markdown
+	markdown $< > $@
