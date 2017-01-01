@@ -20,10 +20,6 @@ import os.path
 #	- sources
 #	- objects
 #	- update
-#	- add_target
-#	- add_object
-#	- remove_target
-#	- remove_object
 
 class SourceFile(object):
 
@@ -61,19 +57,23 @@ void function_%s()
 # ObjectFile
 #	- sources
 #	- targets
-#	- add_source
-
 
 # ProductFile
 #	- filename
 #	- sources
-#	- product_name
+#	- attach_spore
+#	- detach_spore
 
 # SporeFile
 #	- sources
 #	- products
 #	- update
+#	- add_source
+#	- add_product
+#	- attach_makefile
+#	- detach_makefile
 
 # Makefile
 #	- spores
 #	- update
+#	- add_spore
