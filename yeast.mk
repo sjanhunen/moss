@@ -133,6 +133,8 @@ include $(YEAST.HOME)/products/*.mk
 # Targets for creating markdown and HTML help output
 #
 
+# TODO: need to decide on best mechanism for NOOP (don't use echo below)
+
 .PHONY: help Yeast.help
 
 help: Yeast.help.html Yeast.help.markdown
@@ -146,3 +148,21 @@ Yeast.help.markdown: $(MAKEFILE_LIST)
 
 Yeast.help.html: Yeast.help.markdown
 	markdown $< > $@
+
+
+#
+# Targets for creating settings variable dumps
+#
+
+.PHONY: Yeast.settings
+
+define Yeast.settings.dump
+	$(info $1=$($1))
+
+endef
+
+Yeast.settings.path = $(filter YEAST.%.PATH,$(.VARIABLES))
+
+Yeast.settings:
+	@echo
+	$(foreach v, $(Yeast.settings.path), $(call Yeast.settings.dump,$v))
