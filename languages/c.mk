@@ -14,7 +14,7 @@
 
 define YEAST.C.RULES
 
-$(YEAST.OBJECT.PATH)%.$(1)$(TOOL.OBJECT.SUFFIX): %.c | $(YEAST.OBJECT.PATH)
+$(YEAST.OBJECT.PATH)%.$(1)$(TOOL.OBJECT.SUFFIX): %.c | $$($1.path.object)
 	$(call TOOL.C.COMPILE, $$<, $$@)
 
 endef

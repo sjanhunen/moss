@@ -98,7 +98,12 @@ $1.spore = $(YEAST.SPORE.PATH).$$($1.name)$(YEAST.SPORE.SUFFIX)
 $1.object = $$(addsuffix .$(1)$(TOOL.OBJECT.SUFFIX), $$(basename $$($1.source)))
 $1.object := $$(addprefix $(YEAST.OBJECT.PATH), $$($1.object))
 
+$1.path.object = $$(sort $$(dir $$($1.object)))
+
 $1: $$($1.spore)
+
+$$($1.path.object):
+	mkdir -p $$@
 
 $$($1.spore):
 	touch $$@
