@@ -8,31 +8,13 @@ import os.path
 #	- Yeast.path.object
 #	- Yeast.path.executable
 
-# File
-#	- name
-#	- exists
-#	- newer
-#	- touch
-#	- delete
+class BaseFile(object):
 
-# SourceFile
-#	- targets
-#	- sources
-#	- objects
-#	- update
-
-class SourceFile(object):
-
-	C_FILE_TEMPLATE = """
-void function_%s()
-{
-}
-"""
 	def __init__(self, name):
 		self.name = name
 
-	def filename(self):
-		pass
+	def name(self):
+		return self.name
 
 	def symbol(self):
 		pass
@@ -40,40 +22,51 @@ void function_%s()
 	def touch(self):
 		pass
 
-	def create(self):
+	def exists(self):
+		pass
+
+	def create(self, content):
 		directory = os.path.dirname(self.name)
 		if not os.path.isdir(directory):
 			os.makedirs(directory)
 
-		fn_name = os.path.basename(os.path.splitext(self.name)[0])
-
 		fout = open(self.name, "wb")
-		fout.write(self.C_FILE_TEMPLATE % fn_name)
+		fout.write(bytes(content, 'UTF-8'))
 		fout.close()
 
+	def delete(self):
+		pass
 
-# CSourceFile, HSourceFile, CppSourceFile, AsmSourceFile, etc.
+# SourceFile(BaseFile)
+#	- object_files
+#	- products
+
+class CSourceFile(BaseFile):
+
+	C_FILE_TEMPLATE = """
+void function_%s()
+{
+}
+"""
+
+	def create(self):
+		fn_name = os.path.basename(os.path.splitext(self.name)[0])
+		super(CSourceFile, self).create(self.C_FILE_TEMPLATE % fn_name)
+
+# HSourceFile, CppSourceFile, AsmSourceFile, etc.
 
 # ObjectFile
-#	- sources
-#	- targets
+#	- source
+#	- products
 
 # ProductFile
-#	- filename
-#	- sources
-#	- attach_spore
-#	- detach_spore
+#	- source_files
+#	- object_files
+#	- spore
 
 # SporeFile
-#	- sources
 #	- products
-#	- update
-#	- add_source
-#	- add_product
-#	- attach_makefile
-#	- detach_makefile
+#	- makefile
 
 # Makefile
 #	- spores
-#	- update
-#	- add_spore
