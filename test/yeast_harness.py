@@ -2,17 +2,30 @@ import os
 import os.path
 from abc import ABCMeta
 import io
+import collections
+import random
+import string
 
 # Class design sketches for yest test harness
 
 # Settings (ideally, generate this automatically from make Yeast.settings)
-#	- Yeast.path.home
-#	- Yeast.path.object
-#	- Yeast.path.executable
+#   - Yeast.path.home
+#   - Yeast.path.object
+#   - Yeast.path.executable
 
 
 class BaseFile(object):
     def __init__(self, name):
+        self._name = name
+
+    def __init__(self, path=None, prefix='', name=None, suffix=''):
+        if name is None:
+            name = ''.join(
+                random.choice(string.ascii_lowercase) for _ in range(8))
+        name = prefix + name + suffix
+        if path is not None:
+            name = path + '/' + name
+
         self._name = name
 
     @property
@@ -39,8 +52,10 @@ class BaseFile(object):
 
 
 # SourceFile(BaseFile)
-#	- object_files
-#	- products
+#   - object_files
+#   - products
+
+# Create SourceFile
 
 
 class CSourceFile(BaseFile):
@@ -50,35 +65,40 @@ void function_%s()
 {
 }
 """
+
+    def __init__(self, path=None, name=None):
+        super(CSourceFile, self).__init__(path, '', name, '.c')
+
     def create(self):
         fn_name = os.path.basename(os.path.splitext(self.name)[0])
         super(CSourceFile, self).create(self.C_FILE_TEMPLATE % fn_name)
 
 
-# HSourceFile, CppSourceFile, AsmSourceFile, etc.
+# Create HSourceFile, CppSourceFile, AsmSourceFile, etc.
 
-# ObjectFile
-#	- source
-#	- products
+# Create ObjectFile than can be derived from SourceFile
 
 
 class ProductFile(BaseFile):
-    def __init__(self, name):
-        super(ProductFile, self).__init__(name)
+    pass
 
 
 # Create StaticLibProductFile, ExecutableProductFile, etc.
 
 
 class SporeFile(BaseFile):
-    def __init__(self, name, source_files, products):
-        super(SporeFile, self).__init__(name)
+    def __init__(self, sources, products, path=None, name=None):
+        super(SporeFile, self).__init__(path, '', name, '.spore')
+        if not isinstance(sources, collections.Iterable):
+            sources = [sources, ]
+        if not isinstance(products, collections.Iterable):
+            products = [products, ]
         self._products = products
-        self._source_files = source_files
+        self._sources = sources
 
     @property
-    def source_files(self):
-        return self._source_files
+    def sources(self):
+        return self._sources
 
     @property
     def products(self):
@@ -90,19 +110,21 @@ class SporeFile(BaseFile):
         out = io.StringIO()
         out.write('YEAST.SPORES += %s\n' % spore_name)
         out.write('%s.source =' % spore_name)
-        for s in self.source_files:
+        for s in self.sources:
             out.write(' \\\n    %s' % s.name)
 
         super(SporeFile, self).create(out.getvalue())
 
-    def create_source(self):
-        for source in self.source_files:
+    def create_sources(self):
+        for source in self.sources:
             source.create()
 
 
 class Makefile(BaseFile):
-    def __init__(self, name, spores):
-        super(Makefile, self).__init__(name)
+    def __init__(self, spores, path=None, name=None):
+        super(Makefile, self).__init__(path, '', name)
+        if not isinstance(spores, collections.Iterable):
+            spores = [spores, ]
         self._spores = spores
 
     @property
@@ -120,3 +142,7 @@ class Makefile(BaseFile):
     def create_spores(self):
         for spore in self.spores:
             spore.create()
+
+    def create_sources(self):
+        for spore in self.spores:
+            spore.create_sources()

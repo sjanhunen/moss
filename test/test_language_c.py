@@ -1,15 +1,17 @@
 import unittest
-import yeast_harness
+from yeast_harness import *
 
 
 class TestLanguageC(unittest.TestCase):
     def testSingleCSourceFile(self):
 
-        src_file = yeast_harness.CSourceFile('tree/src/a.c')
-        product_file = yeast_harness.ProductFile('tree/mylib.a')
-        spore_file = yeast_harness.SporeFile('tree/mylib.spore', [src_file, ],
-                                             [product_file, ])
-        mk = yeast_harness.Makefile('Makefile', [spore_file, ])
+        mk = Makefile(
+            spores=SporeFile(
+                sources=CSourceFile('tree'),
+                products=ProductFile('tree'),
+                path='tree'),
+            name='Makefile')
+
         mk.create()
         mk.create_spores()
-        spore_file.create_source()
+        mk.create_sources()
