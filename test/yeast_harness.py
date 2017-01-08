@@ -5,6 +5,7 @@ import io
 import collections
 import random
 import string
+import subprocess
 
 # Class design sketches for yest test harness
 
@@ -146,3 +147,10 @@ class Makefile(BaseFile):
     def create_sources(self):
         for spore in self.spores:
             spore.create_sources()
+
+    def make(self, arguments=None):
+        cmd = ['make', '-f', self.name]
+        if arguments is not None:
+            cmd.append(arguments)
+
+        return subprocess.call(cmd)

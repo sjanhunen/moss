@@ -15,3 +15,5 @@ class TestLanguageC(unittest.TestCase):
         mk.create()
         mk.create_spores()
         mk.create_sources()
+        self.assertEqual(mk.make(), 0)
+        self.assertEqual(mk.make('-q'), 0)
