@@ -15,10 +15,7 @@ import subprocess
 #   - Yeast.path.executable
 
 
-class BaseFile(object):
-    def __init__(self, name):
-        self._name = name
-
+class AbstractFile(metaclass=ABCMeta):
     def __init__(self, path=None, prefix='', name=None, suffix=''):
         if name is None:
             name = ''.join(
@@ -52,14 +49,14 @@ class BaseFile(object):
         pass
 
 
-# SourceFile(BaseFile)
+# SourceFile(AbstractFile)
 #   - object_files
 #   - products
 
 # Create SourceFile
 
 
-class CSourceFile(BaseFile):
+class CSourceFile(AbstractFile):
 
     C_FILE_TEMPLATE = """
 void function_%s()
@@ -80,14 +77,14 @@ void function_%s()
 # Create ObjectFile than can be derived from SourceFile
 
 
-class ProductFile(BaseFile):
+class ProductFile(AbstractFile):
     pass
 
 
 # Create StaticLibProductFile, ExecutableProductFile, etc.
 
 
-class SporeFile(BaseFile):
+class SporeFile(AbstractFile):
     def __init__(self, sources, products, path=None, name=None):
         super(SporeFile, self).__init__(path, '', name, '.spore')
         if not isinstance(sources, collections.Iterable):
@@ -121,7 +118,7 @@ class SporeFile(BaseFile):
             source.create()
 
 
-class Makefile(BaseFile):
+class Makefile(AbstractFile):
     def __init__(self, spores, path=None, name=None):
         super(Makefile, self).__init__(path, '', name)
         if not isinstance(spores, collections.Iterable):
