@@ -7,12 +7,37 @@ import random
 import string
 import subprocess
 
-# Class design sketches for yest test harness
 
-# Settings (ideally, generate this automatically from make Yeast.settings)
-#   - Yeast.path.home
-#   - Yeast.path.object
-#   - Yeast.path.executable
+class SourceTree(object):
+    def __init__(self, path, makefile):
+        pass
+
+    def create(self):
+        pass
+
+    def delete(self):
+        pass
+
+    # Consider using __enter__ and __exit__ to manage tree
+
+
+class Build(object):
+    def __init__(self, path, makefile):
+        pass
+
+    def make(self, targets):
+        pass
+
+    def clean(self, targets):
+        pass
+
+    def settings(self):
+        pass
+
+    def delete(self):
+        pass
+
+    # Consider using __enter__ and __exit__ to manage tree
 
 
 class AbstractFile(metaclass=ABCMeta):
@@ -36,6 +61,16 @@ class AbstractFile(metaclass=ABCMeta):
     def exists(self):
         pass
 
+    def delete(self):
+        pass
+
+
+class SourceFile(AbstractFile):
+    def __init__(self, path=None, prefix='', name=None, suffix=''):
+
+        super(SourceFile, self).__init__(path, prefix, name, suffix)
+        self._sources = list()
+
     def create(self, content):
         directory = os.path.dirname(self.name)
         if directory != '' and not os.path.isdir(directory):
@@ -45,18 +80,19 @@ class AbstractFile(metaclass=ABCMeta):
         fout.write(bytes(content, 'UTF-8'))
         fout.close()
 
-    def delete(self):
-        pass
+    @property
+    def object(self):
+        return None
+
+    @property
+    def sources(self):
+        return self._sources
 
 
-# SourceFile(AbstractFile)
-#   - object_files
-#   - products
-
-# Create SourceFile
+# Create HSourceFile, CppSourceFile, AsmSourceFile, etc.
 
 
-class CSourceFile(AbstractFile):
+class CSourceFile(SourceFile):
 
     C_FILE_TEMPLATE = """
 void function_%s()
@@ -72,19 +108,30 @@ void function_%s()
         super(CSourceFile, self).create(self.C_FILE_TEMPLATE % fn_name)
 
 
-# Create HSourceFile, CppSourceFile, AsmSourceFile, etc.
+class ObjectFile(AbstractFile):
+    def __init__(self, build, source):
+        pass
 
-# Create ObjectFile than can be derived from SourceFile
+    @property
+    def source(self):
+        pass
 
 
 class ProductFile(AbstractFile):
-    pass
+    def __init__(self, build, spore):
+        pass
+
+    @property
+    def spore(self):
+        pass
 
 
-# Create StaticLibProductFile, ExecutableProductFile, etc.
+class StaticLibProductFile(ProductFile):
+    def __init__(self, build, spore):
+        pass
 
 
-class SporeFile(AbstractFile):
+class SporeFile(SourceFile):
     def __init__(self, sources, products, path=None, name=None):
         super(SporeFile, self).__init__(path, '', name, '.spore')
         if not isinstance(sources, collections.Iterable):
@@ -113,12 +160,14 @@ class SporeFile(AbstractFile):
 
         super(SporeFile, self).create(out.getvalue())
 
+# TODO: move bulk creation to SourceTree
+
     def create_sources(self):
         for source in self.sources:
             source.create()
 
 
-class Makefile(AbstractFile):
+class Makefile(SourceFile):
     def __init__(self, spores, path=None, name=None):
         super(Makefile, self).__init__(path, '', name)
         if not isinstance(spores, collections.Iterable):
@@ -136,6 +185,8 @@ class Makefile(AbstractFile):
         out.write("include ../yeast.mk")
 
         super(Makefile, self).create(out.getvalue())
+
+    # TODO: move bulk creation to SourceTree
 
     def create_spores(self):
         for spore in self.spores:

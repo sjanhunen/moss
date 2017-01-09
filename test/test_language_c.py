@@ -8,7 +8,7 @@ class TestLanguageC(unittest.TestCase):
         mk = Makefile(
             spores=SporeFile(
                 sources=CSourceFile('tree'),
-                products=ProductFile('tree'),
+                products='static_lib',
                 path='tree'),
             name='Makefile')
 
