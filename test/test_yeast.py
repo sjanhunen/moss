@@ -2,8 +2,8 @@ import unittest
 from yeast_harness import *
 
 
-class TestLanguageC(unittest.TestCase):
-    def testSingleCSourceFile(self):
+class TestYeast(unittest.TestCase):
+    def test_single_c_source(self):
 
         mk = Makefile(
             spores=SporeFile(
