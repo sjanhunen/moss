@@ -17,3 +17,19 @@ class TestYeast(unittest.TestCase):
         mk.create_sources()
         self.assertEqual(mk.make(), 0)
         self.assertEqual(mk.make('-q'), 0)
+
+    def test_large_source_tree(self):
+
+        make_sources = lambda: [CSourceFile('tree') for _ in range(10)]
+        make_spore = lambda: SporeFile(
+                sources=make_sources(),
+                products='static_lib',
+                path='tree')
+
+        mk = Makefile(
+                spores=[make_spore() for _ in range(10)],
+                name='Makefile')
+
+        mk.create()
+        mk.create_spores()
+        mk.create_sources()
