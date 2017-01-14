@@ -100,10 +100,9 @@ $1.object := $$(addprefix $(YEAST.OBJECT.PATH), $$($1.object))
 
 $1.path.object = $$(sort $$(dir $$($1.object)))
 
-$1: $$($1.spore)
+YEAST.OBJECT.DIRS += $($$($1.path.object))
 
-$$($1.path.object):
-	mkdir -p $$@
+$1: $$($1.spore)
 
 $$($1.spore):
 	touch $$@
@@ -121,6 +120,10 @@ $(foreach t, $(YEAST.SPORES), $(eval $(call YEAST_SPORE_RULES,$t)))
 
 $(YEAST.OBJECT.PATH) $(YEAST.EXECUTABLE.PATH) $(YEAST.STATIC_LIB.PATH):
 	mkdir -p $@
+
+
+$(sort $(YEAST.OBJECT.DIRS)):
+	mkdir -p $$@
 
 #
 # Include source language-specific rules
