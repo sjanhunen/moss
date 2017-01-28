@@ -12,11 +12,10 @@ class TestYeast(unittest.TestCase):
                 path='tree'),
             name='Makefile')
 
-        mk.create()
-        mk.create_spores()
-        mk.create_sources()
-        self.assertEqual(mk.make(), 0)
-        self.assertEqual(mk.make('-q'), 0)
+        with SourceTree('tree', mk) as src:
+
+            self.assertEqual(mk.make(), 0)
+            self.assertEqual(mk.make('-q'), 0)
 
     def test_large_source_tree(self):
 
@@ -30,6 +29,5 @@ class TestYeast(unittest.TestCase):
                 spores=[make_spore() for _ in range(10)],
                 name='Makefile')
 
-        mk.create()
-        mk.create_spores()
-        mk.create_sources()
+        with SourceTree('tree', mk) as src:
+            pass

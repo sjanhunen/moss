@@ -1,5 +1,6 @@
 import os
 import os.path
+import shutil
 from abc import ABCMeta
 import io
 import collections
@@ -9,16 +10,48 @@ import subprocess
 
 
 class SourceTree(object):
-    def __init__(self, path, makefile):
-        pass
+    def __init__(self, root, makefile):
+        self._root = root
+        self._makefile = makefile
 
     def create(self):
-        pass
+        os.makedirs(self.root)
+        self._makefile.create()
+        for spore in self._makefile.spores:
+            spore.create()
+            for source in spore.sources:
+                source.create()
 
     def delete(self):
+        shutil.rmtree(self._root)
+
+    @property
+    def root(self):
+        return self._root
+
+    @property
+    def source_path(self):
         pass
 
-    # Consider using __enter__ and __exit__ to manage tree
+    @property
+    def header_path(self):
+        pass
+
+    @property
+    def include_path(self):
+        pass
+
+    @property
+    def makefile_path(self):
+        pass
+
+    def __enter__(self):
+        print("Creating tree")
+        self.create()
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        print("Deleting tree")
+        self.delete()
 
 
 class Build(object):
@@ -66,6 +99,7 @@ class AbstractFile(metaclass=ABCMeta):
 
 
 class SourceFile(AbstractFile):
+    # A give souce file must be created as part of a SourceTree
     def __init__(self, path=None, prefix='', name=None, suffix=''):
 
         super(SourceFile, self).__init__(path, prefix, name, suffix)
@@ -160,12 +194,6 @@ class SporeFile(SourceFile):
 
         super(SporeFile, self).create(out.getvalue())
 
-# TODO: move bulk creation to SourceTree
-
-    def create_sources(self):
-        for source in self.sources:
-            source.create()
-
 
 class Makefile(SourceFile):
     def __init__(self, spores, path=None, name=None):
@@ -186,15 +214,6 @@ class Makefile(SourceFile):
 
         super(Makefile, self).create(out.getvalue())
 
-    # TODO: move bulk creation to SourceTree
-
-    def create_spores(self):
-        for spore in self.spores:
-            spore.create()
-
-    def create_sources(self):
-        for spore in self.spores:
-            spore.create_sources()
 
     def make(self, arguments=None):
         cmd = ['make', '-f', self.name]
