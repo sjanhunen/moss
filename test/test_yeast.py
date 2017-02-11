@@ -7,15 +7,14 @@ class TestYeast(unittest.TestCase):
 
         mk = Makefile(
             spores=SporeFile(
-                sources=CSourceFile('tree'),
-                products='static_lib',
-                path='tree'),
+                sources=CSourceFile(),
+                products='static_lib'),
             name='Makefile')
 
         with SourceTree('tree', mk) as src:
-
-            self.assertEqual(mk.make(), 0)
-            self.assertEqual(mk.make('-q'), 0)
+            build = Build(src)
+            self.assertEqual(build.make(), 0)
+            self.assertEqual(build.make('-q'), 0)
 
     def test_large_source_tree(self):
 

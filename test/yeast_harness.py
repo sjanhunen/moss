@@ -8,69 +8,67 @@ import random
 import string
 import subprocess
 
+class WorkingDirectory(object):
+
+    def __init__(self, path):
+        self._working_path = path
+
+    def __enter__(self):
+        # Capture current directory
+        self._previous_path = os.getcwd()
+        os.chdir(self._working_path)
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        # Restore previous working directory
+        os.chdir(self._previous_path)
+
 
 class SourceTree(object):
     def __init__(self, root, makefile):
         self._root = root
         self._makefile = makefile
 
-    def create(self):
-        os.makedirs(self.root)
-        self._makefile.create()
-        for spore in self._makefile.spores:
-            spore.create()
-            for source in spore.sources:
-                source.create()
-
-    def delete(self):
-        shutil.rmtree(self._root)
-
     @property
     def root(self):
         return self._root
 
     @property
-    def source_path(self):
-        pass
+    def makefile(self):
+        return self._makefile
 
-    @property
-    def header_path(self):
-        pass
+    def create(self):
+        os.makedirs(self.root)
+        with WorkingDirectory(self.root):
+            self._makefile.create()
+            for spore in self._makefile.spores:
+                spore.create()
+                for source in spore.sources:
+                    source.create()
 
-    @property
-    def include_path(self):
-        pass
-
-    @property
-    def makefile_path(self):
-        pass
+    def delete(self):
+        shutil.rmtree(self._root)
 
     def __enter__(self):
-        print("Creating tree")
         self.create()
+        return self
 
     def __exit__(self, exception_type, exception_value, traceback):
-        print("Deleting tree")
         self.delete()
 
 
 class Build(object):
-    def __init__(self, path, makefile):
-        pass
+    def __init__(self, source_tree):
+        self._source_tree = source_tree
 
-    def make(self, targets):
-        pass
+    def make(self, targets=None):
+        with WorkingDirectory(self._source_tree.root):
+            cmd = ['make', '-f', self._source_tree.makefile.name]
+            if targets is not None:
+                cmd.append(targets)
+            return subprocess.call(cmd)
 
     def clean(self, targets):
         pass
-
-    def settings(self):
-        pass
-
-    def delete(self):
-        pass
-
-    # Consider using __enter__ and __exit__ to manage tree
 
 
 class AbstractFile(metaclass=ABCMeta):
@@ -83,6 +81,9 @@ class AbstractFile(metaclass=ABCMeta):
             name = path + '/' + name
 
         self._name = name
+        self._path = path
+
+    # TODO: create multiple helpers for path, prefix, basename, suffix, fullname
 
     @property
     def name(self):
@@ -99,8 +100,7 @@ class AbstractFile(metaclass=ABCMeta):
 
 
 class SourceFile(AbstractFile):
-    # A give souce file must be created as part of a SourceTree
-    def __init__(self, path=None, prefix='', name=None, suffix=''):
+    def __init__(self, path='', prefix='', name=None, suffix=''):
 
         super(SourceFile, self).__init__(path, prefix, name, suffix)
         self._sources = list()
@@ -210,14 +210,9 @@ class Makefile(SourceFile):
         out = io.StringIO()
         for s in self.spores:
             out.write('include %s\n' % s.name)
-        out.write("include ../yeast.mk")
+
+        # TODO: need to specify path to Yeast in constructor
+        out.write("include ../../yeast.mk")
 
         super(Makefile, self).create(out.getvalue())
 
-
-    def make(self, arguments=None):
-        cmd = ['make', '-f', self.name]
-        if arguments is not None:
-            cmd.append(arguments)
-
-        return subprocess.call(cmd)
