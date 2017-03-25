@@ -72,22 +72,20 @@ class Build(object):
 
 
 class AbstractFile(metaclass=ABCMeta):
-    def __init__(self, path=None, prefix='', name=None, suffix=''):
-        if name is None:
-            name = ''.join(
-                random.choice(string.ascii_lowercase) for _ in range(8))
-        name = prefix + name + suffix
-        if path is not None:
-            name = path + '/' + name
-
+    def __init__(self, name):
         self._name = name
-        self._path = path
 
-    # TODO: create multiple helpers for path, prefix, basename, suffix, fullname
+    # TODO: create helpers for basename, suffix
 
     @property
     def name(self):
         return self._name
+
+    @property
+    def path(self):
+        (not_ext, ) = os.path.splitext(self._name)
+        (not_basename, ) = os.path.split(not_ext)
+        return not_basename
 
     def touch(self):
         pass
@@ -100,9 +98,9 @@ class AbstractFile(metaclass=ABCMeta):
 
 
 class SourceFile(AbstractFile):
-    def __init__(self, path='', prefix='', name=None, suffix=''):
+    def __init__(self, name):
 
-        super(SourceFile, self).__init__(path, prefix, name, suffix)
+        super(SourceFile, self).__init__(name)
         self._sources = list()
 
     def create(self, content):
@@ -134,8 +132,8 @@ void function_%s()
 }
 """
 
-    def __init__(self, path=None, name=None):
-        super(CSourceFile, self).__init__(path, '', name, '.c')
+    def __init__(self, name):
+        super(CSourceFile, self).__init__(name)
 
     def create(self):
         fn_name = os.path.basename(os.path.splitext(self.name)[0])
@@ -166,8 +164,8 @@ class StaticLibProductFile(ProductFile):
 
 
 class SporeFile(SourceFile):
-    def __init__(self, sources, products, path=None, name=None):
-        super(SporeFile, self).__init__(path, '', name, '.spore')
+    def __init__(self, sources, products, name):
+        super(SporeFile, self).__init__(name)
         if not isinstance(sources, collections.Iterable):
             sources = [sources, ]
         if not isinstance(products, collections.Iterable):
@@ -196,8 +194,8 @@ class SporeFile(SourceFile):
 
 
 class Makefile(SourceFile):
-    def __init__(self, spores, path=None, name=None):
-        super(Makefile, self).__init__(path, '', name)
+    def __init__(self, spores, name):
+        super(Makefile, self).__init__(name)
         if not isinstance(spores, collections.Iterable):
             spores = [spores, ]
         self._spores = spores

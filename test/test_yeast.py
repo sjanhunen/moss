@@ -9,6 +9,7 @@ class TestYeast(unittest.TestCase):
         # New proposal for source files:
         # 	SourceFile(name, contents, dependencies)
         # Language-specific SourceFile subclasses create dependencies automatically
+        # Enables automatic identification and testing of file dependencies
         #
         # h1 = CHeaderFile('lib1/inc/header.h')
         # c1 = CSourceFile('lib1/src/file1.c', includes=h1, checks='defined(BOB)')
@@ -37,8 +38,9 @@ class TestYeast(unittest.TestCase):
 
         mk = Makefile(
             spores=SporeFile(
-                sources=CSourceFile(),
-                products='static_lib'),
+                sources=CSourceFile('libfun.c'),
+                products='static_lib',
+                name='lib.spore'),
             name='Makefile')
 
         with SourceTree('tree', mk) as src:
@@ -48,11 +50,14 @@ class TestYeast(unittest.TestCase):
 
     def test_large_source_tree(self):
 
-        make_sources = lambda: [CSourceFile('tree') for _ in range(10)]
+        make_filename = lambda ext: ''.join(
+                random.choice(string.ascii_lowercase) for _ in range(8)) + ext
+
+        make_sources = lambda: [CSourceFile(make_filename('.c')) for _ in range(10)]
         make_spore = lambda: SporeFile(
                 sources=make_sources(),
                 products='static_lib',
-                path='tree')
+                name=make_filename('.spore'))
 
         mk = Makefile(
                 spores=[make_spore() for _ in range(10)],
