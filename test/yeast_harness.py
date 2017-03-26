@@ -24,9 +24,10 @@ class WorkingDirectory(object):
 
 
 class SourceTree(object):
-    def __init__(self, root, makefile):
+    def __init__(self, root, makefile, preserve=False):
         self._root = root
         self._makefile = makefile
+        self._preserve = preserve
 
     @property
     def root(self):
@@ -53,7 +54,8 @@ class SourceTree(object):
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
-        self.delete()
+        if not self._preserve:
+            self.delete()
 
 
 class Build(object):
