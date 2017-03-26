@@ -8,8 +8,8 @@ import random
 import string
 import subprocess
 
-class WorkingDirectory(object):
 
+class WorkingDirectory(object):
     def __init__(self, path):
         self._working_path = path
 
@@ -169,9 +169,13 @@ class SporeFile(SourceFile):
     def __init__(self, sources, products, name):
         super(SporeFile, self).__init__(name)
         if not isinstance(sources, collections.Iterable):
-            sources = [sources, ]
+            sources = [
+                sources,
+            ]
         if not isinstance(products, collections.Iterable):
-            products = [products, ]
+            products = [
+                products,
+            ]
         self._products = products
         self._sources = sources
 
@@ -199,7 +203,9 @@ class Makefile(SourceFile):
     def __init__(self, spores, name):
         super(Makefile, self).__init__(name)
         if not isinstance(spores, collections.Iterable):
-            spores = [spores, ]
+            spores = [
+                spores,
+            ]
         self._spores = spores
 
     @property
@@ -215,4 +221,3 @@ class Makefile(SourceFile):
         out.write("include ../../yeast.mk")
 
         super(Makefile, self).create(out.getvalue())
-

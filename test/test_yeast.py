@@ -3,7 +3,6 @@ from yeast_harness import *
 
 
 class TestYeast(unittest.TestCase):
-
     def test_c_source_compile(self):
 
         # New proposal for source files:
@@ -21,6 +20,7 @@ class TestYeast(unittest.TestCase):
         #
         # with SourceTree('my_source') as st:
         # 	# create can be used to create any node in the tree
+        #   # (defaults to recursive for all dependencies)
         # 	st.create(mk)
         #
         # 	build1 = Build(st, mk, arch='host', tool='gcc')
@@ -61,8 +61,7 @@ class TestYeast(unittest.TestCase):
                 name=make_filename('.spore'))
 
         mk = Makefile(
-                spores=[make_spore() for _ in range(10)],
-                name='Makefile')
+            spores=[make_spore() for _ in range(10)], name='Makefile')
 
         with SourceTree('tree', mk) as src:
             pass
