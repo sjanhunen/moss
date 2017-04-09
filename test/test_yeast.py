@@ -41,8 +41,9 @@ class TestYeast(unittest.TestCase):
                 name='lib.spore'),
             name='Makefile')
 
-        with SourceTree('tree', mk) as src:
-            build = Build(src)
+        with SourceTree('tree') as src:
+            src.create(mk)
+            build = Build(src, mk)
             self.assertEqual(build.make(), 0)
             self.assertEqual(build.make('-q'), 0)
 
@@ -61,5 +62,6 @@ class TestYeast(unittest.TestCase):
         mk = Makefile(
             spores=[make_spore() for _ in range(10)], name='Makefile')
 
-        with SourceTree('tree', mk) as src:
+        with SourceTree('tree') as src:
+            src.create(mk)
             pass

@@ -24,33 +24,28 @@ class WorkingDirectory(object):
 
 
 class SourceTree(object):
-    def __init__(self, root, makefile, preserve=False):
+    def __init__(self, root, preserve=False):
         self._root = root
-        self._makefile = makefile
         self._preserve = preserve
 
     @property
     def root(self):
         return self._root
 
-    @property
-    def makefile(self):
-        return self._makefile
-
-    def create(self):
+    def create(self, source_file):
         os.makedirs(self.root)
         with WorkingDirectory(self.root):
-            self._makefile.create()
-            for spore in self._makefile.spores:
-                spore.create()
-                for source in spore.sources:
-                    source.create()
+            def create_file(source_file):
+                for d in source_file.dependencies:
+                    create_file(d)
+                source_file.create()
+
+            create_file(source_file)
 
     def delete(self):
         shutil.rmtree(self._root)
 
     def __enter__(self):
-        self.create()
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
@@ -59,12 +54,13 @@ class SourceTree(object):
 
 
 class Build(object):
-    def __init__(self, source_tree):
+    def __init__(self, source_tree, makefile):
         self._source_tree = source_tree
+        self._makefile = makefile
 
     def make(self, targets=None):
         with WorkingDirectory(self._source_tree.root):
-            cmd = ['make', '-f', self._source_tree.makefile.name]
+            cmd = ['make', '-f', self._makefile.name]
             if targets is not None:
                 cmd.append(targets)
             return subprocess.call(cmd)
