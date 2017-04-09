@@ -5,8 +5,6 @@ from yeast_harness import *
 class TestYeast(unittest.TestCase):
     def test_c_source_compile(self):
 
-        # New proposal for source files:
-        # 	SourceFile(name, contents, dependencies)
         # Language-specific SourceFile subclasses create dependencies automatically
         # Enables automatic identification and testing of file dependencies
         #

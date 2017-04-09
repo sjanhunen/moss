@@ -100,27 +100,23 @@ class AbstractFile(metaclass=ABCMeta):
 
 
 class SourceFile(AbstractFile):
-    def __init__(self, name):
-
+    def __init__(self, name, content="", dependencies=[]):
         super(SourceFile, self).__init__(name)
-        self._sources = list()
+        self._content = content
+        self._dependencies = dependencies
 
-    def create(self, content):
+    def create(self):
         directory = os.path.dirname(self.name)
         if directory != '' and not os.path.isdir(directory):
             os.makedirs(directory)
 
         fout = open(self.name, "wb")
-        fout.write(bytes(content, 'UTF-8'))
+        fout.write(bytes(self._content, 'UTF-8'))
         fout.close()
 
     @property
-    def object(self):
-        return None
-
-    @property
-    def sources(self):
-        return self._sources
+    def dependencies(self):
+        return self._dependencies
 
 
 # Create HSourceFile, CppSourceFile, AsmSourceFile, etc.
@@ -133,14 +129,9 @@ void function_%s()
 {
 }
 """
-
     def __init__(self, name):
-        super(CSourceFile, self).__init__(name)
-
-    def create(self):
-        fn_name = os.path.basename(os.path.splitext(self.name)[0])
-        super(CSourceFile, self).create(self.C_FILE_TEMPLATE % fn_name)
-
+        fn_name = os.path.basename(os.path.splitext(name)[0])
+        super(CSourceFile, self).__init__(name, self.C_FILE_TEMPLATE % fn_name)
 
 class ObjectFile(AbstractFile):
     def __init__(self, build, source):
@@ -167,7 +158,6 @@ class StaticLibProductFile(ProductFile):
 
 class SporeFile(SourceFile):
     def __init__(self, sources, products, name):
-        super(SporeFile, self).__init__(name)
         if not isinstance(sources, collections.Iterable):
             sources = [
                 sources,
@@ -176,6 +166,16 @@ class SporeFile(SourceFile):
             products = [
                 products,
             ]
+
+        spore_name = os.path.basename(os.path.splitext(name)[0])
+        out = io.StringIO()
+        out.write('YEAST.SPORES += %s\n' % spore_name)
+        out.write('%s.source =' % spore_name)
+        for s in sources:
+            out.write(' \\\n    %s' % s.name)
+
+
+        super(SporeFile, self).__init__(name, out.getvalue(), sources)
         self._products = products
         self._sources = sources
 
@@ -187,37 +187,23 @@ class SporeFile(SourceFile):
     def products(self):
         return self._products
 
-    def create(self):
-        spore_name = os.path.basename(os.path.splitext(self.name)[0])
-
-        out = io.StringIO()
-        out.write('YEAST.SPORES += %s\n' % spore_name)
-        out.write('%s.source =' % spore_name)
-        for s in self.sources:
-            out.write(' \\\n    %s' % s.name)
-
-        super(SporeFile, self).create(out.getvalue())
-
 
 class Makefile(SourceFile):
-    def __init__(self, spores, name):
-        super(Makefile, self).__init__(name)
+    def __init__(self, name, spores):
         if not isinstance(spores, collections.Iterable):
             spores = [
                 spores,
             ]
+
+        out = io.StringIO()
+        for s in spores:
+            out.write('include %s\n' % s.name)
+        # TODO: need to specify path to Yeast in constructor
+        out.write("include ../../yeast.mk")
+
+        super(Makefile, self).__init__(name, out.getvalue(), spores)
         self._spores = spores
 
     @property
     def spores(self):
         return self._spores
-
-    def create(self):
-        out = io.StringIO()
-        for s in self.spores:
-            out.write('include %s\n' % s.name)
-
-        # TODO: need to specify path to Yeast in constructor
-        out.write("include ../../yeast.mk")
-
-        super(Makefile, self).create(out.getvalue())
