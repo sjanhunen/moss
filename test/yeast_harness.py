@@ -54,13 +54,19 @@ class SourceTree(object):
 
 
 class Build(object):
-    def __init__(self, source_tree, makefile):
+    def __init__(self, source_tree, makefile, arch=None, tool=None):
         self._source_tree = source_tree
         self._makefile = makefile
+        self._arch = arch
+        self._tool = tool
 
     def make(self, targets=None):
         with WorkingDirectory(self._source_tree.root):
             cmd = ['make', '-f', self._makefile.name]
+            if self._arch is not None:
+                cmd.append('YEAST.ARCH=%s' % self._arch)
+            if self._tool is not None:
+                cmd.append('YEAST.TOOL=%s' % self._tool)
             if targets is not None:
                 cmd.append(targets)
             return subprocess.call(cmd)

@@ -44,8 +44,10 @@ class TestYeast(unittest.TestCase):
         with SourceTree('tree') as src:
             src.create(mk)
             build = Build(src, mk)
+            cross_build = Build(src, mk, arch='armv5')
             self.assertEqual(build.make(), 0)
             self.assertEqual(build.make('-q'), 0)
+            self.assertEqual(cross_build.make(), 0)
 
     def test_large_source_tree(self):
 
