@@ -65,13 +65,9 @@ class TestYeast(unittest.TestCase):
             build = Build(src, mk)
             obj = ObjectFile(build, csrc)
 
-            with WorkingDirectory(src.root):
-                self.assertEqual(False, obj.exists())
-
+            self.assertEqual(False, obj.exists())
             self.assertEqual(build.make(), 0)
-
-            with WorkingDirectory(src.root):
-                self.assertEqual(True, obj.exists())
+            self.assertEqual(True, obj.exists())
 
 
     def test_large_source_tree(self):

@@ -9,20 +9,6 @@ import string
 import subprocess
 
 
-class WorkingDirectory(object):
-    def __init__(self, path):
-        self._working_path = path
-
-    def __enter__(self):
-        # Capture current directory
-        self._previous_path = os.getcwd()
-        os.chdir(self._working_path)
-
-    def __exit__(self, exception_type, exception_value, traceback):
-        # Restore previous working directory
-        os.chdir(self._previous_path)
-
-
 class SourceTree(object):
     def __init__(self, root, preserve=False):
         self._root = root
@@ -33,22 +19,29 @@ class SourceTree(object):
         return self._root
 
     def create(self, source_file):
-        os.makedirs(self.root)
-        with WorkingDirectory(self.root):
-            def create_file(source_file):
-                for d in source_file.dependencies:
-                    create_file(d)
-                source_file.create()
+        def create_file(source_file):
+            for d in source_file.dependencies:
+                create_file(d)
+            source_file.create()
 
-            create_file(source_file)
+        create_file(source_file)
 
     def delete(self):
         shutil.rmtree(self._root)
 
     def __enter__(self):
+        os.makedirs(self.root)
+
+        # Capture current directory
+        self._previous_path = os.getcwd()
+        os.chdir(self.root)
+
         return self
 
     def __exit__(self, exception_type, exception_value, traceback):
+        # Restore previous working directory
+        os.chdir(self._previous_path)
+
         if not self._preserve:
             self.delete()
 
@@ -61,15 +54,14 @@ class Build(object):
         self._tool = tool
 
     def make(self, targets=None):
-        with WorkingDirectory(self._source_tree.root):
-            cmd = ['make', '-f', self._makefile.name]
-            if self._arch is not None:
-                cmd.append('YEAST.ARCH=%s' % self._arch)
-            if self._tool is not None:
-                cmd.append('YEAST.TOOL=%s' % self._tool)
-            if targets is not None:
-                cmd.append(targets)
-            return subprocess.call(cmd)
+        cmd = ['make', '-f', self._makefile.name]
+        if self._arch is not None:
+            cmd.append('YEAST.ARCH=%s' % self._arch)
+        if self._tool is not None:
+            cmd.append('YEAST.TOOL=%s' % self._tool)
+        if targets is not None:
+            cmd.append(targets)
+        return subprocess.call(cmd)
 
     @property
     def obj_suffix(self):
