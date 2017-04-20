@@ -12,19 +12,9 @@
 # Creates:
 # YEAST.C.RULES - C language rules required for each spore
 
-define YEAST.C.RULES
-
-$(YEAST.OBJECT.PATH)%$(TOOL.OBJECT.SUFFIX): %.c | $$($1.path.object)
-	$(call TOOL.C.COMPILE, $$<, $$@)
+$(YEAST.OBJECT.PATH)%$(TOOL.OBJECT.SUFFIX): %.c
+	$(call TOOL.C.COMPILE, $<, $@)
 
 
-$(YEAST.OBJECT.PATH)%$(TOOL.DEPEND.SUFFIX): %.c | $$($1.path.object)
-	$(call TOOL.C.DEPEND, $$<, $$@, $$(@:.d=.o))
-
-endef
-
-ifdef TOOL.C.COMPILE
-$(foreach s, $(YEAST.SPORES), $(eval $(call YEAST.C.RULES,$s)))
-endif
-
-
+$(YEAST.OBJECT.PATH)%$(TOOL.DEPEND.SUFFIX): %.c
+	$(call TOOL.C.DEPEND, $<, $@, $(@:.d=.o))
