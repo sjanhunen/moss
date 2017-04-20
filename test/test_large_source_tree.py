@@ -10,7 +10,7 @@ class TestLargeSourceTree(unittest.TestCase):
                 random.choice(string.ascii_lowercase) for _ in range(8)) + ext
 
         make_sources = lambda path: [
-                CSourceFile(path + '/' + make_filename('.c')) for _ in range(10)]
+                CSourceFile(path + '/' + make_filename('.c')) for _ in range(100)]
         make_spore = lambda: SporeFile(
                 sources=make_sources(make_filename()),
                 products='static_lib',
@@ -19,7 +19,7 @@ class TestLargeSourceTree(unittest.TestCase):
         mk = Makefile(
             spores=[make_spore() for _ in range(10)], name='Makefile')
 
-        with SourceTree('tree') as src:
+        with SourceTree('tree', preserve=True) as src:
             src.create(mk)
             build = Build(src, mk)
-            self.assertEqual(0, build.make())
+            self.assertEqual(0, build.make('-j4'))
