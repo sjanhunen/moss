@@ -71,6 +71,16 @@ class Build(object):
                 cmd.append(targets)
             return subprocess.call(cmd)
 
+    @property
+    def obj_suffix(self):
+        # TODO: parse this from Yeast.settings
+        return '.o'
+
+    @property
+    def obj_dir(self):
+        # TODO: parse this from Yeast.settings
+        return 'yeast.build/obj'
+
     def clean(self, targets):
         pass
 
@@ -86,6 +96,11 @@ class AbstractFile(metaclass=ABCMeta):
         return self._name
 
     @property
+    def basename(self):
+        (name, _) = os.path.splitext(self._name)
+        return name
+
+    @property
     def path(self):
         (not_ext, ) = os.path.splitext(self._name)
         (not_basename, ) = os.path.split(not_ext)
@@ -95,7 +110,7 @@ class AbstractFile(metaclass=ABCMeta):
         pass
 
     def exists(self):
-        pass
+        return os.path.isfile(self._name)
 
     def delete(self):
         pass
@@ -135,13 +150,16 @@ void function_%s()
         fn_name = os.path.basename(os.path.splitext(name)[0])
         super(CSourceFile, self).__init__(name, self.C_FILE_TEMPLATE % fn_name)
 
+
 class ObjectFile(AbstractFile):
     def __init__(self, build, source):
-        pass
+        super(ObjectFile, self).__init__(
+            build.obj_dir + '/' + source.basename + build.obj_suffix)
+        self._source = source
 
     @property
     def source(self):
-        pass
+        return self._source
 
 
 class ProductFile(AbstractFile):

@@ -49,6 +49,30 @@ class TestYeast(unittest.TestCase):
             self.assertEqual(build.make('-q'), 0)
             self.assertEqual(cross_build.make(), 0)
 
+
+    def test_object_file_from_c_source(self):
+        csrc = CSourceFile('libfun.c')
+
+        mk = Makefile(
+            spores=SporeFile(
+                sources=csrc,
+                products='static_lib',
+                name='lib.spore'),
+            name='Makefile')
+
+        with SourceTree('tree', preserve=True) as src:
+            src.create(mk)
+            build = Build(src, mk)
+            obj = ObjectFile(build, csrc)
+
+            self.assertEqual(False, obj.exists())
+
+            self.assertEqual(build.make(), 0)
+
+            # TODO: fix this
+            #self.assertEqual(True, obj.exists())
+
+
     def test_large_source_tree(self):
 
         make_filename = lambda ext='': ''.join(
