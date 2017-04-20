@@ -135,18 +135,36 @@ class SourceFile(AbstractFile):
 
 class CSourceFile(SourceFile):
 
-    C_FILE_TEMPLATE = """
+    C_SOURCE_TEMPLATE = """
 void function_%s()
 {
 }
 """
 
-    # TODO: Future concepts
-    # h1 = CHeaderFile('lib1/inc/header.h')
-    # c1 = CSourceFile('lib1/src/file1.c', includes=h1, checks='defined(BOB)')
+    def __init__(self, name, includes=None):
+        fn_name = os.path.basename(os.path.splitext(name)[0])
+
+        out = io.StringIO()
+        if not includes is None:
+            out.write('#include "%s"' % includes.name)
+            dependencies = [includes, ]
+        else:
+            dependencies = []
+        out.write(self.C_SOURCE_TEMPLATE % fn_name)
+
+        super(CSourceFile, self).__init__(name, out.getvalue(), dependencies)
+
+
+class CHeaderFile(SourceFile):
+
+    C_HEADER_TEMPLATE = """
+static void inline_function_%s() {}
+"""
+
     def __init__(self, name):
         fn_name = os.path.basename(os.path.splitext(name)[0])
-        super(CSourceFile, self).__init__(name, self.C_FILE_TEMPLATE % fn_name)
+        super(CHeaderFile, self).__init__(name,
+                                          self.C_HEADER_TEMPLATE % fn_name)
 
 
 class ObjectFile(AbstractFile):

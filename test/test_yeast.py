@@ -52,3 +52,23 @@ class TestYeast(unittest.TestCase):
             c_src.touch()
             self.assertEqual(build.make(), 0)
             self.assertTrue(c_obj.newer_than(c_src))
+
+    def test_update_object_from_c_header(self):
+
+        c_hdr = CHeaderFile('myheader.h')
+        c_src = CSourceFile('libfun.c', includes=c_hdr)
+        mk = Makefile(
+            spores=SporeFile(
+                sources=c_src, products='static_lib', name='lib.spore'),
+            name='Makefile')
+
+        with SourceTree('tree') as src:
+            src.create(mk)
+            build = Build(src, mk)
+            c_obj = ObjectFile(build, c_src)
+
+            self.assertEqual(0, build.make())
+            self.assertTrue(c_obj.exists())
+            c_hdr.touch()
+            self.assertEqual(0, build.make())
+            self.assertTrue(c_obj.newer_than(c_hdr))
