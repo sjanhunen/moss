@@ -14,7 +14,3 @@
 
 $(YEAST.OBJECT.PATH)%$(TOOL.OBJECT.SUFFIX): %.c
 	$(call TOOL.C.COMPILE, $<, $@)
-
-
-$(YEAST.OBJECT.PATH)%$(TOOL.DEPEND.SUFFIX): %.c
-	$(call TOOL.C.DEPEND, $<, $@, $(@:.d=.o))

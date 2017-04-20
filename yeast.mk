@@ -106,7 +106,6 @@ $1.depend := $$(addprefix $(YEAST.OBJECT.PATH), $$($1.depend))
 $1.path.object = $$(sort $$(dir $$($1.object)))
 
 $$($1.object): | $$($1.path.object)
-$$($1.depend): | $$($1.path.object)
 
 YEAST.OBJECT.DIRS += $$($1.path.object)
 
@@ -118,7 +117,7 @@ $$($1.spore):
 $1_clean:
 	rm -f $$($1.products) $$($1.object) $$($1.spore)
 
-include $$($1.depend)
+-include $$($1.depend)
 
 endef
 
