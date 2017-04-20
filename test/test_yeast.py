@@ -60,17 +60,18 @@ class TestYeast(unittest.TestCase):
                 name='lib.spore'),
             name='Makefile')
 
-        with SourceTree('tree', preserve=True) as src:
+        with SourceTree('tree') as src:
             src.create(mk)
             build = Build(src, mk)
             obj = ObjectFile(build, csrc)
 
-            self.assertEqual(False, obj.exists())
+            with WorkingDirectory(src.root):
+                self.assertEqual(False, obj.exists())
 
             self.assertEqual(build.make(), 0)
 
-            # TODO: fix this
-            #self.assertEqual(True, obj.exists())
+            with WorkingDirectory(src.root):
+                self.assertEqual(True, obj.exists())
 
 
     def test_large_source_tree(self):
