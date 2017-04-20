@@ -17,15 +17,12 @@ class TestYeast(unittest.TestCase):
             build = Build(src, mk, arch='armv5')
             self.assertEqual(build.make(), 0)
 
-
     def test_object_file_from_c_source(self):
 
         csrc = CSourceFile('libfun.c')
         mk = Makefile(
             spores=SporeFile(
-                sources=csrc,
-                products='static_lib',
-                name='lib.spore'),
+                sources=csrc, products='static_lib', name='lib.spore'),
             name='Makefile')
 
         with SourceTree('tree') as src:
@@ -36,7 +33,6 @@ class TestYeast(unittest.TestCase):
             self.assertEqual(False, obj.exists())
             self.assertEqual(build.make(), 0)
             self.assertEqual(True, obj.exists())
-
 
     def test_large_source_tree(self):
 

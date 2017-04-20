@@ -140,6 +140,7 @@ void function_%s()
 {
 }
 """
+
     # TODO: Future concepts
     # h1 = CHeaderFile('lib1/inc/header.h')
     # c1 = CSourceFile('lib1/src/file1.c', includes=h1, checks='defined(BOB)')
@@ -150,8 +151,8 @@ void function_%s()
 
 class ObjectFile(AbstractFile):
     def __init__(self, build, source):
-        super(ObjectFile, self).__init__(
-            build.obj_dir + '/' + source.basename + build.obj_suffix)
+        super(ObjectFile, self).__init__(build.obj_dir + '/' + source.basename
+                                         + build.obj_suffix)
         self._source = source
 
     @property
@@ -180,13 +181,9 @@ class SporeFile(SourceFile):
     #                defines='BOB', products='static_lib')
     def __init__(self, sources, products, name):
         if not isinstance(sources, collections.Iterable):
-            sources = [
-                sources,
-            ]
+            sources = [sources, ]
         if not isinstance(products, collections.Iterable):
-            products = [
-                products,
-            ]
+            products = [products, ]
 
         spore_name = os.path.basename(os.path.splitext(name)[0])
         out = io.StringIO()
@@ -194,7 +191,6 @@ class SporeFile(SourceFile):
         out.write('%s.source =' % spore_name)
         for s in sources:
             out.write(' \\\n    %s' % s.name)
-
 
         super(SporeFile, self).__init__(name, out.getvalue(), sources)
         self._products = products
@@ -212,9 +208,7 @@ class SporeFile(SourceFile):
 class Makefile(SourceFile):
     def __init__(self, name, spores):
         if not isinstance(spores, collections.Iterable):
-            spores = [
-                spores,
-            ]
+            spores = [spores, ]
 
         out = io.StringIO()
         for s in spores:
