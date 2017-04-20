@@ -84,7 +84,7 @@ all: $(YEAST.SPORES)
 clean: $(addsuffix _clean, $(YEAST.SPORES))
 
 #
-# Create spore definitions 
+# Create spore definitions
 #
 
 define YEAST_SPORE_RULES
@@ -102,7 +102,9 @@ $1.object := $$(addprefix $(YEAST.OBJECT.PATH), $$($1.object))
 
 $1.path.object = $$(sort $$(dir $$($1.object)))
 
-YEAST.OBJECT.DIRS += $($$($1.path.object))
+$$($1.object): | $$($1.path.object)
+
+YEAST.OBJECT.DIRS += $$($1.path.object)
 
 $1: $$($1.spore)
 
@@ -125,7 +127,7 @@ $(YEAST.OBJECT.PATH) $(YEAST.EXECUTABLE.PATH) $(YEAST.STATIC_LIB.PATH):
 
 
 $(sort $(YEAST.OBJECT.DIRS)):
-	mkdir -p $$@
+	mkdir -p $@
 
 #
 # Include source language-specific rules
