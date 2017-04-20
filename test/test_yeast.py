@@ -3,36 +3,7 @@ from yeast_harness import *
 
 
 class TestYeast(unittest.TestCase):
-    def test_c_source_compile(self):
-
-        # Language-specific SourceFile subclasses create dependencies automatically
-        # Enables automatic identification and testing of file dependencies
-        #
-        # h1 = CHeaderFile('lib1/inc/header.h')
-        # c1 = CSourceFile('lib1/src/file1.c', includes=h1, checks='defined(BOB)')
-        # c2 = CSourceFile('lib2/src/file2.c')
-        #
-        # sp = SporeFile('lib1/lib1.spore', source=[c1, c2],
-        #				 defines='BOB', products='static_lib')
-        # mk = Makefile('Makefile', spores=sp)
-        #
-        # with SourceTree('my_source') as st:
-        # 	# create can be used to create any node in the tree
-        #   # (defaults to recursive for all dependencies)
-        # 	st.create(mk)
-        #
-        # 	build1 = Build(st, mk, arch='host', tool='gcc')
-        # 	build2 = Build(st, mk, arch='arm', tool='gcc')
-        #
-        # 	o1 = ObjectFile(c1, build1)
-        # 	o1 = ObjectFile(c1, build2)
-        #
-        #	build1.make()
-        #	assert(o1.exists())
-        #   assert(not o2.exist())
-        #
-        #	build2.make()
-        #   assert(o2.newer_than(o1))
+    def test_c_cross_compile(self):
 
         mk = Makefile(
             spores=SporeFile(
@@ -43,16 +14,13 @@ class TestYeast(unittest.TestCase):
 
         with SourceTree('tree') as src:
             src.create(mk)
-            build = Build(src, mk)
-            cross_build = Build(src, mk, arch='armv5')
+            build = Build(src, mk, arch='armv5')
             self.assertEqual(build.make(), 0)
-            self.assertEqual(build.make('-q'), 0)
-            self.assertEqual(cross_build.make(), 0)
 
 
     def test_object_file_from_c_source(self):
-        csrc = CSourceFile('libfun.c')
 
+        csrc = CSourceFile('libfun.c')
         mk = Makefile(
             spores=SporeFile(
                 sources=csrc,

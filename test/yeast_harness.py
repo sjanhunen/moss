@@ -1,5 +1,6 @@
 import os
 import os.path
+from pathlib import Path
 import shutil
 from abc import ABCMeta
 import io
@@ -80,8 +81,7 @@ class Build(object):
 class AbstractFile(metaclass=ABCMeta):
     def __init__(self, name):
         self._name = name
-
-    # TODO: create helpers for basename, suffix
+        # TOOD: make use of Path() object here for all actions
 
     @property
     def name(self):
@@ -99,13 +99,18 @@ class AbstractFile(metaclass=ABCMeta):
         return not_basename
 
     def touch(self):
-        pass
+        path = Path(self.name)
+        path.touch()
 
     def exists(self):
         return os.path.isfile(self._name)
 
+    def newer_than(self, other):
+        return os.path.getmtime(self.name) > os.path.getmtime(other.name)
+
     def delete(self):
-        pass
+        path = Path(self.name)
+        path.unlink()
 
 
 class SourceFile(AbstractFile):
@@ -128,9 +133,6 @@ class SourceFile(AbstractFile):
         return self._dependencies
 
 
-# Create HSourceFile, CppSourceFile, AsmSourceFile, etc.
-
-
 class CSourceFile(SourceFile):
 
     C_FILE_TEMPLATE = """
@@ -138,6 +140,9 @@ void function_%s()
 {
 }
 """
+    # TODO: Future concepts
+    # h1 = CHeaderFile('lib1/inc/header.h')
+    # c1 = CSourceFile('lib1/src/file1.c', includes=h1, checks='defined(BOB)')
     def __init__(self, name):
         fn_name = os.path.basename(os.path.splitext(name)[0])
         super(CSourceFile, self).__init__(name, self.C_FILE_TEMPLATE % fn_name)
@@ -169,6 +174,10 @@ class StaticLibProductFile(ProductFile):
 
 
 class SporeFile(SourceFile):
+
+    # TODO: Future concept
+    # sp = SporeFile('lib1/lib1.spore', source=[c1, c2],
+    #                defines='BOB', products='static_lib')
     def __init__(self, sources, products, name):
         if not isinstance(sources, collections.Iterable):
             sources = [
