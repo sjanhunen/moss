@@ -111,17 +111,18 @@ YEAST.OBJECT.DIRS += $$($1.path.object)
 
 $1: $$($1.spore)
 
-$$($1.spore):
-	touch $$@
+$$($1.spore): $$($1.object)
+	cat $$($1.depend) > $$@
 
 $1_clean:
 	rm -f $$($1.products) $$($1.object) $$($1.spore)
 
--include $$($1.depend)
+-include $$($1.spore)
 
 endef
 
 $(foreach t, $(YEAST.SPORES), $(eval $(call YEAST_SPORE_RULES,$t)))
+
 
 #
 # Create build tree structure
