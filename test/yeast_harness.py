@@ -8,6 +8,7 @@ import collections
 import random
 import string
 import subprocess
+import time
 
 
 class SourceTree(object):
@@ -81,7 +82,7 @@ class Build(object):
 class AbstractFile(metaclass=ABCMeta):
     def __init__(self, name):
         self._name = name
-        # TOOD: make use of Path() object here for all actions
+        self._path = Path(name)
 
     @property
     def name(self):
@@ -99,18 +100,25 @@ class AbstractFile(metaclass=ABCMeta):
         return not_basename
 
     def touch(self):
-        path = Path(self.name)
-        path.touch()
+        # Touching a file is an approach we use for testing our
+        # make rules on all platforms. Some platforms (e.g. OS X with HFS+)
+        # do not support sub-second resolution on modification times.
+        # Ensure our modification time in seconds is always unique by
+        # adding this delay here.
+        time.sleep(1)
+        self._path.touch()
+        # self._path is now newer than any existing files
+        time.sleep(1)
+        # invoking make now will generate timestamps newer than self._path
 
     def exists(self):
-        return os.path.isfile(self._name)
+        return self._path.exists()
 
     def newer_than(self, other):
-        return os.path.getmtime(self.name) > os.path.getmtime(other.name)
+        return self._path.stat().st_mtime > other._path.stat().st_mtime
 
     def delete(self):
-        path = Path(self.name)
-        path.unlink()
+        self._path.unlink()
 
 
 class SourceFile(AbstractFile):
