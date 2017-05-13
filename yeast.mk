@@ -112,12 +112,13 @@ YEAST.OBJECT.DIRS += $$($1.path.object)
 $1: $$($1.spore)
 
 $$($1.spore): $$($1.object)
-	cat $$($1.depend) > $$@
+	cat $$($1.depend) > $$@.depend
+	touch $$@
 
 $1_clean:
 	rm -f $$($1.products) $$($1.object) $$($1.spore)
 
--include $$($1.spore)
+-include $$($1.spore).depend
 
 endef
 
