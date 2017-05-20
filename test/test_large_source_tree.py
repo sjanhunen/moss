@@ -1,5 +1,5 @@
 import unittest
-from yeast_harness import *
+from moss_harness import *
 
 
 class TestLargeSourceTree(unittest.TestCase):

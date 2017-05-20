@@ -1,8 +1,8 @@
 import unittest
-from yeast_harness import *
+from moss_harness import *
 
 
-class TestYeast(unittest.TestCase):
+class TestMoss(unittest.TestCase):
     def test_c_cross_compile(self):
 
         mk = Makefile(

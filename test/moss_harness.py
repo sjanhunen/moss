@@ -67,12 +67,12 @@ class Build(object):
 
     @property
     def obj_suffix(self):
-        # TODO: parse this from Yeast.settings
+        # TODO: parse this from Moss.settings
         return '.o'
 
     @property
     def obj_dir(self):
-        # TODO: parse this from Yeast.settings
+        # TODO: parse this from Moss.settings
         return 'moss.build/obj'
 
     def clean(self, targets):
@@ -239,7 +239,7 @@ class Makefile(SourceFile):
         out = io.StringIO()
         for s in spores:
             out.write('include %s\n' % s.name)
-        # TODO: need to specify path to Yeast in constructor
+        # TODO: need to specify path to Moss in constructor
         out.write("include ../../moss.mk")
 
         super(Makefile, self).__init__(name, out.getvalue(), spores)
