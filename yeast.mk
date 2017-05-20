@@ -98,8 +98,10 @@ $1.spore = $(YEAST.SPORE.PATH).$$($1.name)$(YEAST.SPORE.SUFFIX)
 $1.object = $$(addsuffix $(TOOL.OBJECT.SUFFIX), $$(basename $$($1.source)))
 $1.object := $$(addprefix $(YEAST.OBJECT.PATH), $$($1.object))
 
-$1.depend = $$(addsuffix $(TOOL.DEPEND.SUFFIX), $$(basename $$($1.source)))
-$1.depend := $$(addprefix $(YEAST.OBJECT.PATH), $$($1.depend))
+$1.deps = $$(addsuffix $(TOOL.DEPEND.SUFFIX), $$(basename $$($1.source)))
+$1.deps := $$(addprefix $(YEAST.OBJECT.PATH), $$($1.deps))
+
+$1.depend = $(YEAST.SPORE.PATH).$$($1.name).depend
 
 .PRECIOUS: $$($1.object)
 
@@ -111,14 +113,18 @@ YEAST.OBJECT.DIRS += $$($1.path.object)
 
 $1: $$($1.spore)
 
+# Whenever an object file for this spore is rebuilt, the object file dependency
+# outputs (deps) are combined into the overall dependency file
+
 $$($1.spore): $$($1.object)
-	cat $$($1.depend) > $$@.depend
+	cat $$($1.deps) > $$($1.depend)
 	touch $$@
 
 $1_clean:
 	rm -f $$($1.products) $$($1.object) $$($1.spore)
 
--include $$($1.spore).depend
+# Include generated dependency information if it exists
+-include $$($1.depend)
 
 endef
 
