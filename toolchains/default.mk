@@ -1,1 +1,1 @@
-include $(YEAST.HOME)/toolchains/gcc-debug.mk
+include $(MOSS.HOME)/toolchains/gcc-debug.mk

@@ -1,45 +1,45 @@
-# Makefile for the yeast build system
+# Makefile for the moss build system
 
 # TODO: Confirm we are using a sufficient version of GNU make
 
 #
-# Determine where yeast is installed
+# Determine where moss is installed
 #
 
-YEAST.MAKEFILE := $(abspath $(lastword $(MAKEFILE_LIST)))
-YEAST.HOME := $(dir $(YEAST.MAKEFILE))
+MOSS.MAKEFILE := $(abspath $(lastword $(MAKEFILE_LIST)))
+MOSS.HOME := $(dir $(MOSS.MAKEFILE))
 
 #
 # Include toolchain definitions
 #
 
-define Yeast.tool.help
+define Moss.tool.help
 
 Toolchain Settings
 ==================
 
 Toolchain and target architecture settings are configured using the following options.
 
-	YEAST.TOOL=$(YEAST.TOOL)
-	YEAST.ARCH=$(YEAST.ARCH)
+	MOSS.TOOL=$(MOSS.TOOL)
+	MOSS.ARCH=$(MOSS.ARCH)
 
 endef
 
 # TODO: ARCH should really be a tool-specific setting
 
-ifdef YEAST.TOOL
-include $(YEAST.HOME)/toolchains/$(YEAST.TOOL).mk
-YEAST.ARCH_TOOL.NAME = $(addprefix $(addsuffix .,$(YEAST.ARCH)),$(YEAST.TOOL))
+ifdef MOSS.TOOL
+include $(MOSS.HOME)/toolchains/$(MOSS.TOOL).mk
+MOSS.ARCH_TOOL.NAME = $(addprefix $(addsuffix .,$(MOSS.ARCH)),$(MOSS.TOOL))
 else
-include $(YEAST.HOME)/toolchains/default.mk
-YEAST.ARCH_TOOL.NAME = $(YEAST.ARCH)
+include $(MOSS.HOME)/toolchains/default.mk
+MOSS.ARCH_TOOL.NAME = $(MOSS.ARCH)
 endif
 
 #
 # Define build tree structure
 #
 
-define Yeast.path.help
+define Moss.path.help
 
 Path Settings
 =============
@@ -47,31 +47,31 @@ Path Settings
 A number of configuration variables exist for customizing the build paths used
 to store object and product files.
 
-	## Location where yeast is installed
-	YEAST.HOME=$(YEAST.HOME)
+	## Location where moss is installed
+	MOSS.HOME=$(MOSS.HOME)
 
 	## Root directory of generated build tree
-	YEAST.BUILD.TREE=$(YEAST.BUILD.TREE)
+	MOSS.BUILD.TREE=$(MOSS.BUILD.TREE)
 
 	## Root directory of generated object files
-	YEAST.OBJECT.PATH=$(YEAST.OBJECT.PATH)
+	MOSS.OBJECT.PATH=$(MOSS.OBJECT.PATH)
 
-	YEAST.EXECUTABLE.PATH=$(YEAST.EXECUTABLE.PATH)
+	MOSS.EXECUTABLE.PATH=$(MOSS.EXECUTABLE.PATH)
 
-	YEAST.STATIC_LIB.PATH=$(YEAST.STATIC_LIB.PATH)
+	MOSS.STATIC_LIB.PATH=$(MOSS.STATIC_LIB.PATH)
 
 endef
 
-YEAST.BUILD.TREE ?= yeast.build
+MOSS.BUILD.TREE ?= moss.build
 
-ifneq ($(strip $(YEAST.BUILD.TREE)),)
-YEAST.OBJECT.PATH = $(YEAST.BUILD.TREE)/obj/$(YEAST.ARCH_TOOL.NAME)/
-YEAST.EXECUTABLE.PATH = $(YEAST.BUILD.TREE)/bin/$(YEAST.ARCH_TOOL.NAME)/
-YEAST.STATIC_LIB.PATH = $(YEAST.BUILD.TREE)/lib/$(YEAST.ARCH_TOOL.NAME)/
-YEAST.SPORE.SUFFIX = $(addprefix .,$(YEAST.ARCH_TOOL.NAME)).spore
-YEAST.SPORE.PATH = $(YEAST.BUILD.TREE)/
+ifneq ($(strip $(MOSS.BUILD.TREE)),)
+MOSS.OBJECT.PATH = $(MOSS.BUILD.TREE)/obj/$(MOSS.ARCH_TOOL.NAME)/
+MOSS.EXECUTABLE.PATH = $(MOSS.BUILD.TREE)/bin/$(MOSS.ARCH_TOOL.NAME)/
+MOSS.STATIC_LIB.PATH = $(MOSS.BUILD.TREE)/lib/$(MOSS.ARCH_TOOL.NAME)/
+MOSS.SPORE.SUFFIX = $(addprefix .,$(MOSS.ARCH_TOOL.NAME)).spore
+MOSS.SPORE.PATH = $(MOSS.BUILD.TREE)/
 else
-YEAST.SPORE.SUFFIX = .spore
+MOSS.SPORE.SUFFIX = .spore
 endif
 
 #
@@ -80,28 +80,28 @@ endif
 
 .PHONY: all clean
 
-all: $(YEAST.SPORES)
-clean: $(addsuffix _clean, $(YEAST.SPORES))
+all: $(MOSS.SPORES)
+clean: $(addsuffix _clean, $(MOSS.SPORES))
 
 #
 # Create spore definitions
 #
 
-define YEAST_SPORE_RULES
+define MOSS_SPORE_RULES
 
 .PHONY: $1
 .PHONY: $1_clean
 
 $1.name ?= $1
-$1.spore = $(YEAST.SPORE.PATH).$$($1.name)$(YEAST.SPORE.SUFFIX)
+$1.spore = $(MOSS.SPORE.PATH).$$($1.name)$(MOSS.SPORE.SUFFIX)
 
 $1.objs = $$(addsuffix $(TOOL.OBJECT.SUFFIX), $$(basename $$($1.source)))
-$1.objs := $$(addprefix $(YEAST.OBJECT.PATH), $$($1.objs))
+$1.objs := $$(addprefix $(MOSS.OBJECT.PATH), $$($1.objs))
 
 $1.deps = $$(addsuffix $(TOOL.DEPEND.SUFFIX), $$(basename $$($1.source)))
-$1.deps := $$(addprefix $(YEAST.OBJECT.PATH), $$($1.deps))
+$1.deps := $$(addprefix $(MOSS.OBJECT.PATH), $$($1.deps))
 
-$1.depend = $(YEAST.SPORE.PATH).$$($1.name).depend
+$1.depend = $(MOSS.SPORE.PATH).$$($1.name).depend
 
 .PRECIOUS: $$($1.objs)
 
@@ -109,7 +109,7 @@ $1.path.objs = $$(sort $$(dir $$($1.objs)))
 
 $$($1.objs): | $$($1.path.objs)
 
-YEAST.OBJECT.DIRS += $$($1.path.objs)
+MOSS.OBJECT.DIRS += $$($1.path.objs)
 
 $1: $$($1.spore)
 
@@ -128,31 +128,31 @@ $1_clean:
 
 endef
 
-$(foreach t, $(YEAST.SPORES), $(eval $(call YEAST_SPORE_RULES,$t)))
+$(foreach t, $(MOSS.SPORES), $(eval $(call MOSS_SPORE_RULES,$t)))
 
 
 #
 # Create build tree structure
 #
 
-$(YEAST.EXECUTABLE.PATH) $(YEAST.STATIC_LIB.PATH):
+$(MOSS.EXECUTABLE.PATH) $(MOSS.STATIC_LIB.PATH):
 	mkdir -p $@
 
 
-$(sort $(YEAST.OBJECT.PATH) $(YEAST.OBJECT.DIRS)):
+$(sort $(MOSS.OBJECT.PATH) $(MOSS.OBJECT.DIRS)):
 	mkdir -p $@
 
 #
 # Include source language-specific rules
 #
 
-include $(YEAST.HOME)/languages/*.mk
+include $(MOSS.HOME)/languages/*.mk
 
 #
 # Include build product-specific rules
 #
 
-include $(YEAST.HOME)/products/*.mk
+include $(MOSS.HOME)/products/*.mk
 
 #
 # Targets for creating markdown and HTML help output
@@ -160,18 +160,18 @@ include $(YEAST.HOME)/products/*.mk
 
 # TODO: need to decide on best mechanism for NOOP (don't use echo below)
 
-.PHONY: help Yeast.help
+.PHONY: help Moss.help
 
-help: Yeast.help.html Yeast.help.markdown
+help: Moss.help.html Moss.help.markdown
 
-Yeast.help:
-	@echo $(info $(Yeast.tool.help))
-	@echo $(info $(Yeast.path.help))
+Moss.help:
+	@echo $(info $(Moss.tool.help))
+	@echo $(info $(Moss.path.help))
 
-Yeast.help.markdown: $(MAKEFILE_LIST)
-	make -f $(YEAST.MAKEFILE) Yeast.help > $@
+Moss.help.markdown: $(MAKEFILE_LIST)
+	make -f $(MOSS.MAKEFILE) Moss.help > $@
 
-Yeast.help.html: Yeast.help.markdown
+Moss.help.html: Moss.help.markdown
 	markdown $< > $@
 
 
@@ -179,15 +179,15 @@ Yeast.help.html: Yeast.help.markdown
 # Targets for creating settings variable dumps
 #
 
-.PHONY: Yeast.settings
+.PHONY: Moss.settings
 
-define Yeast.settings.dump
+define Moss.settings.dump
 	$(info $1=$($1))
 
 endef
 
-Yeast.settings.path = $(filter YEAST.%.PATH,$(.VARIABLES))
+Moss.settings.path = $(filter MOSS.%.PATH,$(.VARIABLES))
 
-Yeast.settings:
+Moss.settings:
 	@echo
-	$(foreach v, $(Yeast.settings.path), $(call Yeast.settings.dump,$v))
+	$(foreach v, $(Moss.settings.path), $(call Moss.settings.dump,$v))

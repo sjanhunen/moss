@@ -58,9 +58,9 @@ class Build(object):
     def make(self, targets=None):
         cmd = ['make', '-f', self._makefile.name]
         if self._arch is not None:
-            cmd.append('YEAST.ARCH=%s' % self._arch)
+            cmd.append('MOSS.ARCH=%s' % self._arch)
         if self._tool is not None:
-            cmd.append('YEAST.TOOL=%s' % self._tool)
+            cmd.append('MOSS.TOOL=%s' % self._tool)
         if targets is not None:
             cmd.append(targets)
         return subprocess.call(cmd)
@@ -73,7 +73,7 @@ class Build(object):
     @property
     def obj_dir(self):
         # TODO: parse this from Yeast.settings
-        return 'yeast.build/obj'
+        return 'moss.build/obj'
 
     def clean(self, targets):
         pass
@@ -213,7 +213,7 @@ class SporeFile(SourceFile):
 
         spore_name = os.path.basename(os.path.splitext(name)[0])
         out = io.StringIO()
-        out.write('YEAST.SPORES += %s\n' % spore_name)
+        out.write('MOSS.SPORES += %s\n' % spore_name)
         out.write('%s.source =' % spore_name)
         for s in sources:
             out.write(' \\\n    %s' % s.name)

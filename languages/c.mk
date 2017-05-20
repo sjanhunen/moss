@@ -7,10 +7,10 @@
 #
 # TOOL.C.DEPEND - command-line invocation for C dependency generator
 # TOOL.OBJECT.SUFFIX - object files have this suffix
-# YEAST.OBJECT.PATH - object files are placed here
+# MOSS.OBJECT.PATH - object files are placed here
 #
 # Creates:
-# YEAST.C.RULES - C language rules required for each spore
+# MOSS.C.RULES - C language rules required for each spore
 
-$(YEAST.OBJECT.PATH)%$(TOOL.OBJECT.SUFFIX): %.c
+$(MOSS.OBJECT.PATH)%$(TOOL.OBJECT.SUFFIX): %.c
 	$(call TOOL.C.COMPILE, $<, $@)
