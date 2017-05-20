@@ -240,7 +240,7 @@ class Makefile(SourceFile):
         for s in spores:
             out.write('include %s\n' % s.name)
         # TODO: need to specify path to Yeast in constructor
-        out.write("include ../../yeast.mk")
+        out.write("include ../../moss.mk")
 
         super(Makefile, self).__init__(name, out.getvalue(), spores)
         self._spores = spores
