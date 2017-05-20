@@ -17,7 +17,7 @@ $1.products += $$($1.static_lib.product)
 
 $$($1.spore): $$($1.static_lib.product)
 
-$$($1.static_lib.product): $$($1.object) | $(YEAST.STATIC_LIB.PATH)
+$$($1.static_lib.product): $$($1.objs) | $(YEAST.STATIC_LIB.PATH)
 	$(call TOOL.STATIC_LIB.CMD, $$<, $$@)
 
 endef
