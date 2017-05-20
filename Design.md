@@ -14,8 +14,8 @@ While a toolchain must include all tools required to produce an executable binar
 
 Generally, debug versus release build variants are handled at the toolchain level due to the significant impact that may be present on generated code.
 
-- `YEAST.TOOLS`: All available toolchains
-- `YEAST.TOOL`: Current toolchain
+- `MOSS.TOOLS`: All available toolchains
+- `MOSS.TOOL`: Current toolchain
 
 Architecture
 ------------
@@ -26,8 +26,8 @@ Examples: host, amd64, cortex-m4, cortex-r7, avr, mipsel, etc.
 
 Code generated for different architectures does not interoperate and cannot be linked together.
 
-- `YEAST.ARCHS`: All available architectures for current toolchain
-- `YEAST.ARCH`: Current architecture for current toolchain
+- `MOSS.ARCHS`: All available architectures for current toolchain
+- `MOSS.ARCH`: Current architecture for current toolchain
 
 Good discussion on architecture naming here: http://clang.llvm.org/docs/CrossCompilation.html
 
@@ -37,7 +37,7 @@ Language
 Each toolchain supports at least one language that is used by source files.
 Many toolchains support multiple languages (e.g. GCC and LLVM).
 
-Globally, language options are configured using the syntax `YEAST.<language>.<option> = <value>`.
+Globally, language options are configured using the syntax `MOSS.<language>.<option> = <value>`.
 
 Language options can be configured specifically for each spore with the syntax
 `<spore>.<language>.<option> = <value>`. For example:
@@ -49,7 +49,7 @@ The spore specific options override any global options. To include the global
 Moss options for a specific spore when overriding, simply include the global
 options as part of the spore-specific options. For example:
 
-	util.c.defines = $(YEAST.c.defines) UTIL_OPTION_X=1
+	util.c.defines = $(MOSS.c.defines) UTIL_OPTION_X=1
 
 Spores
 ------
@@ -57,11 +57,11 @@ Spores
 All outputs are generated from individual units of source code called spores.
 Each spore may produce one or more products as outputs during the build
 process. Moss manages a list of all spores through the variable
-`YEAST.SPORES`. If a new spore is created, it must be added to this list.
+`MOSS.SPORES`. If a new spore is created, it must be added to this list.
 
 For example:
 
-	YEAST.SPORES += util
+	MOSS.SPORES += util
 	util.name = utility
 	util.depends = common
 	util.products = shared_lib static_lib headers
@@ -85,13 +85,13 @@ Four types of Moss products are currently supported:
 - Headers: a set of header files for stand-alone use or use with a library
 
 Global product options may be configured using the syntax
-`YEAST.<product>.<option> = <value>`. For example:
+`MOSS.<product>.<option> = <value>`. For example:
 
-    YEAST.headers.path = include
-	YEAST.executable.path = bin/$(YEAST.ARCH)
-	YEAST.executable.suffix = .exe
-	YEAST.shared_lib.path = lib/$(YEAST.ARCH)
-	YEAST.shared_lib.suffix = .so
+    MOSS.headers.path = include
+	MOSS.executable.path = bin/$(MOSS.ARCH)
+	MOSS.executable.suffix = .exe
+	MOSS.shared_lib.path = lib/$(MOSS.ARCH)
+	MOSS.shared_lib.suffix = .so
 
 Spore-specific product options are configured using the syntax `<spore>.<product>.<option> = <value>`.
 
@@ -171,14 +171,14 @@ structure called `moss.build` by default.
 
 Build objects and products are placed according to the following guidelines:
 
-- headers -> `YEAST.HEADER.PATH`
-- static and shared libraries -> `YEAST.LIBRARY.PATH`
-- object files -> `YEAST.OBJECT.PATH`
-- executables -> `YEAST.EXECUTABLE.PATH`
+- headers -> `MOSS.HEADER.PATH`
+- static and shared libraries -> `MOSS.LIBRARY.PATH`
+- object files -> `MOSS.OBJECT.PATH`
+- executables -> `MOSS.EXECUTABLE.PATH`
 
-Headers located in `YEAST.HEADER.PATH` are automatically included as part of
+Headers located in `MOSS.HEADER.PATH` are automatically included as part of
 the system include path when building spore products. Libraries located in
-`YEAST.LIB.PATH` are included as part of the library search path when linking
+`MOSS.LIB.PATH` are included as part of the library search path when linking
 spore products.
 
 An example `moss.build` structure might look something like this:
