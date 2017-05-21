@@ -20,7 +20,7 @@ $1.targets += $$($1.executable.product)
 $$($1.spore): $$($1.executable.product)
 
 $$($1.executable.product): $$($1.objs) | $(MOSS.EXECUTABLE.PATH)
-	$(call TOOL.EXECUTABLE.CMD, $$<, $$@)
+	$(call TOOL.EXECUTABLE.CMD, $$<, $$@, $($1.libraries))
 
 endif
 endef
