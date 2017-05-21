@@ -236,6 +236,16 @@ possibly even individual spores? It may simplify some things, but the
 performance tradeoffs are unknown. As little recursion as possible is the
 general design goal.
 
+For example, instead of expanding rules for spores using foreach into a flat
+Makefile, it would be possible to invoke a child process to build each spore
+using the same rules with variables expanded within each process sandbox. This
+could take place in parallel once the spore interdependencies have been
+resolved at the top level. An added benefit is that on multi-core machines,
+dependency checks for leaf components could take place in parallel.
+
+Without a tangable test, it''s difficult to understand what the performance
+tradeoffs would be.
+
 Managing Variants and Configuration
 ===================================
 
