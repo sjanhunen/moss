@@ -226,3 +226,39 @@ An example `moss.build` structure might look something like this:
 Moss assumes that header files are shared across all architectures and
 toolchains. Any architecture-specific header files are an internal
 implementation detail of the source code for a spore that defines them.
+
+Recursive vs Inclusive
+======================
+
+There are some high-level considerations to make. Do we use any amount of
+recursive make to help with iteration over toolchains, architectures, or
+possibly even individual spores? It may simplify some things, but the
+performance tradeoffs are unknown. As little recursion as possible is the
+general design goal.
+
+Managing Variants and Configuration
+===================================
+
+Likely, these are 3 separate concepts
+
+1. Varieties of spores through inheritance of common variables
+
+2. Configuration of spores through setting of variables (think menuconfig or
+kconfig)
+
+3. Selection and application of tool chains for building spores
+
+These concepts should be kept as orthogonal as possible. Likely point 3 is the
+only one needed formally right away.
+
+Note that gnumake conditionals may provide a very simple and powerful solution
+for configuration:
+https://www.gnu.org/software/make/manual/html_node/Conditional-Functions.html
+
+For example
+
+	util.source += $(if util.config.use_gsl, gsl.c)
+	util.cflags += $(if util.config.use_gsl, USE_GSL)
+
+If we end up using an inheritance-type pattern for creating varieties of
+spores, the configuration approach above would become problematic.
