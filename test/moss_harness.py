@@ -144,8 +144,9 @@ class SourceFile(AbstractFile):
 class CSourceFile(SourceFile):
 
     C_SOURCE_TEMPLATE = """
-void function_%s()
+int %s()
 {
+	return 0;
 }
 """
 
@@ -214,6 +215,7 @@ class SporeFile(SourceFile):
         spore_name = os.path.basename(os.path.splitext(name)[0])
         out = io.StringIO()
         out.write('MOSS.SPORES += %s\n' % spore_name)
+        out.write('%s.products = %s\n' % (spore_name, products))
         out.write('%s.source =' % spore_name)
         for s in sources:
             out.write(' \\\n    %s' % s.name)

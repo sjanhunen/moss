@@ -10,16 +10,19 @@
 # MOSS.STATIC_LIB.PATH - path for placing completed library products
 
 define MOSS.STATIC_LIB.RULES
+ifneq ($(filter $($1.products),static_lib),)
 
 $1.static_lib.product = \
 	$(MOSS.STATIC_LIB.PATH)$(TOOL.STATIC_LIB.PREFIX)$$($1.name)$(TOOL.STATIC_LIB.SUFFIX)
-$1.products += $$($1.static_lib.product)
+
+$1.targets += $$($1.static_lib.product)
 
 $$($1.spore): $$($1.static_lib.product)
 
 $$($1.static_lib.product): $$($1.objs) | $(MOSS.STATIC_LIB.PATH)
 	$(call TOOL.STATIC_LIB.CMD, $$<, $$@)
 
+endif
 endef
 
 ifdef TOOL.STATIC_LIB.CMD
