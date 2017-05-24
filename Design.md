@@ -66,6 +66,8 @@ For example:
 	util.depends = common
 	util.products = shared_lib static_lib headers
 
+Can we only list the desired end targets in MOSS.SPORES and use dependencies to figure out the rest?
+
 Spores are defined with the following key variables:
 
 - `<spore>.name` - base name used as part of output products
@@ -267,8 +269,12 @@ https://www.gnu.org/software/make/manual/html_node/Conditional-Functions.html
 
 For example
 
-	util.source += $(if util.config.use_gsl, gsl.c)
-	util.cflags += $(if util.config.use_gsl, USE_GSL)
+	util.source += $(if $1.config.use_gsl, gsl.c)
+	util.cflags += $(if $1.config.use_gsl, USE_GSL)
+
+To use an inheritance-type pattern, it''s necessary to make use of the $1
+expansion rather than hard-coding the config variable name. A prototype needs
+to be done to fully vet this concept.
 
 If we end up using an inheritance-type pattern for creating varieties of
 spores, the configuration approach above would become problematic.
