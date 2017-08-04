@@ -73,17 +73,3 @@ class TestMoss(unittest.TestCase):
             self.assertEqual(0, build.make())
             self.assertTrue(c_obj.newer_than(c_hdr))
 
-
-    def test_executable_product(self):
-
-        mk = Makefile(
-            spores=SporeFile(
-                sources=CSourceFile('main.c'),
-                products='executable',
-                name='main.spore'),
-            name='Makefile')
-
-        with SourceTree('tree') as src:
-            src.create(mk)
-            build = Build(src, mk)
-            self.assertEqual(build.make(), 0)
