@@ -75,6 +75,16 @@ class Build(object):
         # TODO: parse this from Moss.settings
         return 'moss.build/obj'
 
+    @property
+    def exe_suffix(self):
+        # TODO: parse this from Moss.settings
+        return ''
+
+    @property
+    def exe_dir(self):
+        # TODO: parse this from Moss.settings
+        return 'moss.build/bin'
+
     def clean(self, targets):
         pass
 
@@ -200,6 +210,12 @@ class StaticLibProductFile(ProductFile):
     def __init__(self, build, spore):
         pass
 
+class ExecutableProductFile(AbstractFile):
+    def __init__(self, build, spore):
+        super(ExecutableProductFile, self).__init__(build.exe_dir + '/' + spore.name
+                                         + build.exe_suffix)
+
+
 
 class SporeFile(SourceFile):
 
@@ -223,6 +239,7 @@ class SporeFile(SourceFile):
         super(SporeFile, self).__init__(name, out.getvalue(), sources)
         self._products = products
         self._sources = sources
+        self._name = spore_name
 
     @property
     def sources(self):
@@ -231,6 +248,10 @@ class SporeFile(SourceFile):
     @property
     def products(self):
         return self._products
+
+    @property
+    def name(self):
+        return self._name
 
 
 class Makefile(SourceFile):
