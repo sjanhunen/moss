@@ -75,20 +75,15 @@ class Build(object):
         # TODO: parse this from Moss.settings
         return 'moss.build/obj'
 
-    @property
-    def exe_suffix(self):
-        # TODO: parse this from Moss.settings
-        return ''
-
-    @property
-    def exe_dir(self):
-        # TODO: parse this from Moss.settings
-        return 'moss.build/bin'
-
-    def static_lib_name(self, spore_name):
+    def executable_name(self, spore):
         # TODO: parse this from Moss.settings
         return '%s/%s%s%s' % (
-                'moss.build/lib', 'lib', spore_name, '.a')
+                'moss.build/bin', '', spore.name, '')
+
+    def static_lib_name(self, spore):
+        # TODO: parse this from Moss.settings
+        return '%s/%s%s%s' % (
+                'moss.build/lib', 'lib', spore.name, '.a')
 
     def clean(self, targets):
         pass
@@ -206,23 +201,22 @@ class ObjectFile(AbstractFile):
 
 
 class ProductFile(AbstractFile):
-    def __init__(self, build, spore):
-        pass
+    def __init__(self, name, spore):
+        super(ProductFile, self).__init__(name)
+        self._spore = spore
 
     @property
     def spore(self):
-        pass
+        return self._spore
 
 
-class StaticLibProductFile(AbstractFile):
+class StaticLibProductFile(ProductFile):
     def __init__(self, build, spore):
-        super(StaticLibProductFile, self).__init__(build.static_lib_name(spore.name))
+        super(StaticLibProductFile, self).__init__(build.static_lib_name(spore), spore)
 
-class ExecutableProductFile(AbstractFile):
+class ExecutableProductFile(ProductFile):
     def __init__(self, build, spore):
-        super(ExecutableProductFile, self).__init__(build.exe_dir + '/' + spore.name
-                                         + build.exe_suffix)
-
+        super(ExecutableProductFile, self).__init__(build.executable_name(spore),spore)
 
 
 class SporeFile(SourceFile):
