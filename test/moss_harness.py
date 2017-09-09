@@ -85,6 +85,11 @@ class Build(object):
         # TODO: parse this from Moss.settings
         return 'moss.build/bin'
 
+    def static_lib_name(self, spore_name):
+        # TODO: parse this from Moss.settings
+        return '%s/%s%s%s' % (
+                'moss.build/lib', 'lib', spore_name, '.a')
+
     def clean(self, targets):
         pass
 
@@ -209,9 +214,9 @@ class ProductFile(AbstractFile):
         pass
 
 
-class StaticLibProductFile(ProductFile):
+class StaticLibProductFile(AbstractFile):
     def __init__(self, build, spore):
-        pass
+        super(StaticLibProductFile, self).__init__(build.static_lib_name(spore.name))
 
 class ExecutableProductFile(AbstractFile):
     def __init__(self, build, spore):
