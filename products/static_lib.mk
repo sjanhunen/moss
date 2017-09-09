@@ -20,7 +20,7 @@ $1.targets += $$($1.static_lib.product)
 $$($1.spore): $$($1.static_lib.product)
 
 $$($1.static_lib.product): $$($1.objs) | $(MOSS.STATIC_LIB.PATH)
-	$(call TOOL.STATIC_LIB.CMD, $$<, $$@)
+	$(call TOOL.STATIC_LIB.CMD, $$($1.objs), $$@)
 
 endif
 endef
