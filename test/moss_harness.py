@@ -73,15 +73,15 @@ class Build(object):
     @property
     def obj_dir(self):
         # TODO: parse this from Moss.settings
-        return 'moss.build/obj'
+        return '__moss__/obj'
 
     def executable_name(self, spore):
         # TODO: parse this from Moss.settings
-        return '%s/%s%s%s' % ('moss.build/bin', '', spore.name, '')
+        return '%s/%s%s%s' % ('__moss__/bin', '', spore.name, '')
 
     def static_lib_name(self, spore):
         # TODO: parse this from Moss.settings
-        return '%s/%s%s%s' % ('moss.build/lib', 'lib', spore.name, '.a')
+        return '%s/%s%s%s' % ('__moss__/lib', 'lib', spore.name, '.a')
 
     def clean(self, targets):
         pass

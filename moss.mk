@@ -62,7 +62,7 @@ to store object and product files.
 
 endef
 
-MOSS.BUILD.TREE ?= moss.build
+MOSS.BUILD.TREE ?= __moss__
 
 ifneq ($(strip $(MOSS.BUILD.TREE)),)
 MOSS.OBJECT.PATH = $(MOSS.BUILD.TREE)/obj/$(MOSS.ARCH_TOOL.NAME)/
