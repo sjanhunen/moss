@@ -18,7 +18,7 @@ class TestLargeSourceTree(unittest.TestCase):
         mk = Makefile(
             spores=[make_spore() for _ in range(10)], name='Makefile')
 
-        with SourceTree('tree', preserve=True) as src:
+        with SourceTree('tree', preserve=False) as src:
             src.create(mk)
             build = Build(src, mk)
             self.assertEqual(0, build.make('-j4'))
