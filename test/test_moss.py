@@ -72,4 +72,3 @@ class TestMoss(unittest.TestCase):
             c_hdr.touch()
             self.assertEqual(0, build.make())
             self.assertTrue(c_obj.newer_than(c_hdr))
-

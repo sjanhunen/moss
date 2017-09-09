@@ -77,13 +77,11 @@ class Build(object):
 
     def executable_name(self, spore):
         # TODO: parse this from Moss.settings
-        return '%s/%s%s%s' % (
-                'moss.build/bin', '', spore.name, '')
+        return '%s/%s%s%s' % ('moss.build/bin', '', spore.name, '')
 
     def static_lib_name(self, spore):
         # TODO: parse this from Moss.settings
-        return '%s/%s%s%s' % (
-                'moss.build/lib', 'lib', spore.name, '.a')
+        return '%s/%s%s%s' % ('moss.build/lib', 'lib', spore.name, '.a')
 
     def clean(self, targets):
         pass
@@ -169,7 +167,9 @@ int %s()
         out = io.StringIO()
         if not includes is None:
             out.write('#include "%s"' % includes.name)
-            dependencies = [includes, ]
+            dependencies = [
+                includes,
+            ]
         else:
             dependencies = []
         out.write(self.C_SOURCE_TEMPLATE % fn_name)
@@ -212,11 +212,14 @@ class ProductFile(AbstractFile):
 
 class StaticLibProductFile(ProductFile):
     def __init__(self, build, spore):
-        super(StaticLibProductFile, self).__init__(build.static_lib_name(spore), spore)
+        super(StaticLibProductFile, self).__init__(
+            build.static_lib_name(spore), spore)
+
 
 class ExecutableProductFile(ProductFile):
     def __init__(self, build, spore):
-        super(ExecutableProductFile, self).__init__(build.executable_name(spore),spore)
+        super(ExecutableProductFile, self).__init__(
+            build.executable_name(spore), spore)
 
 
 class SporeFile(SourceFile):
@@ -226,9 +229,13 @@ class SporeFile(SourceFile):
     #                defines='BOB', products='static_lib')
     def __init__(self, sources, products, name):
         if not isinstance(sources, collections.Iterable):
-            sources = [sources, ]
+            sources = [
+                sources,
+            ]
         if not isinstance(products, collections.Iterable):
-            products = [products, ]
+            products = [
+                products,
+            ]
 
         spore_name = os.path.basename(os.path.splitext(name)[0])
         out = io.StringIO()
@@ -259,7 +266,9 @@ class SporeFile(SourceFile):
 class Makefile(SourceFile):
     def __init__(self, name, spores):
         if not isinstance(spores, collections.Iterable):
-            spores = [spores, ]
+            spores = [
+                spores,
+            ]
 
         out = io.StringIO()
         for s in spores:

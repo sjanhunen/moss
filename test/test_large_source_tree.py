@@ -3,7 +3,6 @@ from moss_harness import *
 
 
 class TestLargeSourceTree(unittest.TestCase):
-
     def test_large_source_tree(self):
 
         make_filename = lambda ext='': ''.join(
