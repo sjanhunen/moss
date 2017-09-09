@@ -127,6 +127,9 @@ class AbstractFile(metaclass=ABCMeta):
     def newer_than(self, other):
         return self._path.stat().st_mtime > other._path.stat().st_mtime
 
+    def not_older_than(self, other):
+        return self._path.stat().st_mtime >= other._path.stat().st_mtime
+
     def delete(self):
         self._path.unlink()
 

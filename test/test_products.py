@@ -2,7 +2,7 @@ import unittest
 from moss_harness import *
 import time
 
-class TestMoss(unittest.TestCase):
+class TestProducts(unittest.TestCase):
 
     def test_executable(self):
 
@@ -16,9 +16,8 @@ class TestMoss(unittest.TestCase):
 
         with SourceTree('tree') as src:
             src.create(mk)
-            # TODO: how do we solve the timestamp problem for OS X?
-            time.sleep(1)
             build = Build(src, mk)
-            self.assertEqual(build.make(), 0)
             exe = ExecutableProductFile(build, spore)
-            self.assertTrue(exe.newer_than(c_source))
+            self.assertFalse(exe.exists());
+            self.assertEqual(build.make(), 0)
+            self.assertTrue(exe.not_older_than(c_source))
