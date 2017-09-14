@@ -122,7 +122,7 @@ $$($1.spore): $$($1.objs)
 	touch $$@
 
 $1_clean:
-	rm -f $$($1.targets) $$($1.objs) $$(1.deps) $$($1.depend) $$($1.spore)
+	rm -f $$($1.targets) $$($1.objs) $$($1.deps) $$($1.depend) $$($1.spore)
 
 # Include generated dependency information if it exists
 -include $$($1.depend)
