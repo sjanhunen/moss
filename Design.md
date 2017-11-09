@@ -74,6 +74,12 @@ Each spore may produce one or more products as outputs during the build
 process. Moss manages a list of all spores through the variable
 `MOSS.SPORES`. If a new spore is created, it must be added to this list.
 
+Defining spores:
+
+- done entirely through variables
+- configuration done only through conditional assignment (not with if statements)
+- no knowledge of tool chain or compiler specifics is specified (expect for architecture-specific sections)
+
 For example:
 
 	MOSS.SPORES += util
@@ -90,6 +96,13 @@ Spores are defined with the following key variables:
 - `<spore>.products` - the list of final output products produced by this spore
 - `<spore>.source` - the list of source files required to generate products
 - `<spore>.headers` - the list of header files to be released with products
+
+A simple yet elegant way to support libraries compiled from source and pre-built binary libraries is through spore configuration of explicit dependencies.
+
+	# mylib is always linked because it is required by main
+	main.libraries = mylib
+	# No dependency if we are using a prebuilt library already in the path
+	main.depends = if($1.config.use_mylib_source, mylib)
 
 Products
 --------
