@@ -273,8 +273,23 @@ could take place in parallel once the spore interdependencies have been
 resolved at the top level. An added benefit is that on multi-core machines,
 dependency checks for leaf components could take place in parallel.
 
-Without a tangable test, it''s difficult to understand what the performance
-tradeoffs would be.
+If we make use of target-specific variables for toolchain settings, we need to invoke make once recursively on each spore for that target to ensure dependencies are right.
+
+If we simply set toolchain in a top-level invocation of make, we can use that variable in any invocation.
+
+We could also generate spore targets for all toolchains in a single top level invocation.
+
+For example, spore crypto could spawn
+
+	armv5/crypto armv7/crypto host/crypto
+
+By default, linking armv7/app would pick up armv7/crypto. However, this could be overridden with
+
+	armv7/app.depends = armv5/crypto
+
+Toolchain specific dependencies would automatically inherit the appropriate toolchain prefix.
+
+Some use cases may require that toolchain be specialized for certain spores by architecture. That is, a given spore might have to be built a special way for a particular architecture. I think this could be done via target specific variables.
 
 Managing Variants and Configuration
 ===================================
