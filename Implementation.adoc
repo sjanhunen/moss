@@ -46,44 +46,62 @@ A simple yet elegant way to support libraries compiled from source and pre-built
 	# No dependency if we are using a prebuilt library already in the path
 	main.depends = if($1.config.use_mylib_source, mylib)
 
-Product Configuration
----------------------
+Language Definition
+-------------------
 
-Global product options may be configured using the syntax
-`M.<product>.<option> = <value>`. For example:
+Languages are registered with Moss when they are added by name to the `M.languages` variable.
+Globally, language options are configured using the syntax `M.lang.<name>.<option> = <value>`.
 
-	M.headers.path = include
-	M.executable.path = bin/$(M.ARCH)
-	M.executable.suffix = .exe
-	M.shared_lib.path = lib/$(M.ARCH)
-	M.shared_lib.suffix = .so
+For example:
 
-Spore-specific product options are configured using the syntax `<spore>.<product>.<option> = <value>`.
+	M.languages += c
+	M.lang.c.input = %.c
+	M.lang.c.output = %.o
+	M.lang.c.defines = DEFAULT_MOSS
 
-Creating products can likely be achieved entirely through variables too.
+	# TODO: how do we pass in defines, includes, etc?
+	# This assumes we can use M.tool as a global
+	define M.lang.c.recipe
+		$(call M.tool.ccompile, $$^, $$@)
+		$(call M.tool.cdepend, $$^, $$@)
+	endef
+
+Language options can be configured specifically for each spore with the syntax
+`<spore>.<language>.<option> = <value>`. For example:
+
+	util.c.defines = POSIX_2001
+	util.c.include = util/inc
+
+The spore specific options override any global options. To include the global
+Moss options for a specific spore when overriding, simply include the global
+options as part of the spore-specific options. For example:
+
+	util.c.defines = $(M.lang.c.defines) UTIL_OPTION_X=1
+
+
+Product Definition
+------------------
+
+Products are registered with Moss when they are added by name to the `M.products` variable.
+Global product options are set using the syntax
+`M.prod.<name>.<option> = <value>`.
 For example, an executable product might look something like this
 
-	M.product.exe.path = 
-	M.product.exe.prefix = 
-	M.product.exe.suffix = 
-	M.product.exe.depends = $$($1.object)
+	M.products += executable
+	M.prod.executable.path = $(M.tree.bin)
+	# TODO: the toolchain should define the suffix/prefix
+	M.prod.executable.prefix = 
+	M.prod.executable.suffix = .exe
+	M.prod.executable.depends = $$($1.objects)
 
-	define M.product.exe.recipe
-		gcc -o $@ $<
+	# Use a multi-line define to support multi-step recipes
+	define M.prod.executable.recipe
+		$(call M.tool.link, $$<, $$@)
 	endef
 
-A zipfile product that creates a zip file from a bunch of spore sources might look like this
+Moss manages the silent or debug output of the recipe and allows for customized outputs as the recipe is executed.
 
-	M.product.zip.path = bin
-	M.product.zip.prefix=
-	M.product.zip.suffix=.zip
-	M.product.zip.depends=$$($1.source)
-
-	define M.product.zip.recipe
-		zip -f $@ $<
-	endef
-
-Moss would manage the silent output of the recipe and allow for customized outputs as the recipe is executed.
+Spore-specific product options may be configured using the syntax `<spore>.prod.<name>.<option> = <value>`.
 
 Dependency Generation
 ---------------------

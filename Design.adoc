@@ -47,20 +47,6 @@ Moss manages the chaining of translation and compilation to ultimately produce a
 Each toolchain supports at least one language that is used by source files.
 Many toolchains support multiple languages (e.g. GCC and LLVM).
 
-Globally, language options are configured using the syntax `M.<language>.<option> = <value>`.
-
-Language options can be configured specifically for each spore with the syntax
-`<spore>.<language>.<option> = <value>`. For example:
-
-	util.c.defines = POSIX_2001
-	util.c.include = util/inc
-
-The spore specific options override any global options. To include the global
-Moss options for a specific spore when overriding, simply include the global
-options as part of the spore-specific options. For example:
-
-	util.c.defines = $(M.c.defines) UTIL_OPTION_X=1
-
 Products
 --------
 
