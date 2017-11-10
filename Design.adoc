@@ -47,7 +47,7 @@ Moss manages the chaining of translation and compilation to ultimately produce a
 Each toolchain supports at least one language that is used by source files.
 Many toolchains support multiple languages (e.g. GCC and LLVM).
 
-Globally, language options are configured using the syntax `MOSS.<language>.<option> = <value>`.
+Globally, language options are configured using the syntax `M.<language>.<option> = <value>`.
 
 Language options can be configured specifically for each spore with the syntax
 `<spore>.<language>.<option> = <value>`. For example:
@@ -59,7 +59,7 @@ The spore specific options override any global options. To include the global
 Moss options for a specific spore when overriding, simply include the global
 options as part of the spore-specific options. For example:
 
-	util.c.defines = $(MOSS.c.defines) UTIL_OPTION_X=1
+	util.c.defines = $(M.c.defines) UTIL_OPTION_X=1
 
 Products
 --------
@@ -86,8 +86,8 @@ Examples: host, amd64, cortex-m4, cortex-r7, avr, mipsel, etc.
 
 Code generated for different architectures does not interoperate and cannot be linked together.
 
-- `MOSS.ARCHS`: All available architectures for current toolchain
-- `MOSS.ARCH`: Current architecture for current toolchain
+- `M.ARCHS`: All available architectures for current toolchain
+- `M.ARCH`: Current architecture for current toolchain
 
 Good discussion on architecture naming here: http://clang.llvm.org/docs/CrossCompilation.html
 
@@ -113,8 +113,8 @@ While a toolchain must include all tools required to produce an executable binar
 
 Generally, debug versus release build variants are handled at the toolchain level due to the significant impact that may be present on generated code.
 
-- `MOSS.TOOLS`: All available toolchains
-- `MOSS.TOOL`: Current toolchain
+- `M.TOOLS`: All available toolchains
+- `M.TOOL`: Current toolchain
 
 A toolchain uses both architecture and variant to customize settings to the specific code generation tools.
 

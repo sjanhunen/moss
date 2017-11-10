@@ -8,7 +8,7 @@ Spore Definition
 
 For example:
 
-	Moss.spores += util
+	M.spores += util
 	util.name = utility
 	util.depends = common
 	util.products = shared_lib static_lib
@@ -50,36 +50,36 @@ Product Configuration
 ---------------------
 
 Global product options may be configured using the syntax
-`MOSS.<product>.<option> = <value>`. For example:
+`M.<product>.<option> = <value>`. For example:
 
-	MOSS.headers.path = include
-	MOSS.executable.path = bin/$(MOSS.ARCH)
-	MOSS.executable.suffix = .exe
-	MOSS.shared_lib.path = lib/$(MOSS.ARCH)
-	MOSS.shared_lib.suffix = .so
+	M.headers.path = include
+	M.executable.path = bin/$(M.ARCH)
+	M.executable.suffix = .exe
+	M.shared_lib.path = lib/$(M.ARCH)
+	M.shared_lib.suffix = .so
 
 Spore-specific product options are configured using the syntax `<spore>.<product>.<option> = <value>`.
 
 Creating products can likely be achieved entirely through variables too.
 For example, an executable product might look something like this
 
-	Moss.product.exe.path = 
-	Moss.product.exe.prefix = 
-	Moss.product.exe.suffix = 
-	Moss.product.exe.depends = $$($1.object)
+	M.product.exe.path = 
+	M.product.exe.prefix = 
+	M.product.exe.suffix = 
+	M.product.exe.depends = $$($1.object)
 
-	define Moss.product.exe.recipe
+	define M.product.exe.recipe
 		gcc -o $@ $<
 	endef
 
 A zipfile product that creates a zip file from a bunch of spore sources might look like this
 
-	Moss.product.zip.path = bin
-	Moss.product.zip.prefix=
-	Moss.product.zip.suffix=.zip
-	Moss.product.zip.depends=$$($1.source)
+	M.product.zip.path = bin
+	M.product.zip.prefix=
+	M.product.zip.suffix=.zip
+	M.product.zip.depends=$$($1.source)
 
-	define Moss.product.zip.recipe
+	define M.product.zip.recipe
 		zip -f $@ $<
 	endef
 
@@ -160,14 +160,14 @@ structure called `moss.build` by default.
 
 Build objects and products are placed according to the following guidelines:
 
-- headers -> `MOSS.HEADER.PATH`
-- static and shared libraries -> `MOSS.LIBRARY.PATH`
-- object files -> `MOSS.OBJECT.PATH`
-- executables -> `MOSS.EXECUTABLE.PATH`
+- headers -> `M.HEADER.PATH`
+- static and shared libraries -> `M.LIBRARY.PATH`
+- object files -> `M.OBJECT.PATH`
+- executables -> `M.EXECUTABLE.PATH`
 
-Headers located in `MOSS.HEADER.PATH` are automatically included as part of
+Headers located in `M.HEADER.PATH` are automatically included as part of
 the system include path when building spore products. Libraries located in
-`MOSS.LIB.PATH` are included as part of the library search path when linking
+`M.LIB.PATH` are included as part of the library search path when linking
 spore products.
 
 An example `moss.build` structure might look something like this:
