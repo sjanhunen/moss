@@ -1,5 +1,7 @@
-Core Concepts
-=============
+Moss Design Overview
+====================
+
+This document captures the core design decisions and concepts for the MOSS build system.
 
 Toolchain
 ---------
@@ -117,7 +119,7 @@ Four types of Moss products are currently supported:
 Global product options may be configured using the syntax
 `MOSS.<product>.<option> = <value>`. For example:
 
-    MOSS.headers.path = include
+	MOSS.headers.path = include
 	MOSS.executable.path = bin/$(MOSS.ARCH)
 	MOSS.executable.suffix = .exe
 	MOSS.shared_lib.path = lib/$(MOSS.ARCH)
