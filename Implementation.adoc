@@ -3,6 +3,63 @@ Moss Implementation Considerations
 
 This document is a journal of implementation considerations, tradeoffs, and decisions encountered during the implementation of Moss.
 
+Spore Definition
+----------------
+
+For example:
+
+	Moss.spores += util
+	util.name = utility
+	util.depends = common
+	util.products = shared_lib static_lib
+
+Can we only list the desired end targets in Moss.spores and use dependencies to figure out the rest?
+
+Spores are defined with the following key variables:
+
+- `<spore>.name` - base name used as part of output products
+- `<spore>.depends` - other spores required as dependencies of this spore
+- `<spore>.products` - the list of final output products produced by this spore
+- `<spore>.source` - the list of source files required to generate products
+- `<spore>.headers` - the list of header include paths to be used with libraries
+
+Note that gnumake conditionals may provide a very simple and powerful solution
+for configuration:
+https://www.gnu.org/software/make/manual/html_node/Conditional-Functions.html
+
+For example
+
+	util.source += $(if $1.config.use_gsl, gsl.c)
+	util.cflags += $(if $1.config.use_gsl, USE_GSL)
+
+To use an inheritance-type pattern, it''s necessary to make use of the $1
+expansion rather than hard-coding the config variable name. A prototype needs
+to be done to fully vet this concept.
+
+If we end up using an inheritance-type pattern for creating varieties of
+spores, the configuration approach above would become problematic.
+
+A simple yet elegant way to support libraries compiled from source and pre-built binary libraries is through spore configuration of explicit dependencies.
+
+	# mylib is always linked because it is required by main
+	main.libraries = mylib
+	# No dependency if we are using a prebuilt library already in the path
+	main.depends = if($1.config.use_mylib_source, mylib)
+
+Product Configuration
+---------------------
+
+Global product options may be configured using the syntax
+`MOSS.<product>.<option> = <value>`. For example:
+
+	MOSS.headers.path = include
+	MOSS.executable.path = bin/$(MOSS.ARCH)
+	MOSS.executable.suffix = .exe
+	MOSS.shared_lib.path = lib/$(MOSS.ARCH)
+	MOSS.shared_lib.suffix = .so
+
+Spore-specific product options are configured using the syntax `<spore>.<product>.<option> = <value>`.
+
 Dependency Generation
 ---------------------
 

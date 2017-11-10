@@ -1,7 +1,47 @@
 Moss Design Overview
 ====================
 
-This document captures the core design decisions and concepts for the MOSS build system.
+This document captures the core design decisions and concepts that define the Moss build system.
+
+Spores
+------
+
+The spore is the fundamental unit of modular software description and construction in Moss.
+A spore describes how Moss creates binary products from source files in an architecture and toolchain independent fashion.
+
+Spores are defined entirely through a series of variable definitions. Creation and management of rules and dependencies is completely managed by moss.
+Knowledge of toolchain, compiler, or architecture specifics are decoupled from the description of the software itself.
+This avoids many pitfalls of tradational make-based build systems.
+
+A product is produced by combining object files or other product files into a library or binary output.
+Each spore may produce one or more products as outputs during the build process.
+
+Each spore is compiled and linked in its own 'sandbox'.
+This guarantees that object and binary files will never be clobbered, even if multiple spores use the same source file compiled in different ways.
+
+The fundamental actions defined for creation of spore output products are:
+
+- Translate: product or source -> source
+- Compile: source -> object
+- Produce: object(s) + product(s) -> product
+
+Moss manages the creation and application of these rules for multiple architectures, toolchains, and variants.
+
+Three types of products are envisioned:
+
+- Executable: a fully-linked binary executable
+- Static Library: a library for static linking into one or more executables
+- Shared Library: a dynamic library for use with one or more executable products
+
+Concepts for managing spore varieties and configuration switches:
+
+1. Varieties of spores through inheritance of common variables
+
+2. Configuration of spores through setting of variables (think menuconfig or kconfig)
+
+3. Selection and application of tool chains for building spores.
+
+These concepts should be kept as orthogonal as possible. Likely point 3 is the only one needed formally right away.
 
 Toolchain
 ---------
@@ -67,96 +107,3 @@ Moss options for a specific spore when overriding, simply include the global
 options as part of the spore-specific options. For example:
 
 	util.c.defines = $(MOSS.c.defines) UTIL_OPTION_X=1
-
-Spores
-------
-
-All outputs are generated from individual units of source code called spores.
-Each spore may produce one or more products as outputs during the build
-process. Moss manages a list of all spores through the variable
-`MOSS.SPORES`. If a new spore is created, it must be added to this list.
-
-Defining spores:
-
-- done entirely through variables
-- configuration done only through conditional assignment (not with if statements)
-- no knowledge of tool chain or compiler specifics is specified (expect for architecture-specific sections)
-
-For example:
-
-	MOSS.SPORES += util
-	util.name = utility
-	util.depends = common
-	util.products = shared_lib static_lib headers
-
-Can we only list the desired end targets in MOSS.SPORES and use dependencies to figure out the rest?
-
-Spores are defined with the following key variables:
-
-- `<spore>.name` - base name used as part of output products
-- `<spore>.depends` - other spores required as dependencies of this spore
-- `<spore>.products` - the list of final output products produced by this spore
-- `<spore>.source` - the list of source files required to generate products
-- `<spore>.headers` - the list of header files to be released with products
-
-A simple yet elegant way to support libraries compiled from source and pre-built binary libraries is through spore configuration of explicit dependencies.
-
-	# mylib is always linked because it is required by main
-	main.libraries = mylib
-	# No dependency if we are using a prebuilt library already in the path
-	main.depends = if($1.config.use_mylib_source, mylib)
-
-Products
---------
-
-Four types of Moss products are currently supported:
-
-- Executable: a fully-linked binary executable
-- Static Library: a library for static linking into one or more executables
-- Shared Library: a dynamic library for use with one or more executable products
-- Headers: a set of header files for stand-alone use or use with a library
-
-Global product options may be configured using the syntax
-`MOSS.<product>.<option> = <value>`. For example:
-
-	MOSS.headers.path = include
-	MOSS.executable.path = bin/$(MOSS.ARCH)
-	MOSS.executable.suffix = .exe
-	MOSS.shared_lib.path = lib/$(MOSS.ARCH)
-	MOSS.shared_lib.suffix = .so
-
-Spore-specific product options are configured using the syntax `<spore>.<product>.<option> = <value>`.
-
-
-
-
-Managing Variants and Configuration
-===================================
-
-Likely, these are 3 separate concepts
-
-1. Varieties of spores through inheritance of common variables
-
-2. Configuration of spores through setting of variables (think menuconfig or
-kconfig)
-
-3. Selection and application of tool chains for building spores
-
-These concepts should be kept as orthogonal as possible. Likely point 3 is the
-only one needed formally right away.
-
-Note that gnumake conditionals may provide a very simple and powerful solution
-for configuration:
-https://www.gnu.org/software/make/manual/html_node/Conditional-Functions.html
-
-For example
-
-	util.source += $(if $1.config.use_gsl, gsl.c)
-	util.cflags += $(if $1.config.use_gsl, USE_GSL)
-
-To use an inheritance-type pattern, it''s necessary to make use of the $1
-expansion rather than hard-coding the config variable name. A prototype needs
-to be done to fully vet this concept.
-
-If we end up using an inheritance-type pattern for creating varieties of
-spores, the configuration approach above would become problematic.
