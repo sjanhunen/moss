@@ -1,6 +1,16 @@
 Use Cases
 =========
 
+As someone integrating several libraries into my top-level build process, I would like to specify toolchain and architecture setting at one point and have all dependent libraries use these changes by default.
+
+As an integrator, I want to build my system for multiple architectures and with multiple tools with parallel build directory structures that don't clobber one another.
+
+As an integrator, I need to be able to customize toolchain settings per library.
+
+As a library developer, I don't want to concern myself with platform specifics that don't apply to me. I need to be able to set include paths and defines for my code in a portable way.
+
+As a library developer, I may control toolchain settings for my local testing, but I defer responsibility of that to the integrator for the next level up.
+
 Cross-compiling
 ---------------
 
