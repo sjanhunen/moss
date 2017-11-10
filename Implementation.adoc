@@ -60,6 +60,31 @@ Global product options may be configured using the syntax
 
 Spore-specific product options are configured using the syntax `<spore>.<product>.<option> = <value>`.
 
+Creating products can likely be achieved entirely through variables too.
+For example, an executable product might look something like this
+
+	Moss.product.exe.path = 
+	Moss.product.exe.prefix = 
+	Moss.product.exe.suffix = 
+	Moss.product.exe.depends = $$($1.object)
+
+	define Moss.product.exe.recipe
+		gcc -o $@ $<
+	endef
+
+A zipfile product that creates a zip file from a bunch of spore sources might look like this
+
+	Moss.product.zip.path = bin
+	Moss.product.zip.prefix=
+	Moss.product.zip.suffix=.zip
+	Moss.product.zip.depends=$$($1.source)
+
+	define Moss.product.zip.recipe
+		zip -f $@ $<
+	endef
+
+Moss would manage the silent output of the recipe and allow for customized outputs as the recipe is executed.
+
 Dependency Generation
 ---------------------
 
