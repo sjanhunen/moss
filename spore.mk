@@ -11,6 +11,10 @@ one.depends = two armv4/three
 
 base.stuff1 = base_stuff_1
 base.stuff2 = another_stuff_1
+armv5/base.stuff_armv5 = special
+armv4/base.stuff_armv4 = special
+
+armv5/base.stuff1 = base_stuff_1_armv5
 
 two.depends = base
 two.source = src/two.c
@@ -64,24 +68,41 @@ $(foreach a, $(M.archs), $(foreach s, $(M.spores), $(eval $(call M.rule.spore.ar
 # help.mk
 #
 
-
-define M.adoc.spore
-
-// Begin
-
-= spore=$1, arch=$2
-
-- depends = $($2/$1.depends)
-- source = $($2/$1.source)
+# Create combined list of all <arch>/$1.% and $1.% spore variables without duplicates
+define M.def.all_spore_vars
+$(sort $(notdir $(filter $(foreach arch,$(M.archs),$(arch)/$1.%) $1.%,$(.VARIABLES))))
+endef
 
 
-// End
+define M.def.spore_help_row
+| $1 | $($1) $(foreach arch,$(M.archs),| $($(arch)/$(1)))
+
+endef
+
+
+define M.def.spore_help
+
+= Spore $1
+
+.Variables
+|===
+| Variable | arch=<none> $(foreach arch, $(M.archs), | arch=$(arch))
+$(foreach var, $(call M.def.all_spore_vars,$1), $(call M.def.spore_help_row,$(var)))
+|===
+
+endef
+
+define M.def.help
+
+= Help for makefile `$(firstword $(MAKEFILE_LIST))`
+
+$(foreach s,$(M.spores),$(call M.def.spore_help,$s))
+
 endef
 
 .PHONY: help
 
 help:
 	@echo
-	$(info = Help for Moss)
-	$(info $(foreach s,$(M.spores),$(foreach a,$(M.archs),$(call M.adoc.spore,$s,$a))))
+	$(info $(M.def.help))
 
