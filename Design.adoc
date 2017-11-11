@@ -13,7 +13,7 @@ Three fundamental actions are used to create spore outputs as part of the Moss b
 
 - Translate: product -> language or language -> language
 - Compile: language -> object
-- Produce or grow: object(s) + product(s) -> product
+- Produce or grow or form: object(s) + product(s) -> product
 
 Spores are defined entirely through a series of variable definitions. Creation and management of rules and dependencies is completely managed by Moss.
 Knowledge of toolchain, compiler, or architecture specifics are decoupled from the description of the software itself.
