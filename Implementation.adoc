@@ -3,6 +3,24 @@ Moss Implementation Considerations
 
 This document is a journal of implementation considerations, tradeoffs, and decisions encountered during the implementation of Moss.
 
+Naming Conventions
+------------------
+
+Since all variables in a makefile are members of a global namespace, Moss uses a naming convention that separates spore definitions from one another as well as from internal Moss definitions.
+
+1. All Moss definitions are prefixed with `M.` according to the following conventions
+
+    a. Internal implementation definitions are prefixed with `M.def.`
+    a. Internal spore definitions are prefixed with `M.spore.`
+    a. Product definitions are prefixed with `M.prod.`
+    a. Language definitions are prefixed with `M.lang.`
+    a. Tool definitions are prefixed with `M.tool.`
+
+1. Common spore definitions are prefixed with `<spore>.` where '<spore>' is the lowercase spore name.
+
+1. Architecture-specific spore definitions are prefixed with `<arch>/<spore>.` where '<spore>' is the lowercase spore name and '<arch>' is the lowercase architecture name.
+
+
 Spore Definition
 ----------------
 
