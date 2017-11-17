@@ -117,9 +117,21 @@ For example, an executable product might look something like this
 		$(call M.tool.link, $$<, $$@)
 	endef
 
+Another potential approach moves the output definition into the tool definition.
+The form definition is really only to establish any dependencies and high-level options.
+
+    # When evaluated, $1 = arch/spore, $2 = toolchain
+    M.forms += zip
+    M.form.zip.depends = $($1.code)
+
+    # When evaluated, $1 = arch/spore, $2 = toolchain
+    M.tool.zip.recipe = zip -cvf $($1.name).zip $($1.code)
+    M.tool.zip.suffix = .zip
+    M.tool.zip.path = $(M.tree.bin)
+
 Moss manages the silent or debug output of the recipe and allows for customized outputs as the recipe is executed.
 
-Spore-specific product options may be configured using the syntax `<spore>.prod.<name>.<option> = <value>`.
+Spore-specific form options may be configured using the syntax `<spore>.<form>.<option> = <value>`.
 
 Dependency Generation
 ---------------------
