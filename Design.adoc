@@ -3,19 +3,18 @@ Moss Design Overview
 
 This document captures core design proposals and concepts for the Moss build system.
 
-Moss constructs final software products from source code.
-Three distinct levels are distinguished:
+Moss constructs final software artifacts from source code.
 
 1. Code - the source code everything is formed from
 2. Spore - collections of related code that will formed together and combined into an overall formation
-3. Formation - complete software build targets, one or more spores
+3. Artifact - complete software build targets, one or more spores
 
 The software build artifacts are developed into formations using tools.
 Three types of tool actions are defined:
 
 1. Transcode: source code -> source code (M.transcode?)
 2. Compile: source code -> object code (M.compile?)
-3. Form: code + other formations -> new formation (M.form?)
+3. Form: code + other artifact -> new artifact (M.form?)
 
 Tools are specialized according to:
 
@@ -26,23 +25,17 @@ Spores
 ------
 
 The spore is the fundamental unit of modular software description and construction in Moss.
-A spore describes how Moss creates binary products from source files in an architecture and toolchain independent fashion.
-
-Three fundamental actions are used to create spore outputs as part of the Moss build process:
-
-- Transcode: product -> language or language -> language
-- Compile: language -> object
-- Form: object(s) + product(s) -> product
+A spore describes how Moss forms artifacts from source code in an architecture and toolchain independent fashion.
 
 Spores are defined entirely through a series of variable definitions. Creation and management of rules and dependencies is completely managed by Moss.
 Knowledge of toolchain, compiler, or architecture specifics are decoupled from the description of the software itself.
 This avoids many pitfalls of tradational make-based build systems.
 
-Moss manages the creation and application of all makefile rules required for multiple languages, products, architectures, toolchains, and variants.
+Moss manages the creation and application of all makefile rules required for multiple languages, artifacts, architectures, toolchains, and variants.
 
 Each spore is translated and compiled in isolation.
 This guarantees that object and product files will never be clobbered, even if multiple spores use the same source file compiled in different ways.
-Spore products are grown in a way that allows spores to depend upon one another to create complex software.
+Spore artifacts are formed in a way that allows spores to depend upon one another to create complex software.
 
 Several proposed design concepts may be used to manage the multitude of spore varieties that may be required in real-world application:
 
@@ -66,17 +59,17 @@ Moss manages the chaining of translation and compilation to ultimately produce a
 Each toolchain supports at least one language that is used by source files.
 Many toolchains support multiple languages (e.g. GCC and LLVM).
 
-Products
---------
+Artifacts
+---------
 
-Three types of products are envisioned as default.
+Three types of artifacts are envisioned as default.
 
 - Executable: a fully-linked binary executable
 - Static Library: a library for static linking into one or more executables
-- Shared Library: a dynamic library for use with one or more executable products
+- Shared Library: a dynamic library for use with one or more executable artifacts
 
-Most products will require creation of obejct files using a compiler.
-Some products may be produced directly from source files.
+Most artifacts will require creation of obejct files using a compiler.
+Some artifacts may be produced directly from source files.
 
 Architectures
 -------------
