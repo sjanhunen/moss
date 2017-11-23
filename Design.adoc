@@ -1,20 +1,24 @@
 Moss Design Overview
 ====================
 
-This document captures core design proposals and concepts for the Moss build system.
+This document captures core design principles and concepts for the Moss build system.
 
-Moss constructs final software artifacts from source code.
+Overview
+--------
+
+Moss produces completed software artifacts from source code.
+The core concepts required by this process are:
 
 1. Code - the source code everything is formed from
-2. Spore - collections of related code that will formed together and combined into an overall formation
-3. Artifact - complete software build targets, one or more spores
+2. Spore - related code that will be formed together into a build artifact
+3. Artifact - software build product with content from one or more spores
 
-The software build artifacts are developed into formations using tools.
-Three types of tool actions are defined:
+Tools are required to produce artifacts from code.
+All tools with Moss are used to perform one of three actions:
 
 1. Transcode: source code -> source code (M.transcode?)
 2. Compile: source code -> object code (M.compile?)
-3. Form: code + other artifact -> new artifact (M.form?)
+3. Form: source or object code + artifacts -> artifact (M.form?)
 
 Tools are specialized according to:
 
@@ -24,20 +28,20 @@ Tools are specialized according to:
 Spores
 ------
 
-The spore is the fundamental unit of modular software description and construction in Moss.
-A spore describes how Moss forms artifacts from source code in an architecture and toolchain independent fashion.
+The spore is the fundamental unit of modular software artifact production in Moss.
+A spore describes how Moss produces artifacts from code in an architecture and toolchain independent fashion.
 
-Spores are defined entirely through a series of variable definitions. Creation and management of rules and dependencies is completely managed by Moss.
-Knowledge of toolchain, compiler, or architecture specifics are decoupled from the description of the software itself.
-This avoids many pitfalls of tradational make-based build systems.
-
+Spores are defined entirely through variable definition.
+Creation and management of rules and dependencies is managed automatically by Moss.
+Knowledge of toolchain and architecture specifics are decoupled from the description of the software itself.
 Moss manages the creation and application of all makefile rules required for multiple languages, artifacts, architectures, toolchains, and variants.
+This avoids many pitfalls of traditional make-based build systems.
 
-Each spore is translated and compiled in isolation.
-This guarantees that object and product files will never be clobbered, even if multiple spores use the same source file compiled in different ways.
-Spore artifacts are formed in a way that allows spores to depend upon one another to create complex software.
+Each spore is produced in isolation.
+This guarantees that object and artifact files will never be clobbered, even if multiple spores use the same source code in different ways.
+Spore artifacts are produced in a way that encourages creation of small libraries that are combined to produce complex artifacts.
 
-Several proposed design concepts may be used to manage the multitude of spore varieties that may be required in real-world application:
+Several design concepts are being considered to manage the multitude of spore varieties and artifacts that are required for non-trivial applications:
 
 1. Varieties of spores through inheritance of common variables. A spore could be created that inherits from another spore but allows overriding specific definitions.
 
