@@ -20,24 +20,24 @@ $(foreach arch, $(M.archs), \
 		$(foreach var, $(filter $(spore).%,$(.VARIABLES)), \
 			$(eval $(call M.var.spore.arch,$(var),$(arch))))))
 
-define M.def.form
+define M.def.artifact
 .PHONY: $1/$2.$3
 $1/$2.$3:
 	@echo Forming $$@
 endef
 
-# Create targets for spore formation for each arch, spore, form
+# Create targets for artifact production for each arch, spore, artifact
 $(foreach arch, $(M.archs),\
 	$(foreach spore, $(M.spores),\
-		$(foreach form, $($(arch)/$(spore).forms),\
-			$(eval $(call M.def.form,$(arch),$(spore),$(form)))\
+		$(foreach artifact, $($(arch)/$(spore).artifacts),\
+			$(eval $(call M.def.artifact,$(arch),$(spore),$(artifact)))\
 		)\
 	)\
 )
 
+# TODO: implement dependencies and rules for arch=<none>
 define M.rule.spore.arch
-$2/$1: $(addprefix $2/,$(M.spore.$1.basedep)) $(M.spore.$1.archdep) $(addprefix $2/$1.,$($2/$1.forms))
-	@echo "BUILD $1 for $2"
+$2/$1: $(addprefix $2/,$(M.spore.$1.basedep)) $(M.spore.$1.archdep) $(addprefix $2/$1.,$($2/$1.artifacts))
 endef
 
 .PHONY: $(M.spores)
