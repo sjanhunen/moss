@@ -108,7 +108,7 @@ For example, an executable product might look something like this
 	M.products += executable
 	M.prod.executable.path = $(M.tree.bin)
 	# TODO: the toolchain should define the suffix/prefix
-	M.prod.executable.prefix = 
+	M.prod.executable.prefix =
 	M.prod.executable.suffix = .exe
 	M.prod.executable.depends = $$($1.objects)
 
@@ -132,6 +132,66 @@ The form definition is really only to establish any dependencies and high-level 
 Moss manages the silent or debug output of the recipe and allows for customized outputs as the recipe is executed.
 
 Spore-specific form options may be configured using the syntax `<spore>.<form>.<option> = <value>`.
+
+Spore Specialization
+--------------------
+
+The concept is to allow for flags and options in Spore definition that can be used during expansion of variables.
+Inline documentation will make this significantly more managable in large build systems.
+For example:
+
+[source,makefile]
+----
+    base.var.host = host
+    base.var.armv4 = ARMv4
+    base.var.armv5 = ARMv5
+
+    # Supported flags
+
+    define base.flags.use_fpu.doc
+    Enable use of floating point for supported ARM CPUs.
+    endef
+
+    define base.flags.inline_mac.doc
+    Use inlined MAC code on ARM Cortex M4 for improved performance.
+    endef
+
+    # Supported options
+
+    define base.options.cpu_arch.doc
+    Specify the CPU target architecture for base library.
+    Supported architectures are
+
+    - $(base.var.x86): default ANSI C implementation suitable for most platforms
+    - $(base.var.armv4): ARM v4 instruction set
+    - $(base.var.armv5): ARM v5 instruction set
+
+    endef
+----
+
+When expanding the spore variables, options and flags can be used directly
+
+[source,makefile]
+----
+    base.source = \
+        $(wildcard src/*.cpp) \
+        $(wildcard src/$($1.options.cpu_arch)/*.cpp)
+
+    base.c.defines = $(if $($1.flags.use_fpu), USE_FPU)
+----
+
+Architecture-specific specializations can also override flags and options
+
+[source,makefile]
+----
+    # ARM Settings
+    armv5/base.flags.use_fpu = y
+    armv5/base.options.cpu_arch = $(base.var.armv5)
+
+    # X86 settings
+    x86/base.flags.use_fpu = n
+    x86/base.options.cpu_arch = $(base.var.host)
+----
 
 Dependency Generation
 ---------------------
