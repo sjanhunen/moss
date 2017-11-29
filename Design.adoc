@@ -4,18 +4,19 @@ Moss Design Overview
 This document captures core design principles and concepts for the Moss build system.
 
 Moss produces completed software artifacts from source code.
-The core concepts required by this process are:
+The core concepts in this process are:
 
-1. Code - the source code everything is formed from
-2. Spore - related bits of code that are combined together into a build artifact
+1. Spore - description of how to produce a final build artifact
+2. Code - content that must be compiled before being included in the artifact
+3. File - content that is directly used while forming the artifact
 3. Artifact - software build output with content from one or more spores
 
 Tools are used to produce artifacts from code.
 All tools with Moss to perform one of three actions:
 
 1. Transcode: source code -> source code
-2. Compile: source code -> object code
-3. Form: code + files + artifacts -> artifact
+2. Compile: source code -> object files
+3. Form: files + artifacts -> artifact
 
 Tools may be specialized according to:
 
@@ -25,8 +26,7 @@ Tools may be specialized according to:
 Spores
 ------
 
-The spore is the fundamental unit of modular software artifact production in Moss.
-A spore describes how Moss produces artifacts from code in an architecture and toolchain independent fashion.
+A spore describes how Moss produces artifacts from source code and files in an architecture and toolchain independent fashion.
 
 Definition
 ~~~~~~~~~~
@@ -40,24 +40,16 @@ This avoids many pitfalls of traditional make-based build systems.
 Specialization
 ~~~~~~~~~~~~~~
 
-Several design concepts are being considered to manage the multitude of spore varieties and artifacts that are required for non-trivial applications:
-
-1. Architectural specialization.
 A given spore may produce artifacts for multiple architectures without requiring duplication of the spore definition.
-The architecture-specific definitions 'extend' or 'inherit' from the base definiton.
-
-2. Selection and application of architecture and tool options for building spores.
+The architecture-specific 'specializations' are created from the base spore 'template'.
 Architecture-specific options and overrides can be specified through variables that 'overload' the base definition for the spore.
 
-3. Spore configuration through settings (think menuconfig or kconfig).
+Configuration
+~~~~~~~~~~~~~
+
+Think menuconfig or kconfig.
 This is a formalized way to specify and use conditional boolean switches and string settings to specialize the artifacts produced by a spore.
-This mechanism would likely be used as part of option 2 for maximum flexibility.
-
-4. Specialization of spores through inheritance.
-This is a more general application of option 1.
-A spore may inherit from another spore and overriding specific definitions.
-
-These concepts are each different and should be kept as orthogonal as possible. It is highly likely that options 1-2 are the only ones needed initially.
+Configuration is the ideal way to provide the setting that are used during specialization to fine tune artifact production.
 
 Isolation
 ~~~~~~~~~
@@ -66,41 +58,42 @@ Each spore is produced in isolation.
 This guarantees that object files and artifacts will never be clobbered, even if multiple spores use the source code in different ways.
 Spore artifacts are produced in a way that encourages creation of small libraries that are combined to produce complex artifacts.
 
-Code and Languages
-------------------
+Code
+----
 
-A language is named after its source form (for example, C or Rust).
-The Moss language description defines the outputs that will be created (for example, object files or other source language files).
-Translation is performed into a language from another source.
-Compilation is performed from a language into an object file.
+Code is compiled before it is included in a final artifact.
+It may also be transcoded before this compilation step.
+Translation is converts code from one language from another language.
+Compilation is converts source code into object code.
 Moss manages the chaining of translation and compilation to ultimately produce and object file from source file as required.
 
-Each toolchain supports at least one language that is used by source files.
-Many toolchains support multiple languages (e.g. GCC and LLVM).
+Files
+-----
+
+Files are formed into artifacts without being passed through a compiler.
+For example, a tarball is simply a collection of files packaged into a single artifact.
+Files may also be additional content required for production of executable outputs, such as tool configurations, etc.
+Object files are implicitly included in the list of files for an artifact base on the source code.
 
 Artifacts
 ---------
 
-Three types of artifacts are envisioned as default.
+Three types of artifacts are envisioned initially.
 
 - Executable: a fully-linked binary executable
 - Static Library: a library for static linking into one or more executables
 - Shared Library: a dynamic library for use with one or more executable artifacts
 
-Most artifacts will require creation of obejct files using a compiler.
+Most artifacts will require creation of object files using a compiler.
 Some artifacts may be produced directly from source files.
 
 Tools
 -----
 
-A tool is used to form artifacts from code.
+Tool are used to form all build artifacts.
 
-A toolchain is a set of tools that are used for a specific architecture.
-A tool uses both architecture and variant to customize settings to the specific code generation tools.
-Additional customization may be overlaid for each spore based upon architecture.
-
-Code generated by one toolchain cannot be linked or combined with code generated for another toolchain unless it is explicitly forced through spore dependencies.
-
+A tool uses both architecture and variant to specialize settings for object code generation.
+Code generated by one toolchain cannot be linked or combined with code generated for another toolchain unless it is explicitly forced through dependencies.
 Generally, debug versus release build variants are handled at the tool level due to the significant impact that may be present on generated code.
 
 Transcode
@@ -129,11 +122,6 @@ Architecture is the mechanism for customized compilation of spores for a particu
 A build architecture is defined by a specific CPU type and associated instruction set.
 
 Examples: host, amd64, cortex-m4, cortex-r7, avr, mipsel, etc.
-
-Code generated for different architectures does not interoperate and cannot be linked together.
-
-- `M.ARCHS`: All available architectures for current toolchain
-- `M.ARCH`: Current architecture for current toolchain
 
 Good discussion on architecture naming here: http://clang.llvm.org/docs/CrossCompilation.html
 
