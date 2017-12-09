@@ -60,24 +60,51 @@ A simple yet elegant way to support libraries compiled from source and pre-built
 	# No dependency if we are using a prebuilt library already in the path
 	main.depends = if($1.config.use_mylib_source, mylib)
 
-== Language Definition
+== Tool Definition
 
-Languages are registered with Moss when they are added by name to the `M.languages` variable.
-Globally, language options are configured using the syntax `M.lang.<name>.<option> = <value>`.
+All build actions performed by Moss are defined using tools.
+
+=== Translate
+
+This will be quite similar to compile below.
+
+=== Compile
 
 For example:
 
-	M.languages += c
-	M.lang.c.input = %.c
-	M.lang.c.output = %.o
-	M.lang.c.defines = DEFAULT_MOSS
+[source,makefile]
+----
+M.tool.compile += gcc
+T.gcc.source = %.c
+T.gcc.object = %.o
+T.gcc.defines = DEFAULT_MOSS
 
-	# TODO: how do we pass in defines, includes, etc?
-	# This assumes we can use M.tool as a global
-	define M.lang.c.recipe
-		$(call M.tool.ccompile, $$^, $$@)
-		$(call M.tool.cdepend, $$^, $$@)
-	endef
+define T.gcc.compile
+  gcc \
+    $(addprefix -D,$($1.c.defines)) \
+    $(addprefix -I,$($1.c.include)) \
+    -o $$@ $$^
+endef
+
+define T.gcc.depend
+  gcc \
+    $(addprefix -D,$($1.defines)) \
+    $(addprefix -I,$($1.c.include)) \
+    -M -o $$@ $$^
+endef
+-
+----
+
+Then, to use particular tools for a particular architecture, simply add the tool to architecture tool selection.
+
+[source,makefile]
+----
+A.armv5.compile = gcc rustc
+# How do we set tool options per architecture?
+# Perhaps we could use options like spores.
+A.armv5.gcc.arch = armv5
+A.armvg.gcc.optimize = 3
+----
 
 Language options can be configured specifically for each spore with the syntax
 `<spore>.<language>.<option> = <value>`. For example:
@@ -92,7 +119,7 @@ options as part of the spore-specific options. For example:
 	util.c.defines = $(M.lang.c.defines) UTIL_OPTION_X=1
 
 
-== Product Definition
+=== Form
 
 Products are registered with Moss when they are added by name to the `M.products` variable.
 Global product options are set using the syntax
