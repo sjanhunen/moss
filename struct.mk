@@ -54,6 +54,10 @@ define M.def.options
 $(suffix $(filter SPORE/$1.%,$(.VARIABLES)))
 endef
 
+# TODO: consider using multi-step approach to resolve whitespace issues
+# - replace : with ?=
+# - strip extra whitespace
+# - prefix variable assignemnt
 define M.def.expand_spore
 	$(patsubst %:,$2.% ?=, $(call SPORE/$1,$2.VAR))
 endef
