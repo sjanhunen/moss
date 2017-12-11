@@ -23,10 +23,10 @@ A much cleaner approach is a more traditional structure definition that can auto
 [source,makefile]
 ----
 define SPORE/util
-  name: utility
-  source: util.c helper.c
-  depends: common
-  artifacts: shared_lib static_lib
+  $1.name: utility
+  $1.source: util.c helper.c
+  $1.depends: common
+  $1.artifacts: shared_lib static_lib
 endef
 ----
 
@@ -59,8 +59,8 @@ For example
 [source,makefile]
 ----
 define SPORE/util
-  source: $(if $($1.option.use_fpu), fpu.c) common.c
-  lang.c.defines: $(if $($1.option.use_fpu), USE_FPU)
+  $1.source: $(if $($1.option.use_fpu), fpu.c) common.c
+  $1.lang.c.defines: $(if $($1.option.use_fpu), USE_FPU)
 endef
 ----
 
@@ -72,9 +72,9 @@ A simple yet elegant way to support libraries compiled from source and pre-built
 ----
 define SPORE/util
   # mylib is always linked because it is required by main
-  libraries: mylib
+  $1.libraries: mylib
   # No dependency if we are using a prebuilt library already in the path
-  depends: $(if $($1.option.use_mylib_source), mylib)
+  $1.depends: $(if $($1.option.use_mylib_source), mylib)
 endef
 ----
 

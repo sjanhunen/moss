@@ -54,10 +54,7 @@ define M.def.options
 $(suffix $(filter SPORE/$1.%,$(.VARIABLES)))
 endef
 
-# TODO: consider using multi-step approach to resolve whitespace issues
-# - replace : with ?=
-# - strip extra whitespace
-# - prefix variable assignemnt
+# TODO: consider using the robust_expand macro approach here
 define M.def.expand_spore
 	$(patsubst %:,$2.% ?=, $(call SPORE/$1,$2.VAR))
 endef
@@ -76,3 +73,22 @@ $(info ARCH Configurations for example: $(call M.def.configs,example))
 $(info Options for example: $(call M.def.options,example))
 
 $(info bob=$(if $(armv5/example.bob),ON,OFF))
+
+
+define M.def.robust_expand
+	$(subst :,=?,$(call $1,$2))
+endef
+
+PREFIX.fpu = bobby
+
+define STRUCT/sloppy
+$1.one : hello sjdklsd source.c
+$1.two : bye sdjklsd $($1.fpu)
+	$1.three:another sfjdkl
+	#$1.four:another sfjdkl
+	$1.six: humbug
+	$1.five: yo $(if $($1.seven),YES,NO)
+endef
+
+$(info $(call M.def.robust_expand,STRUCT/sloppy,PREFIX))
+$(eval $(call M.def.robust_expand,STRUCT/sloppy,PREFIX))
