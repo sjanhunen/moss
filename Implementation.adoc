@@ -2,63 +2,81 @@
 
 This document is a journal of implementation considerations, tradeoffs, and decisions encountered during the implementation of Moss.
 
-== Naming Conventions
+== Structure definition
 
-Since all variables in a makefile are members of a global namespace, Moss uses a naming convention that separates spore definitions from one another as well as from internal Moss definitions.
+Moss inherently requires groups of related variables to define spores and tools.
+One approach to defining these related variables is something like the following.
 
-1. All Moss definitions are prefixed with `M.` according to the following conventions
+[source,makefile]
+----
+M.spores += util
+util.name = utility
+util.source = util.c helper.c
+util.depends = common
+util.artifacts = shared_lib static_lib
+----
 
-    a. Internal implementation definitions are prefixed with `M.def.`
-    a. Internal spore definitions are prefixed with `M.spore.`
-    a. Product definitions are prefixed with `M.prod.`
-    a. Language definitions are prefixed with `M.lang.`
-    a. Tool definitions are prefixed with `M.tool.`
+This approach leads to significant duplication and requires that the group is 'registered' using a global list (`M.spores` in this case).
 
-1. Common spore definitions are prefixed with `<spore>.` where '<spore>' is the lowercase spore name.
+A much cleaner approach is a more traditional structure definition that can automatically be expanded into individual makefile variables using pattern replacement.
 
-1. Architecture-specific spore definitions are prefixed with `<arch>/<spore>.` where '<spore>' is the lowercase spore name and '<arch>' is the lowercase architecture name.
+[source,makefile]
+----
+define SPORE/util
+  name: utility
+  source: util.c helper.c
+  depends: common
+  artifacts: shared_lib static_lib
+endef
+----
 
-== Spore Definition
+This eliminates the duplication and is much more readable.
+No registration variable is required to register these structures.
+They can simply be discovered by name using the path-style prefix.
 
-For example:
+Error handling may be more difficult or cryptic, since evaluating the definition won't allow a specific line to be cited if make encounters a syntax error.
+It may be possible to overcome this issue by expanding each spore definition into a generated makefile that is then included or checked for syntax errors.
+Syntax errors in the generated makefile would be easier to and trace back to the original definition.
 
-	M.spores += util
-	util.name = utility
-	util.depends = common
-	util.products = shared_lib static_lib
+In the future, it would also be possible to shell out to an external script or tool to convert the structure definition into valid makefile syntax.
+Syntax checks and error handling could be done in this step.
 
-Can we only list the desired end targets in Moss.spores and use dependencies to figure out the rest?
+== Spores
 
-Spores are defined with the following key variables:
+=== Definition
 
-- `<spore>.name` - base name used as part of output products
-- `<spore>.depends` - other spores required as dependencies of this spore
-- `<spore>.products` - the list of final output products produced by this spore
-- `<spore>.source` - the list of source files required to generate products
-- `<spore>.headers` - the list of header include paths to be used with libraries
+Spores are defined using a Moss structure with the `SPORE/` prefix.
+Configuration options are present as structure argument `$1`.
 
-Note that gnumake conditionals may provide a very simple and powerful solution
+=== Specialization
+
+Gnumake conditionals may provide a very simple and powerful solution
 for configuration:
 https://www.gnu.org/software/make/manual/html_node/Conditional-Functions.html
 
 For example
 
-	util.source += $(if $1.config.use_gsl, gsl.c)
-	util.cflags += $(if $1.config.use_gsl, USE_GSL)
+[source,makefile]
+----
+define SPORE/util
+  source: $(if $($1.use_fpu), fpu.c) common.c
+  lang.c.defines: $(if $($1.use_fpu), USE_FPU)
+endef
+----
 
-To use an inheritance-type pattern, it''s necessary to make use of the $1
-expansion rather than hard-coding the config variable name. A prototype needs
-to be done to fully vet this concept.
-
-If we end up using an inheritance-type pattern for creating varieties of
-spores, the configuration approach above would become problematic.
+=== Dependencies
 
 A simple yet elegant way to support libraries compiled from source and pre-built binary libraries is through spore configuration of explicit dependencies.
 
-	# mylib is always linked because it is required by main
-	main.libraries = mylib
-	# No dependency if we are using a prebuilt library already in the path
-	main.depends = if($1.config.use_mylib_source, mylib)
+[source,makefile]
+----
+define SPORE/util
+  # mylib is always linked because it is required by main
+  libraries: mylib
+  # No dependency if we are using a prebuilt library already in the path
+  depends: $(if $($1.use_mylib_source), mylib)
+endef
+----
 
 == Tool Definition
 
