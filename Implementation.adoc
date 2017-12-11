@@ -46,7 +46,7 @@ Syntax checks and error handling could be done in this step.
 === Definition
 
 Spores are defined using a Moss structure with the `SPORE/` prefix.
-Configuration options are present as structure argument `$1`.
+The structure instance name is present as argument `$1`.
 
 === Specialization
 
@@ -59,8 +59,8 @@ For example
 [source,makefile]
 ----
 define SPORE/util
-  source: $(if $($1.use_fpu), fpu.c) common.c
-  lang.c.defines: $(if $($1.use_fpu), USE_FPU)
+  source: $(if $($1.option.use_fpu), fpu.c) common.c
+  lang.c.defines: $(if $($1.option.use_fpu), USE_FPU)
 endef
 ----
 
@@ -74,7 +74,7 @@ define SPORE/util
   # mylib is always linked because it is required by main
   libraries: mylib
   # No dependency if we are using a prebuilt library already in the path
-  depends: $(if $($1.use_mylib_source), mylib)
+  depends: $(if $($1.option.use_mylib_source), mylib)
 endef
 ----
 
