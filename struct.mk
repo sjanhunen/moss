@@ -20,26 +20,26 @@ endef
 
 define SPORE/example.debug
 	help: "Enable debug mode"
-	values: y n
-	default: y
+	lang.c.define: DEBUG
 endef
 
-define SPORE/example.arch
+define SPORE/example.march
 	help: "Select processor architecture"
-	values: armv5 mips x86
-	default: mips
+endef
+
+define SPORE/example.march.x86
+	lang.c.define: 	MARCH=intel
+	source: 				src/march/intel.c
+endef
+
+define SPORE/example.march.armv5
+	lang.c.define: 	MARCH=armv5
+	source: 				src/march/armv5.c
 endef
 
 # Configuration is how spores are specialized for architecture
 
-define CONFIG/example
-	# Must include a comment or some content before empty options
-	bob:
-	option: base-no
-	debug: yes
-endef
-
-define CONFIG/example.armv5
+define ARCH/example.armv5
 	# Must include a comment or some content before empty options
 	bob: yes
 	option: arm-yes
@@ -47,7 +47,7 @@ define CONFIG/example.armv5
 endef
 
 define M.def.configs
-$(suffix $(filter CONFIG/$1%,$(.VARIABLES)))
+$(suffix $(filter ARCH/$1%,$(.VARIABLES)))
 endef
 
 define M.def.options
@@ -60,7 +60,7 @@ define M.def.expand_spore
 endef
 
 define M.def.expand_config
-	$(patsubst %:,$2.% ?=, $(CONFIG/$1))
+	$(patsubst %:,$2.% ?=, $(ARCH/$1))
 endef
 
 # Expansion could replace normal assignment with conditional assignment
@@ -75,20 +75,45 @@ $(info Options for example: $(call M.def.options,example))
 $(info bob=$(if $(armv5/example.bob),ON,OFF))
 
 
-define M.def.robust_expand
+define M.def.robust_expand1
 	$(subst :,=?,$(call $1,$2))
+endef
+
+define M.def.robust_expand2:
+	$(subst :,=?,$(subst @,$2.,$(call $1,$2)))
 endef
 
 PREFIX.fpu = bobby
 
-define STRUCT/sloppy
+define STRUCT/sloppy1
 $1.one : hello sjdklsd source.c
 $1.two : bye sdjklsd $($1.fpu)
 	$1.three:another sfjdkl
 	#$1.four:another sfjdkl
+	$1.five: yo $(if $($1.fpu),YES,NO)
 	$1.six: humbug
-	$1.five: yo $(if $($1.seven),YES,NO)
 endef
 
-$(info $(call M.def.robust_expand,STRUCT/sloppy,PREFIX))
-$(eval $(call M.def.robust_expand,STRUCT/sloppy,PREFIX))
+define CONST/libfreertos
+	@base_stuff:
+endef
+
+# This approach is still just a bit more readable
+define STRUCT/sloppy2
+@one : hello sjdklsd source.c
+@two : bye sdjklsd $($1.fpu)
+	@three:another sfjdkl
+	#@four:another sfjdkl
+	@five: yo $(if $($1.fpu),YES,NO)
+	@six: humbug
+	@const.prefix: my_special
+
+	@source.arm: arm/arm.c
+	@source.x86: intel/intel.c
+	@lang.c.define: $($0.const.memory_model.$($1.memory_model))
+endef
+
+$(info $(call M.def.robust_expand1,STRUCT/sloppy1,PREFIX))
+$(eval $(call M.def.robust_expand1,STRUCT/sloppy1,PREFIX))
+$(info $(call M.def.robust_expand2,STRUCT/sloppy2,PREFIX))
+$(eval $(call M.def.robust_expand2,STRUCT/sloppy2,PREFIX))
