@@ -23,10 +23,10 @@ A much cleaner approach is a more traditional structure definition that can auto
 [source,makefile]
 ----
 define SPORE/util
-  $1.name: utility
-  $1.source: util.c helper.c
-  $1.depends: common
-  $1.artifacts: shared_lib static_lib
+  @name: utility
+  @source: util.c helper.c
+  @depends: common
+  @artifacts: shared_lib static_lib
 endef
 ----
 
