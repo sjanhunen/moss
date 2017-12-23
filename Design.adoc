@@ -1,36 +1,22 @@
 = Moss Design Overview
 
-This document captures core design principles and concepts for the Moss build system.
+Moss is a library for GNU make that streamlines the creation of rules and dependencies for software build artifacts. The core concepts within this library are:
 
-Moss produces completed software artifacts from source code.
-The core concepts in this process are:
+1. Seeds - modular units of source code that are formed into an artifact
+2. Artifacts - outputs of seeds which may be created for multiple architectures and variants
+3. Tools - used to compile source code and form artifacts
+4. Architectures - used to specialize seeds and tools for artifact creation
+5. Variants - global switches for tools
 
-1. Spore - description of how to produce a final build artifact
-2. Code - content that must be compiled before being included in the artifact
-3. File - content that is directly used while forming the artifact
-3. Artifact - software build output with content from one or more spores
+== Seeds
 
-Tools are used to produce artifacts from code.
-All tools with Moss to perform one of three actions:
-
-1. Transcode: source code -> source code
-2. Compile: source code -> object files
-3. Form: files + artifacts -> artifact
-
-Tools may be specialized according to:
-
-- Architecture - how source is compiled for target machine and execution environment
-- Variant - global variations on compiling
-
-== Spores
-
-A spore describes how Moss produces artifacts from source code and files in an architecture and toolchain independent fashion.
-Spores do not possess knowledge of Moss build architecture.
+A seed describes how Moss produces artifacts from source code and files in an architecture and toolchain independent fashion.
+Seeds do not possess knowledge of Moss build architecture.
 Instead, they are specialized for different architectures through settings.
 
 === Definition
 
-Spores are defined entirely through variable definition.
+Seeds are defined entirely through variable definition.
 Creation and management of rules and dependencies is managed automatically by Moss.
 Knowledge of toolchain and architecture specifics are decoupled from the description of the software itself.
 Moss manages the creation and application of all makefile rules required for multiple languages, artifacts, architectures, toolchains, and variants.
@@ -38,21 +24,21 @@ This avoids many pitfalls of traditional make-based build systems.
 
 === Specialization
 
-A given spore may produce artifacts for multiple architectures without requiring duplication of the spore definition.
-The architecture-specific 'specializations' are created from the base spore 'template'.
-Architecture-specific options and overrides can be specified through variables that 'overload' the base definition for the spore.
+A given seed may produce artifacts for multiple architectures without requiring duplication of the seed definition.
+The architecture-specific 'specializations' are created from the base seed 'template'.
+Architecture-specific options and overrides can be specified through variables that 'overload' the base definition for the seed.
 
 === Configuration
 
-This is a formalized way to specify and use conditional boolean switches and named string options to specialize the artifacts produced by a spore.
+This is a formalized way to specify and use conditional boolean switches and named string options to specialize the artifacts produced by a seed.
 Configuration is the ideal way to provide the setting that are used during specialization to fine tune the artifacts that are formed.
 Think menuconfig or kconfig.
 
 === Isolation
 
-Each spore is produced in isolation.
-This guarantees that object files and artifacts will never be clobbered, even if multiple spores use the source code in different ways.
-Spore artifacts are produced in a way that encourages creation of small libraries that are combined to produce complex artifacts.
+Each seed is produced in isolation.
+This guarantees that object files and artifacts will never be clobbered, even if multiple seeds use the source code in different ways.
+Seed artifacts are produced in a way that encourages creation of small libraries that are combined to produce complex artifacts.
 
 == Code
 
@@ -101,9 +87,9 @@ The output is a build artifact that may contain object code or files.
 
 == Architectures
 
-An architecture definition specifies a toolchain. For example armv5-gcc would specify a gcc cross compiler. And armv5-clang would specify a clang cross compile. In order to build the same spore for the same processor with two different tools, two different architectures must be created.
+An architecture definition specifies a toolchain. For example armv5-gcc would specify a gcc cross compiler. And armv5-clang would specify a clang cross compile. In order to build the same seed for the same processor with two different tools, two different architectures must be created.
 
-Architecture is the mechanism for customized compilation of spores for a particular target. Different spores compiled for the same architecture may have different toolchain settings. The architecture is the means of selection. Spores compiled for the same architecture may be linked together. A mixing of architectures is not supported.
+Architecture is the mechanism for customized compilation of seeds for a particular target. Different seeds compiled for the same architecture may have different toolchain settings. The architecture is the means of selection. Seeds compiled for the same architecture may be linked together. A mixing of architectures is not supported.
 
 A build architecture is defined by a specific CPU type and associated instruction set.
 
@@ -115,4 +101,4 @@ Good discussion on architecture naming here: http://clang.llvm.org/docs/CrossCom
 
 A build variant is a selection that applies across all architectures and toolchains (in most cases). An example would be debug vs production.
 
-Variants provide the mechanism for compiling multiple spores for the same architecture with different collections of settings that apply to all spores. Example use cases that apply here are debug, production, or special test build variants.
+Variants provide the mechanism for compiling multiple seeds for the same architecture with different collections of settings that apply to all seeds. Example use cases that apply here are debug, production, or special test build variants.
