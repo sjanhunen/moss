@@ -100,3 +100,45 @@ $(info $(call M.def.robust_expand2,STRUCT/sloppy1,PREFIX))
 $(eval $(call M.def.robust_expand2,STRUCT/sloppy1,PREFIX))
 $(info $(call M.def.robust_expand2,STRUCT/sloppy2,PREFIX))
 $(eval $(call M.def.robust_expand2,STRUCT/sloppy2,PREFIX))
+
+# Prototype for new approach to SEED, OPTION, ARCH, CONFIG definition
+
+define SEED(main.lib)
+	@source: hello.c util.c stuff.c
+endef
+
+define SEED(main.exe)
+	@source: main.c
+	@lib: main c
+endef
+
+define SEED(main.bin)
+	@source: main.exe
+endef
+
+# OPTION applies to all artifacts produced from main SEED
+define OPTION(main.fpu)
+	@source: fpu.c
+	@lang.c.define: use_fpu
+endef
+
+define OPTION(main.fancy_logs)
+	@source: fancy_logs.c
+	@lang.c.include: fancy_include
+endef
+
+define ARCH(armv5)
+	# TODO: what do we put here?
+endef
+
+define ARCH(x86)
+	# TODO: what do we put here?
+endef
+
+define CONFIG(armv5/main)
+	@fpu: yes
+endef
+
+define CONFIG(x86/main)
+	@fancy_logs: yes
+endef
