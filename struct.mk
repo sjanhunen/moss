@@ -1,43 +1,36 @@
 # Spore definition is through Moss structure
 
-define SPORE/example
-	@name: 	example_name
-
+define SEED/example.exe
 	@source: \
 		file_1 \
 		file_2 \
 		file_3
 
-	@artifacts: 		lib exe
-
-	# Think about this approach more to see if we can get away from
-	# this style of expansion
-	@my_example: 	$($1.bob)
-	@c.defines: 		$(if $($1.bob), BOB_OPTION)
+	@lang.c.defines: 		$(if $($1.bob), BOB_OPTION)
 endef
 
-# Options are explicitly defined for spores
+# Options are explicitly defined for seeds
 
-define SPORE/example.debug
+define SEED/example.debug
 	@help: "Enable debug mode"
 	@lang.c.define: DEBUG
 endef
 
-define SPORE/example.march
+define SEED/example.march
 	@help: "Select processor architecture"
 endef
 
-define SPORE/example.march.x86
+define SEED/example.march.x86
 	@lang.c.define: 	MARCH=intel
 	@source: 				src/march/intel.c
 endef
 
-define SPORE/example.march.armv5
+define SEED/example.march.armv5
 	@lang.c.define: 	MARCH=armv5
 	@source: 				src/march/armv5.c
 endef
 
-# Configuration is how spores are specialized for architecture
+# Configuration is how seeds are specialized for architecture
 
 define ARCH/example.armv5
 	# Must include a comment or some content before empty options
@@ -51,12 +44,12 @@ $(suffix $(filter ARCH/$1%,$(.VARIABLES)))
 endef
 
 define M.def.options
-$(suffix $(filter SPORE/$1.%,$(.VARIABLES)))
+$(suffix $(filter SEED/$1.%,$(.VARIABLES)))
 endef
 
 # TODO: consider using the robust_expand macro approach here
-define M.def.expand_spore
-	$(patsubst %:,$2.% ?=, $(call SPORE/$1,$2.VAR))
+define M.def.expand_seed
+	$(patsubst %:,$2.% ?=, $(call SEED/$1,$2.VAR))
 endef
 
 define M.def.expand_config
@@ -64,7 +57,7 @@ define M.def.expand_config
 endef
 
 # Expansion could replace normal assignment with conditional assignment
-$(eval $(call M.def.expand_spore,example,example))
+$(eval $(call M.def.expand_seed,example,example))
 
 $(eval $(call M.def.expand_config,example.armv5,armv5/example))
 $(eval $(call M.def.expand_config,example,armv5/example))
