@@ -2,88 +2,44 @@
 
 Moss is a library for GNU make that streamlines the creation of rules and dependencies for software build artifacts. The core concepts within this library are:
 
-1. Seeds - modular units of source code that are formed into an artifact
-2. Artifacts - outputs of seeds which may be created for multiple architectures and variants
-3. Tools - used to compile source code and form artifacts
-4. Architectures - used to specialize seeds and tools for artifact creation
-5. Variants - global switches for tools
+1. Seeds - modular units of software configuration used to define one or more artifacts
+2. Artifacts - software build products that may be created for multiple architectures and variants
+3. Architectures - used to specialize seeds and tools for artifact creation
+4. Variants - global options for tools
+5. Tools - used to compile source code and create artifacts
+
+These core concepts are defined and extended entirely through makefile variable definitions.
+Knowledge of toolchain and architecture specifics are decoupled from the description of the software itself.
+Moss manages the creation and application of all makefile rules required for multiple languages, artifacts, architectures, toolchains, and variants.
+This separation of concerns avoids many pitfalls of traditional make-based build systems.
 
 == Seeds
 
-A seed describes how Moss produces artifacts from source code and files in an architecture and toolchain independent fashion.
-Seeds do not possess knowledge of Moss build architecture.
-Instead, they are specialized for different architectures through settings.
+Seeds define a series of base variables and configuration options that may be used by artifact definitions as a source of configuration.
 
-=== Definition
-
-Seeds are defined entirely through variable definition.
-Creation and management of rules and dependencies is managed automatically by Moss.
-Knowledge of toolchain and architecture specifics are decoupled from the description of the software itself.
-Moss manages the creation and application of all makefile rules required for multiple languages, artifacts, architectures, toolchains, and variants.
-This avoids many pitfalls of traditional make-based build systems.
-
-=== Specialization
-
-A given seed may produce artifacts for multiple architectures without requiring duplication of the seed definition.
+A given seed may be used to produce multiple artifacts for multiple architectures without requiring duplication of the seed definition.
 The architecture-specific 'specializations' are created from the base seed 'template'.
 Architecture-specific options and overrides can be specified through variables that 'overload' the base definition for the seed.
 
-=== Configuration
-
-This is a formalized way to specify and use conditional boolean switches and named string options to specialize the artifacts produced by a seed.
+A formalized syntax is used to specify and use conditional boolean switches and named string options to specialize the artifacts produced by a seed.
 Configuration is the ideal way to provide the setting that are used during specialization to fine tune the artifacts that are formed.
 Think menuconfig or kconfig.
 
-=== Isolation
-
-Each seed is produced in isolation.
-This guarantees that object files and artifacts will never be clobbered, even if multiple seeds use the source code in different ways.
-Seed artifacts are produced in a way that encourages creation of small libraries that are combined to produce complex artifacts.
-
-== Code
-
-Code is compiled before it is included in a final artifact.
-It may also be transcoded before this compilation step.
-Translation is converts code from one language from another language.
-Compilation is converts source code into object code.
-Moss manages the chaining of translation and compilation to ultimately produce and object file from source file as required.
-
-== Files
-
-Files are formed into artifacts without being passed through a compiler.
-For example, a tarball is simply a collection of files packaged into a single artifact.
-Files may also be additional content required for production of executable outputs, such as tool configurations, etc.
-Object files are implicitly included in the list of files for an artifact base on the source code.
-
 == Artifacts
 
-Three types of artifacts are envisioned initially.
-
-- Executable: a fully-linked binary executable
-- Static Library: a library for static linking into one or more executables
-- Shared Library: a dynamic library for use with one or more executable artifacts
+Artifacts are used to define the build outputs created by Moss.
+Seeds are used by artifacts as a mechanism for configuration.
 
 Most artifacts will require creation of object files using a compiler.
+Source code may also be transcoded before this compilation step.
+Translation is converts code from one language from another language.
+Compilation is converts source code into object code.
 Some artifacts may be produced directly from source files.
+Moss manages the chaining of translation and compilation to ultimately produce and object file from source file as required.
 
-== Tools
-
-Tool are used to form all build artifacts.
-
-A tool does not possess any knowledge of Moss build architecture or variant.
-Tools are specialized through architecture and variant by setting appropriate tool options to create appropriate artifacts.
-
-=== Transcode
-
-The output is generated source code, not object code.
-
-=== Compile
-
-The output is object code.
-
-=== Form
-
-The output is a build artifact that may contain object code or files.
+Each artifact is produced in isolation.
+This guarantees that object and artifact files will never be clobbered, even if multiple artifacts use the source code in different ways.
+Artifacts are produced in a way that encourages creation of small libraries that are combined to produce complex artifacts.
 
 == Architectures
 
@@ -102,3 +58,16 @@ Good discussion on architecture naming here: http://clang.llvm.org/docs/CrossCom
 A build variant is a selection that applies across all architectures and toolchains (in most cases). An example would be debug vs production.
 
 Variants provide the mechanism for compiling multiple seeds for the same architecture with different collections of settings that apply to all seeds. Example use cases that apply here are debug, production, or special test build variants.
+
+== Tools
+
+Tool are used to create all build artifacts.
+
+A tool does not possess any knowledge of Moss build architecture or variant.
+Tools are specialized through architecture and variant by setting appropriate tool options to create appropriate artifacts.
+
+1. Transcode: The output is generated source code, not object code.
+
+2. Compile: The output is object code.
+
+3. Form: The output is a build artifact that may contain object code or files.
