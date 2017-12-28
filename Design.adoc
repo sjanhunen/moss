@@ -1,36 +1,22 @@
 = Moss Design Overview
 
-Moss is a library for GNU make that streamlines the creation of rules and dependencies for software build artifacts. The core concepts within this library are:
+Moss is a library for GNU make that streamlines the creation of rules and dependencies for software build artifacts. The core concepts are:
 
-1. Seeds - modular units of software configuration used to define one or more artifacts
-2. Artifacts - software build products that may be created for multiple architectures and variants
-3. Architectures - used to specialize seeds and tools for artifact creation
-4. Variants - global options for tools
-5. Tools - used to compile source code and create artifacts
+1. Artifact - a completed software build product such as a library or executable
+2. Seed - a modular and configurable unit of artifact definition
+3. Architecture - the specialization mechanism for target-specific artifact creation
+4. Tool - anything used to produce an artifact, translate source code, or compile source code into object code
+5. Variant - a set of related global tool settings (e.g. DEBUG vs RELEASE)
 
 These core concepts are defined and extended entirely through makefile variable definitions.
-Knowledge of toolchain and architecture specifics are decoupled from the description of the software itself.
+Knowledge of tool and architecture specifics are decoupled from the description of the software itself.
 Moss manages the creation and application of all makefile rules required for multiple languages, artifacts, architectures, toolchains, and variants.
 This separation of concerns avoids many pitfalls of traditional make-based build systems.
 
-== Seeds
-
-Seeds define a series of base variables and configuration options that may be used by artifact definitions as a source of configuration.
-
-A given seed may be used to produce multiple artifacts for multiple architectures without requiring duplication of the seed definition.
-The architecture-specific 'specializations' are created from the base seed 'template'.
-Architecture-specific options and overrides can be specified through variables that 'overload' the base definition for the seed.
-
-A formalized syntax is used to specify and use conditional boolean switches and named string options to specialize the artifacts produced by a seed.
-Configuration is the ideal way to provide the setting that are used during specialization to fine tune the artifacts that are formed.
-Think menuconfig or kconfig.
-
 == Artifacts
 
-Artifacts are used to define the build outputs created by Moss.
-Seeds are used by artifacts as a mechanism for configuration.
-
-Most artifacts will require creation of object files using a compiler.
+Each software build output produced by Moss is defined as an artifact.
+Most artifacts will require creation of object files using a compiler as part of the recipe.
 Source code may also be transcoded before this compilation step.
 Translation is converts code from one language from another language.
 Compilation is converts source code into object code.
@@ -39,7 +25,18 @@ Moss manages the chaining of translation and compilation to ultimately produce a
 
 Each artifact is produced in isolation.
 This guarantees that object and artifact files will never be clobbered, even if multiple artifacts use the source code in different ways.
-Artifacts are produced in a way that encourages creation of small libraries that are combined to produce complex artifacts.
+
+== Seeds
+
+Seeds define a series of variables and options that may be used by artifact definitions as a source of configuration.
+
+A given seed may be used to produce multiple artifacts for multiple architectures without requiring duplication of the seed definition.
+The architecture-specific 'specializations' are created from the base seed 'template'.
+Architecture-specific options and overrides can be specified through variables that 'overload' the base definition for the seed.
+
+A formalized syntax is used to specify and use conditional boolean switches and named string options to specialize the artifacts produced by a seed.
+Configuration is the ideal way to provide the setting that are used during specialization to fine tune the artifacts that are formed.
+Think menuconfig or kconfig.
 
 == Architectures
 
@@ -53,12 +50,6 @@ Examples: host, amd64, cortex-m4, cortex-r7, avr, mipsel, etc.
 
 Good discussion on architecture naming here: http://clang.llvm.org/docs/CrossCompilation.html
 
-== Variants
-
-A build variant is a selection that applies across all architectures and toolchains (in most cases). An example would be debug vs production.
-
-Variants provide the mechanism for compiling multiple seeds for the same architecture with different collections of settings that apply to all seeds. Example use cases that apply here are debug, production, or special test build variants.
-
 == Tools
 
 Tool are used to create all build artifacts.
@@ -71,3 +62,9 @@ Tools are specialized through architecture and variant by setting appropriate to
 2. Compile: The output is object code.
 
 3. Form: The output is a build artifact that may contain object code or files.
+
+== Variants
+
+A build variant is a selection that applies across all architectures and toolchains (in most cases). An example would be debug vs production.
+
+Variants provide the mechanism for compiling multiple seeds for the same architecture with different collections of settings that apply to all seeds. Example use cases that apply here are debug, production, or special test build variants.
