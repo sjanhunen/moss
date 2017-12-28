@@ -21,48 +21,52 @@ define seed(freertos.memory_model.static)
 	@tests: freertos/test/test_static_mem.c
 endef
 
-define freertos.static_lib(freertos)
+define static_lib(freertos)
 	@doc: FreeRTOS kernel library
+	@seed: freertos
 	@headers: freertos/include
 endef
 
-define freertos.lint(freertos)
+define lint(freertos)
 	# Identical settings would be available to this second artifact
+	@seed: freertos
 	@flags: level=1 pedantic=1
 endef
 
-define test_freertos.executable(freertos)
+define executable(test_freertos)
 	@doc: Unit tests for FreeRTOS kernel
+	@seed: freertos
 	@source: freertos/test_main.c $($1.tests)
 	@static_lib: freertos catch c
 endef
 
 # Perhaps we could generate configuration headers like this
-define freertos.header(freertos)
+define header(freertos)
+	@seed: freertos
 	@name: config_freertos.h
 endef
 
 # Little stand-alone library
 
-define util.static_lib
+define static_lib(util)
 	@source: hello.c util.c stuff.c
 	@headers: include
 endef
 
-define test_util.executable
+define executable(test_util)
 	@source: test_util.c
 	@static_lib: util
 endef
 
 # Main applicaion
 
-define myapp.exe
+define executable(myapp)
 	@source: main.c application.c
 	@static_lib: util freertos c
 	@map_file: yes
 endef
 
-define myapp.bin
+define binary(myapp)
 	@executable: myapp
 endef
 
