@@ -70,27 +70,27 @@ define binary(myapp)
 	@executable: myapp
 endef
 
-# Configuration options for armv5
+# Architecture for armv5
 
-define config(armv5)
+define arch(armv5)
 	@tools: clang zip lint
 	@lang.c.define: CPU_LE
 endef
 
-define config(armv5/freertos)
+define arch(armv5/freertos)
 	@port: arm-cm4-gcc
 	@memory_model: 1
 	@stack_protection: yes
 endef
 
-# Configuration options for mips
+# Architecture for mips
 
-define config(mips)
+define arch(mips)
 	@tools: gcc zip lint
 	@lang.c.define: CPU_LE
 endef
 
-define config(mips/freertos)
+define arch(mips/freertos)
 	@port: mips-gcc
 	@memory_model: 1
 	@stack_protection: yes
