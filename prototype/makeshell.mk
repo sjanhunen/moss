@@ -2,6 +2,23 @@
 
 SHELL = $(TEST_SHELL)
 
+ifeq ($(SHELL),lua)
+
+.SHELLFLAGS = -e
+.ONESHELL:
+
+define M.seq
+for i = 1,$1 do
+    print(i);
+end
+endef
+
+define M.echo
+print("$1");
+endef
+
+endif
+
 ifeq ($(SHELL),node)
 
 .SHELLFLAGS = -e
@@ -48,7 +65,7 @@ endef
 
 endif
 
-var = $(shell $(call M.seq, 10))
+var = $(shell $(call M.seq, 100))
 list = $(foreach i, $(var), $(shell $(call M.echo,$i)))
 $(info $(list))
 
