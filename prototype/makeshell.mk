@@ -17,6 +17,11 @@ define M.echo
 print("$1");
 endef
 
+test:
+	@
+	print('Hello from lua');
+	print('The target is $@');
+
 endif
 
 ifeq ($(SHELL),node)
