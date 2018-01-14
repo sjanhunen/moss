@@ -1,70 +1,101 @@
--- TODO: prototype the equivalent of seed.mk here in lua
-
-function options(t)
-    return function(o) return t[o] end
+-- Sanity checks on seed definition can be done here
+function seed(s)
+    -- Probably return a fuction that takes config as argument
+    return s
 end
 
-seed = {
-    arch = {
-        armv5 = {
-            defines = 'UTIL',
-            source = [[
-                file1.c
-                file2.c
-                file5.c
-                ]]
-        },
-        x86 = {
-            defines = 'INTEL',
-            -- A way to describe conditionals within seeds
-            source =
-                function(o)
-                    if(o.setting == '1') then
-                        return 'one.c'
-                    else
-                        return 'two.c'
-                    end
-                end
-        }
+-- Artifact configuration seed defined entirely as table
+settings = seed {
+    -- A flag that is simply present or absent
+    debug = {
+        doc = "Set this to enable debug",
+        defines = "DEBUG=1",
+        source = "src/debug/special.c"
     },
-    myflag = {
+    -- A option that is selected from one of many 
+    -- This approach results in some repetition
+    eval_mode = {
         doc = {
-            "Set this for special options",
-            yes="Enable special mode one",
-            no="Enable special mode two"
+            "Set this for special mode options",
+            lazy="Enable special mode one",
+            hard="Enable special mode two"
         },
-        -- This special options "constructor" could return an
-        -- anonymous fuction that switches based upon config.
-        defines = options{
-            yes='special1',
-            no='special2'
+        defines = {
+            lazy='special1',
+            hard='special2'
         },
-        -- Another way to define options without "constructor"
         source = {
             'common.c',
-            yes = 'src1.c',
-            no = 'src2.c'
+            lazy = 'src1.c',
+            hard = 'src2.c'
+        },
+    },
+    -- A option that is selected from one of many
+    -- We repeat not the options but the definitions
+    -- But this approach is more granular for extension
+    memory_model = {
+        {
+            -- These settings are present for all options
+            doc = "Choose appropriate memory model",
+            defines = "USE_MEMORY",
+            source = "common.c"
+        },
+        tiny = {
+            doc = "For less than 1MB",
+            defines = "SETTING=1",
+            source = "src/tiny.c"
+        },
+        large = {
+            doc = "For more than 1MB",
+            defines = "SETTING=2",
+            source = "src/large.c"
         }
     }
 }
 
-artifact = {
-    -- A way to describe conditionals within seeds
-    source = function(o) return o.src end
+
+-- Config table is used to create variables from seed
+config = {
+    debug = 'Y',
+    eval_mode = 'lazy',
+    memory_model = 'large'
 }
 
--- If a table entry is a function, it is evaluated with configuration
--- table passed into it
+function eval(t)
+    -- TODO: aggregate variable across all instances of variable in seed
+    return function(setting, config)
+        if type(setting[t]) == 'table' then
+            return setting[t][config]
+        elseif type(setting[t]) ~= nil then
+            if config then
+                return setting[t]
+            end
+        end
 
-multilineRecipe = [[
-this is a template
-with 
-multiple lines
-]]
+        return nil
+    end
+end
+
+-- Sanity checks would take place here
+function executable(t)
+    return t
+end
+
+-- Artifacts can use functions to defer referencing seed variables
+main = executable {
+    seed = settings,
+    source = {
+        'common.c',
+        'main.c',
+        eval('source')
+    },
+    defines = eval('defines')
+}
 
 -- Print different elements of the struct
-print(seed.arch.armv5.source);
-print(seed.arch.x86.source({}));
-print(seed.myflag.doc[1]);
-print(seed.myflag.defines('yes'));
-print(multilineRecipe);
+print(settings.debug.doc);
+print(settings.debug.source);
+print(settings.eval_mode.doc[1]);
+print(settings.eval_mode.defines.lazy);
+
+print(main.source[3](settings.debug, config.debug))
