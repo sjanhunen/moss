@@ -99,3 +99,10 @@ print(settings.eval_mode.doc[1]);
 print(settings.eval_mode.defines.lazy);
 
 print(main.source[3](settings.debug, config.debug))
+
+function files(f)
+    -- Split files into table here
+    return f
+end
+
+a = files [[ src1.c src2.c src3.c ]]
