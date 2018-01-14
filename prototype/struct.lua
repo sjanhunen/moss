@@ -27,17 +27,23 @@ seed = {
                 end
         }
     },
-    another = {
-        special1 = {},
-        special2 = {},
-        myflag = {
-            doc = "Set this for special options",
-            -- This special options "constructor" could return an
-            -- anonymous fuction that switches based upon config.
-            defines = options{
-                yes='special1',
-                no='special2'
-            }
+    myflag = {
+        doc = {
+            "Set this for special options",
+            yes="Enable special mode one",
+            no="Enable special mode two"
+        },
+        -- This special options "constructor" could return an
+        -- anonymous fuction that switches based upon config.
+        defines = options{
+            yes='special1',
+            no='special2'
+        },
+        -- Another way to define options without "constructor"
+        source = {
+            'common.c',
+            yes = 'src1.c',
+            no = 'src2.c'
         }
     }
 }
@@ -59,6 +65,6 @@ multiple lines
 -- Print different elements of the struct
 print(seed.arch.armv5.source);
 print(seed.arch.x86.source({}));
-print(seed.another.myflag.doc);
-print(seed.another.myflag.defines('no'));
+print(seed.myflag.doc[1]);
+print(seed.myflag.defines('yes'));
 print(multilineRecipe);
