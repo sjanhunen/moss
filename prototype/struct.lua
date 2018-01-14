@@ -1,6 +1,6 @@
 -- TODO: prototype the equivalent of seed.mk here in lua
 
-config = {
+seed = {
     arch = {
         armv5 = {
             defines = 'UTIL',
@@ -12,13 +12,26 @@ config = {
         },
         x86 = {
             defines = 'INTEL',
-            source = [[
-                x86.c,
-                util.c
-                ]]
+            -- A way to describe conditionals within seeds
+            source =
+                function(o)
+                    if(o.setting == '1') then
+                        return 'one.c'
+                    else
+                        return 'two.c'
+                    end
+                end
         }
     }
 }
+
+artifact = {
+    -- A way to describe conditionals within seeds
+    source = function(o) return o.src end
+}
+
+-- If a table entry is a function, it is evaluated with configuration
+-- table passed into it
 
 multilineRecipe = [[
 this is a template
@@ -27,5 +40,6 @@ multiple lines
 ]]
 
 -- Print different elements of the struct
-print(config.arch.armv5.source);
+print(seed.arch.armv5.source);
+print(seed.arch.x86.source({}));
 print(multilineRecipe);
