@@ -1,4 +1,11 @@
-# Performance test of nodejs as make shell
+# Performance tests for shell invocation from gnumake
+# Requires gnumake 4.2.
+#
+# Set SHELL to one of:
+#  - lua
+#  - node
+#  - python
+#  - sh
 
 SHELL = $(TEST_SHELL)
 
@@ -36,8 +43,7 @@ define M.seq
 endef
 
 define M.echo
-	shell = require('shelljs');
-	shell.echo('$1');
+	console.log('$1');
 endef
 
 endif
