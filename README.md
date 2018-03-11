@@ -1,12 +1,9 @@
-Goals
-=====
-
 Moss is a thin layer grown on top of GNU make that streamlines the creation of
 high-performance multi-tool-chain build systems for large code bases.
 
 Rather than trying to create an entirely new build tool or introduce a code
-generation step before running an existing build tool, Moss leverages the
-powerful meta-programming tools build right into GNU make.
+generation step before running an existing build tool, Moss leverages
+powerful building blocks integrated into GNU make.
 
 Moss focuses primarily on the following goals:
 
@@ -24,13 +21,12 @@ nothing to do) and return to the prompt in under 1 second.
 
 Portability is maximized by:
 
-- Standardizing on GNU make as THE BUILD TOOL (version 3.81 and above, which is
-  available on most platforms of interest today) rather than attempting to work
-  with multiple incompatible build tools
+- Standardizing on GNU make 4.2+ as THE BUILD TOOL rather than attempting to
+  work with multiple incompatible build tools
 - Providing out-of-the-box support for mainstream gcc and clang compilers
 - Separating the description of the source tree from the implementation of the
   build system
 - Separating tool-independent descriptions from tool-specific options
 
-Moss currently supports C and C++ code bases, but it may apply well to other
-native languages with similar compilation flows.
+Moss is targeted at C and C++ code bases, but it may apply well to other native
+languages with similar compilation flows.
