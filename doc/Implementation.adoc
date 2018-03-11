@@ -2,35 +2,34 @@
 
 This document is a journal of implementation considerations, tradeoffs, and decisions encountered during the implementation of Moss.
 
-== Structure definition
+== Structure Definition
 
-Moss inherently requires groups of related variables to define spores and tools.
-One approach to defining these related variables is something like the following.
+A significant challenge in writing large makefiles is structuring and scoping the large number of variable definitions required.
+
+One approach to doing this right in make is the use of prefixes to create a namespace convention.
 
 [source,makefile]
 ----
-M.spores += util
+M.library += util
 util.name = utility
 util.source = util.c helper.c
 util.depends = common
-util.artifacts = shared_lib static_lib
 ----
 
 This approach leads to significant duplication and requires that the group is 'registered' using a global list (`M.spores` in this case).
 
-A much cleaner approach is a more traditional structure definition that can automatically be expanded into individual makefile variables using pattern replacement.
+Another approach is a more traditional structure definition that can automatically be expanded into individual makefile variables using pattern replacement.
 
 [source,makefile]
 ----
-define SPORE/util
+define library/util
   @name: utility
   @source: util.c helper.c
   @depends: common
-  @artifacts: shared_lib static_lib
 endef
 ----
 
-This eliminates the duplication and is much more readable.
+This eliminates much of the duplication and is fairly readable.
 No registration variable is required to register these structures.
 They can simply be discovered by name using the path-style prefix.
 
@@ -38,198 +37,32 @@ Error handling may be more difficult or cryptic, since evaluating the definition
 It may be possible to overcome this issue by expanding each spore definition into a generated makefile that is then included or checked for syntax errors.
 Syntax errors in the generated makefile would be easier to and trace back to the original definition.
 
-In the future, it would also be possible to shell out to an external script or tool to convert the structure definition into valid makefile syntax.
-Syntax checks and error handling could be done in this step.
+The most flexible approach is to actually use a domain-specific language to define the structural description of the software.
+For exmaple, Lua's table definition and function invocation syntax can be combined to make something that is highly readable.
 
-== Spores
-
-=== Definition
-
-Spores are defined using a Moss structure with the `SPORE/` prefix.
-The structure instance name is present as argument `$1`.
-
-=== Specialization
-
-Gnumake conditionals may provide a very simple and powerful solution
-for configuration:
-https://www.gnu.org/software/make/manual/html_node/Conditional-Functions.html
-
-For example
-
-[source,makefile]
+[source,lua]
 ----
-define SPORE/util
-  $1.source: $(if $($1.option.use_fpu), fpu.c) common.c
-  $1.lang.c.defines: $(if $($1.option.use_fpu), USE_FPU)
-endef
+util = library "utility" {
+    source = {
+        'common.c',
+        'main.c',
+    },
+    includes = common
+}
 ----
 
-=== Dependencies
+Some string-to-table helpers could make this even more compact.
 
-A simple yet elegant way to support libraries compiled from source and pre-built binary libraries is through spore configuration of explicit dependencies.
-
-[source,makefile]
+[source,lua]
 ----
-define SPORE/util
-  # mylib is always linked because it is required by main
-  $1.libraries: mylib
-  # No dependency if we are using a prebuilt library already in the path
-  $1.depends: $(if $($1.option.use_mylib_source), mylib)
-endef
+util = library "utility" {
+    source = [[ common.c main.c ]],
+    includes = common
+}
 ----
 
-== Tool Definition
-
-All build actions performed by Moss are defined using tools.
-
-=== Translate
-
-This will be quite similar to compile below.
-
-=== Compile
-
-For example:
-
-[source,makefile]
-----
-M.tool.compile += gcc
-T.gcc.source = %.c
-T.gcc.object = %.o
-T.gcc.defines = DEFAULT_MOSS
-
-define T.gcc.compile
-  gcc \
-    $(addprefix -D,$($1.c.defines)) \
-    $(addprefix -I,$($1.c.include)) \
-    -o $$@ $$^
-endef
-
-define T.gcc.depend
-  gcc \
-    $(addprefix -D,$($1.defines)) \
-    $(addprefix -I,$($1.c.include)) \
-    -M -o $$@ $$^
-endef
--
-----
-
-Then, to use particular tools for a particular architecture, simply add the tool to architecture tool selection.
-
-[source,makefile]
-----
-A.armv5.compile = gcc rustc
-# How do we set tool options per architecture?
-# Perhaps we could use options like spores.
-A.armv5.gcc.arch = armv5
-A.armvg.gcc.optimize = 3
-----
-
-Language options can be configured specifically for each spore with the syntax
-`<spore>.<language>.<option> = <value>`. For example:
-
-	util.c.defines = POSIX_2001
-	util.c.include = util/inc
-
-The spore specific options override any global options. To include the global
-Moss options for a specific spore when overriding, simply include the global
-options as part of the spore-specific options. For example:
-
-	util.c.defines = $(M.lang.c.defines) UTIL_OPTION_X=1
-
-
-=== Form
-
-Products are registered with Moss when they are added by name to the `M.products` variable.
-Global product options are set using the syntax
-`M.prod.<name>.<option> = <value>`.
-For example, an executable product might look something like this
-
-	M.products += executable
-	M.prod.executable.path = $(M.tree.bin)
-	# TODO: the toolchain should define the suffix/prefix
-	M.prod.executable.prefix =
-	M.prod.executable.suffix = .exe
-	M.prod.executable.depends = $$($1.objects)
-
-	# Use a multi-line define to support multi-step recipes
-	define M.prod.executable.recipe
-		$(call M.tool.link, $$<, $$@)
-	endef
-
-Another potential approach moves the output definition into the tool definition.
-The form definition is really only to establish any dependencies and high-level options.
-
-    # When evaluated, $1 = arch/spore, $2 = toolchain
-    M.forms += zip
-    M.form.zip.depends = $($1.code)
-
-    # When evaluated, $1 = arch/spore, $2 = toolchain
-    M.tool.zip.recipe = zip -cvf $($1.name).zip $($1.code)
-    M.tool.zip.suffix = .zip
-    M.tool.zip.path = $(M.tree.bin)
-
-Moss manages the silent or debug output of the recipe and allows for customized outputs as the recipe is executed.
-
-Spore-specific form options may be configured using the syntax `<spore>.<form>.<option> = <value>`.
-
-== Spore Specialization
-
-The concept is to allow for flags and options in Spore definition that can be used during expansion of variables.
-Inline documentation will make this significantly more managable in large build systems.
-For example:
-
-[source,makefile]
-----
-    base.var.host = host
-    base.var.armv4 = ARMv4
-    base.var.armv5 = ARMv5
-
-    # Supported flags
-
-    define base.flags.use_fpu.doc
-    Enable use of floating point for supported ARM CPUs.
-    endef
-
-    define base.flags.inline_mac.doc
-    Use inlined MAC code on ARM Cortex M4 for improved performance.
-    endef
-
-    # Supported options
-
-    define base.options.cpu_arch.doc
-    Specify the CPU target architecture for base library.
-    Supported architectures are
-
-    - $(base.var.x86): default ANSI C implementation suitable for most platforms
-    - $(base.var.armv4): ARM v4 instruction set
-    - $(base.var.armv5): ARM v5 instruction set
-
-    endef
-----
-
-When expanding the spore variables, options and flags can be used directly
-
-[source,makefile]
-----
-    base.source = \
-        $(wildcard src/*.cpp) \
-        $(wildcard src/$($1.options.cpu_arch)/*.cpp)
-
-    base.c.defines = $(if $($1.flags.use_fpu), USE_FPU)
-----
-
-Architecture-specific specializations can also override flags and options
-
-[source,makefile]
-----
-    # ARM Settings
-    armv5/base.flags.use_fpu = y
-    armv5/base.options.cpu_arch = $(base.var.armv5)
-
-    # X86 settings
-    x86/base.flags.use_fpu = n
-    x86/base.options.cpu_arch = $(base.var.host)
-----
+This approach is the most promising since the full expressive power of Lua can be harnessed to create a DSL specifically for Moss.
+Syntax checking is provided by the Lua compiler itself. Additional checks can be built through careful creation of the DSL definition functions.
 
 == Dependency Generation
 
