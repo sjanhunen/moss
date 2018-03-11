@@ -44,8 +44,8 @@ For exmaple, Lua's table definition and function invocation syntax can be combin
 ----
 util = library "utility" {
     source = {
-        'common.c',
-        'main.c',
+        'util.c',
+        'helper.c',
     },
     includes = common
 }
@@ -56,7 +56,7 @@ Some string-to-table helpers could make this even more compact.
 [source,lua]
 ----
 util = library "utility" {
-    source = [[ common.c main.c ]],
+    source = [[ util.c helper.c ]],
     includes = common
 }
 ----
@@ -132,10 +132,10 @@ dependency generation.
 
 == Build Tree Structure
 
-All Moss build object files and products are placed in a Moss build tree
+All Moss build object files and artifacts are placed in a Moss build tree
 structure called `moss.build` by default.
 
-Build objects and products are placed according to the following guidelines:
+Build objects and artifacts are placed according to the following guidelines:
 
 - headers -> `M.HEADER.PATH`
 - static and shared libraries -> `M.LIBRARY.PATH`
@@ -143,9 +143,9 @@ Build objects and products are placed according to the following guidelines:
 - executables -> `M.EXECUTABLE.PATH`
 
 Headers located in `M.HEADER.PATH` are automatically included as part of
-the system include path when building spore products. Libraries located in
+the system include path when building spore artifacts. Libraries located in
 `M.LIB.PATH` are included as part of the library search path when linking
-spore products.
+spore artifacts.
 
 An example `moss.build` structure might look something like this:
 
@@ -189,14 +189,14 @@ An example `moss.build` structure might look something like this:
 				libcore.a
 				libcrypto.a
 
-Moss assumes that header files are shared across all architectures and
-toolchains. Any architecture-specific header files are an internal
+Moss assumes that header files are shared across all platforms and
+toolchains. Any platform-specific header files are an internal
 implementation detail of the source code for a spore that defines them.
 
 == Recursive vs Inclusive
 
 There are some high-level considerations to make. Do we use any amount of
-recursive make to help with iteration over toolchains, architectures, or
+recursive make to help with iteration over toolchains, platforms, or
 possibly even individual spores? It may simplify some things, but the
 performance tradeoffs are unknown. As little recursion as possible is the
 general design goal.
@@ -224,4 +224,4 @@ By default, linking armv7/app would pick up armv7/crypto. However, this could be
 
 Toolchain specific dependencies would automatically inherit the appropriate toolchain prefix.
 
-Some use cases may require that toolchain be specialized for certain spores by architecture. That is, a given spore might have to be built a special way for a particular architecture. I think this could be done via target specific variables.
+Some use cases may require that toolchain be specialized for certain spores by platforms. That is, a given spore might have to be built a special way for a particular platform. I think this could be done via target specific variables.
