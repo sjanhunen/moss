@@ -1,70 +1,66 @@
 = Moss Design Overview
 
-Moss is a library for GNU make that streamlines the creation of rules and dependencies for software build artifacts. The core concepts are:
+Moss is a library for GNU make that streamlines the creation of large-scale multi-platform software builds.
 
-1. Artifact - a completed software build product such as a library or executable
-2. Seed - a modular and configurable unit of artifact definition
-3. Architecture - the specialization mechanism for target-specific artifact creation
-4. Tool - anything used to produce an artifact, translate source code, or compile source code into object code
-5. Variant - a set of related global tool settings (e.g. DEBUG vs RELEASE)
+Moss manages the creation of all makefile rules and dependencies required for multiple languages, build artifacts, platforms, toolchains, and variants.
+Knowledge of toolchain and platform specifics are decoupled from the description of the software itself.
 
-These core concepts are defined and extended entirely through makefile variable definitions.
-Knowledge of tool and architecture specifics are decoupled from the description of the software itself.
-Moss manages the creation and application of all makefile rules required for multiple languages, artifacts, architectures, toolchains, and variants.
-This separation of concerns avoids many pitfalls of traditional make-based build systems.
+== Core Concepts
 
-== Artifacts
+The design of Moss is based on five core concepts:
 
-Each software build output produced by Moss is defined as an artifact.
-Most artifacts will require creation of object files using a compiler as part of the recipe.
-Source code may also be transcoded before this compilation step.
-Translation is converts code from one language from another language.
-Compilation is converts source code into object code.
-Some artifacts may be produced directly from source files.
-Moss manages the chaining of translation and compilation to ultimately produce and object file from source file as required.
+1. Seed - granular, configurable unit of definition
+2. Artifact - completed software build output
+3. Tool - translates code, compiles code, or forms an artifact
+3. Platform - specializes artifacts and tools for target environment
+5. Variant - specializes tools for build types
 
-Each artifact is produced in isolation.
-This guarantees that object and artifact files will never be clobbered, even if multiple artifacts use the source code in different ways.
+These concepts enforce a healthy separation of concerns but still allow for flexible combinations.
+This separation of concerns avoids many pitfalls of traditional makefile-based build systems.
 
 == Seeds
 
-Seeds define a series of variables and options that may be used by artifact definitions as a source of configuration.
+Seeds are a coherent collection of definitions that may be used by to define and customize artifacts for multiple platforms.
+A given seed may be used to produce multiple artifacts for multiple platforms without requiring duplication of the seed definition itself.
+The platform-specific specializations are created from the base seed template.
+Platform-specific options and overrides can be specified through variables that overload the base definition for the seed.
 
-A given seed may be used to produce multiple artifacts for multiple architectures without requiring duplication of the seed definition.
-The architecture-specific 'specializations' are created from the base seed 'template'.
-Architecture-specific options and overrides can be specified through variables that 'overload' the base definition for the seed.
+== Artifacts
 
-A formalized syntax is used to specify and use conditional boolean switches and named string options to specialize the artifacts produced by a seed.
-Configuration is the ideal way to provide the setting that are used during specialization to fine tune the artifacts that are formed.
-Think menuconfig or kconfig.
+Each completed software build output is defined as an artifact.
+Common examples would include libraries and executables.
+Artifacts may be defined directly without using seeds if specialization is not required across platforms.
+Artifacts that are specialized for specific platforms make use of seeds for configuration.
 
-== Architectures
+Most artifacts will require creation of object files using a compiler as part of the recipe.
+Each artifact is built in an isolated sandbox.
+This guarantees that object and artifact files will never be clobbered, even if multiple artifacts use the source code in different ways.
 
-An architecture definition specifies a toolchain. For example armv5-gcc would specify a gcc cross compiler. And armv5-clang would specify a clang cross compile. In order to build the same seed for the same processor with two different tools, two different architectures must be created.
+== Platforms
 
-Architecture is the mechanism for customized compilation of seeds for a particular target. Different seeds compiled for the same architecture may have different toolchain settings. The architecture is the means of selection. Seeds compiled for the same architecture may be linked together. A mixing of architectures is not supported.
-
-A build architecture is defined by a specific CPU type and associated instruction set.
-
-Examples: host, amd64, cortex-m4, cortex-r7, avr, mipsel, etc.
-
-Good discussion on architecture naming here: http://clang.llvm.org/docs/CrossCompilation.html
+A platform defines the aspects of the target execution environment that impact any generated artifact machine code.
+This includes CPU hardware architecture along with other relevant environment details such as OS or RTOS.
+For embedded applications, hardware architecture often has additional board-specific or chipset-specific details baked into it.
+While it may be tempting to think of platforms as CPU architectures, they really should be considered application-specific.
+Each application will define the specific platforms that are relevant.
 
 == Tools
 
 Tool are used to create all build artifacts.
+Tools perform one of three possible actions:
 
-A tool does not possess any knowledge of Moss build architecture or variant.
-Tools are specialized through architecture and variant by setting appropriate tool options to create appropriate artifacts.
+1. Translate: convert source code from one language from another language. The output is generated source code, not object code.
 
-1. Transcode: The output is generated source code, not object code.
+2. Compile: converts source code into object code.  The output is object code.
 
-2. Compile: The output is object code.
+3. Form: Create final artifact output. An artifact may contain source files or object code. Some artifacts may be produced directly from source files.
 
-3. Form: The output is a build artifact that may contain object code or files.
+A tool does not possess any knowledge of build platform or variant.
+Instead, tools are specialized through both platform and variant by setting appropriate tool options to form artifacts appropriately.
 
 == Variants
 
-A build variant is a selection that applies across all architectures and toolchains (in most cases). An example would be debug vs production.
-
-Variants provide the mechanism for compiling multiple seeds for the same architecture with different collections of settings that apply to all seeds. Example use cases that apply here are debug, production, or special test build variants.
+A build variant is an orthogonal concept to target platform.
+Variants are the specialization mechanism for forming artifacts on the same platform with different tool settings.
+Example use cases that apply here are debug, production, or special test build variants.
+Another use case may be building the same artifact for the same platform with different tools (e.g. clang vs gcc).
