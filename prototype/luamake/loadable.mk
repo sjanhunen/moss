@@ -30,8 +30,13 @@ int fibonacci_gmk_setup ()
 }
 endef
 
+ifdef WINDIR
+# ASSUMES we have makenew and libgnumake-1.dll.a in this directory
+cygwin_opts = -L. -lgnumake-1.dll
+endif
+
 fibonacci.so: fibonacci.c
-	clang --shared -undefined dynamic_lookup -o $@ $^
+	gcc -shared -o $@ $^ $(cygwin_opts)
 
 fibonacci.c: $(lastword $(MAKEFILE_LIST))
 	$(file >$@, $(source))
