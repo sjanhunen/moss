@@ -8,7 +8,7 @@ end
 
 proc = function(msg1, msg2)
 	local welcome = "Hello from Lua: ";
-	print(welcome .. msg1 .. msg2);
+	return welcome .. msg1 .. msg2;
 end
 
 endef

@@ -29,9 +29,9 @@ char *gm_lua_pcall(const char *nm, unsigned int argc, char **argv)
         for(int i = 1; i < argc; ++i) {
             lua_pushstring(ls, argv[i]);
         }
-        int status = lua_pcall(ls, argc - 1, 0, 0);
-        if(status) {
-            const char *msg = lua_tostring(ls, -1);
+        int status = lua_pcall(ls, argc - 1, 1, 0);
+        const char *msg = lua_tostring(ls, -1);
+        if(msg != 0) {
             char *buf = gmk_alloc(strlen(msg) + 1);
             strcpy(buf, msg);
             return buf;
