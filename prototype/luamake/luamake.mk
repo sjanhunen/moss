@@ -2,12 +2,17 @@ load luamake.so
 
 lua-loadfile = $(lua loadfile("$1")())
 
-# Load lua code
-$(call lua-loadfile,luamake.lua)
+# Load lua code from external file
+$(lua-pcall dofile,luamake.lua)
 
 # Clean direct evaluation of Lua code
-$(lua print("Print from Lua!"))
-$(info Result is $(lua return 5 + 5))
+$(lua-pcall print,This is a print from Lua)
+
+# Evaluate string as code
+$(info Result is $(lua return (5 + 5) / 3))
+
+# Call custom eval function to evaluate string as code
+$(info Result is $(lua-pcall eval, (5+5) / 3))
 
 # Call function through load
 # (arguments are evaluated as part of code)
