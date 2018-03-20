@@ -11,8 +11,9 @@ char *gm_lua_dostring(const char *nm, unsigned int argc, char **argv)
 {
     // TODO: add proper error handling
     int status = luaL_dostring(ls, argv[0]);
-    if(status) {
-        const char *msg = lua_tostring(ls, -1);
+    const char *msg = lua_tostring(ls, -1);
+    // TODO: figure out how best to detect and handle return values
+    if(msg) {
         char *buf = gmk_alloc(strlen(msg) + 1);
         strcpy(buf, msg);
         return buf;
@@ -47,6 +48,7 @@ int luamake_gmk_setup ()
     luaL_openlibs(ls);
     gmk_add_function ("lua-dostring", gm_lua_dostring, 1, 1, 0);
     gmk_add_function ("lua-pcall", gm_lua_pcall, 1, 32, 0);
+    gmk_add_function ("lua", gm_lua_dostring, 1, 1, 0);
     return 1;
 }
 
