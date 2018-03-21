@@ -12,5 +12,7 @@ $(info The result is $(lua eval, (5+5) / 3))
 # Call function directly
 $(info $(lua proc,hi,another hello))
 
+$(lua require,struct)
+
 .PHONY: hello
 hello:
