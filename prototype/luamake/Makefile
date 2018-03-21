@@ -8,4 +8,4 @@ platform_opts = -undefined dynamic_lookup
 endif
 
 luamake.so: luamake.c
-	gcc -shared -o $@ $^ $(platform_opts) -llua
+	gcc -Wall -shared -o $@ $^ $(platform_opts) -llua
