@@ -32,10 +32,9 @@ char *gm_lua_pcall(const char *nm, unsigned int argc, char **argv)
             }
         }
         else if(msg != NULL) {
-            size_t len = strlen(msg) + 1;
             char *result = gmk_alloc(strlen(msg) + 1);
             if(result) {
-                strncpy(result, msg, len);
+                strcpy(result, msg);
                 return result;
             }
         }
@@ -49,7 +48,7 @@ int luamake_gmk_setup ()
     ls = luaL_newstate();
     luaL_openlibs(ls);
 
-    gmk_add_function ("lua", gm_lua_pcall, 1, 32, 0);
+    gmk_add_function("lua", gm_lua_pcall, 1, 32, 0);
 
     return 1;
 }
