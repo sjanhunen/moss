@@ -1,18 +1,20 @@
 load luamake.so
 
 # Load lua code from external file
-$(lua dofile,luamake.lua)
+$(lua require,struct)
+$(lua require,luamake)
 
-# Clean direct evaluation of Lua code
+# Call built-in function directly
 $(lua print,This is a print from Lua)
 
 # Call custom eval function to evaluate string as code
 $(info The result is $(lua eval, (5+5) / 3))
 
-# Call function directly
+# Call module function directly
 $(info $(lua proc,hi,another hello))
 
-$(lua require,struct)
+# Use eval to convert varible to string for display
+$(info Files = $(lua eval,tostring(a)))
 
 .PHONY: hello
 hello:
