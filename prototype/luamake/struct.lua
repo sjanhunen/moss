@@ -3,37 +3,15 @@
 -- - should a seed be called a cell or something else?
 -- - should a 'module' actually be a 'spore'?
 
--- Sanity checks on seed definition can be done here
--- Artifact configuration seed defined entirely as table
-settings = seed {
+myconfig = seed {
     -- A flag that is simply present or absent
-    debug = {
+    debug = flag {
         doc = "Set this to enable debug",
+        -- These are only present if flag is true
         defines = "DEBUG=1",
         source = "src/debug/special.c"
     },
-    -- A option that is selected from one of many 
-    -- This approach results in some repetition
-    eval_mode = {
-        doc = {
-            "Set this for special mode options",
-            lazy="Enable special mode one",
-            hard="Enable special mode two"
-        },
-        defines = {
-            lazy='special1',
-            hard='special2'
-        },
-        source = {
-            'common.c',
-            lazy = 'src1.c',
-            hard = 'src2.c'
-        },
-    },
-    -- A option that is selected from one of many
-    -- We repeat not the options but the definitions
-    -- But this approach is more granular for extension
-    memory_model = {
+    memory_model = choice {
         {
             -- These settings are present for all options
             doc = "Choose appropriate memory model",
@@ -41,11 +19,13 @@ settings = seed {
             source = "common.c"
         },
         tiny = {
+            -- These settings only apply to "tiny"
             doc = "For less than 1MB",
             defines = "SETTING=1",
             source = "src/tiny.c"
         },
         large = {
+            -- These settings only apply to "large"
             doc = "For more than 1MB",
             defines = "SETTING=2",
             source = "src/large.c"
@@ -53,104 +33,73 @@ settings = seed {
     }
 }
 
--- Seed creation should return a table of functions like so
-settings = {
-    debug = {},
-    eval_mode = {},
-    memory_model = {
-        doc = {},
-        defines = {},
-        source = {}
-    }
-}
-
--- Artifacts can use functions to defer referencing seed variables
--- (referencing seeds by name is one reason to define separately)
-main = executable {
-    source = {
-        'common.c',
-        'main.c',
-        settings.memory_model.source
-    },
-    defines = settings.memory_model.defines
-}
-
-gcc_debug = variant {
-    cflags = list [[ -DDEBUG=1 -Og ]]
-}
-
-clang_debug = variant {
-    cflags = list [[ -DDEBUG=1 -Og ]]
-}
-
-gcc_release = variant {
-    cflags = list [[ -O3 ]]
-}
-
--- Fake out what a seed might be like
-myconfig = function(a) return a; end
-
--- If an artifact doesn't have a name, the name could
--- be based upon the variable name it is assigned to
 mylib = library {
     -- name defaults to mylib
     src = files [[ lib1.c lib2.c ]],
-    defines = myconfig('option1')
+    defines = myconfig "memory_model.defines"
 }
 
--- Variable holding platform could differ from name of
--- platform used within builds.
--- If no platforms are defined, do we just build artifacts?
-host = platform {
-    -- We can specify options as named table entries
-    name = "host-default",
+-- Artifacts use functions to defer referencing seed variables.
+-- Functions are invoked later for each platform to get values.
+-- (referencing seeds by name is one reason to define separately)
+mymain = executable {
+    source = {
+        'common.c',
+        'mymain.c',
+        myconfig "memory_model.source"
+    },
+    defines = {myconfig "memory_model.defines", myconfig "debug.defines"},
+    lib = {mylib, "c", "c++"}
+}
 
-    -- variant may be a property of platform (TBD)
-    variants = { gcc_debug, clang_debug, gcc_release },
+-- Variants are used to specialize tool settings
+arm_gcc_debug = variant {
+    cflags = list [[ -DDEBUG=1 -Og ]]
+}
+host_clang_debug = variant {
+    cflags = list [[ -DDEBUG=1 -Og ]]
+}
+arm_gcc_release = variant {
+    cflags = list [[ -O3 ]]
+}
 
-    -- Setting seed options can be done by invoking the seed by name
+host_test = platform {
+    -- A single unnamed variant implies only a single build type
+    variants { host_clang_debug },
+
     myconfig {
-        option1 = "a",
-        option2 = "b"
+        debug = true,
+        memory_model = "large"
     },
 
     -- Simply list artifacts that should be built for this platform
-    mylib, catch, main,
+    mymain,
 
-    -- Create entirely new artifacts just for this platform
-
+    -- Create entirely new artifact just for this platform
+    -- Artifacts mylib and catch are automatically built for this platform
     executable {
-        name = "bob",
-        src = files [[ a.c b.c c.c ]],
-        defines = {"RUN_TIME_CHECKS", "COMPILE_TIME_CHECKS"},
-        lib = mylib
-    },
-
-    executable {
-        name = "test-bob",
-        src = "test_bob.cpp",
-        lib = { mylib, catch }
+        name = "host-test",
+        src = "host-test.cpp",
+        lib = {mylib, catch, "c++"}
     }
 }
 
--- Consider declaring variants outside platform at highest level
-arm_cortex_cm5 = variant {
-    name = "arm-cm5",
+target_board = platform {
+    -- Multiple named variants implies platform can be built multiple ways
+    variants {
+        debug = arm_gcc_debug,
+        release = arm_gcc_release
+    },
 
-    -- Can tool configuration be totally defined by variant?
-    cflags = "--arch=arm",
-    cdefines = "ARM",
-    ldflags = "",
+    myconfig {
+        debug = false,
+        memory_model = "large"
+    },
 
-    -- List the platforms to build for this variant
-    host, target,
-
-    -- Does it make sense to allow artifacts here directly?
-    mylib, main
+    -- Simply list artifacts that should be built for this platform
+    -- Think about how we could explicitly link special versions of libraries
+    -- with very specific tools settings (e.g. target_lib_fast "mylib" as lib)
+    mymain
 }
 
-a = files [[ src1.c src2.c src3.c ]]
-
--- Explicitly define which variables are exported by moss module
--- (only these are visible when the module is imported)
-export {mylib, p, a}
+export {myconfig, mylib, mymain}

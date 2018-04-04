@@ -13,8 +13,8 @@ $(info The result is $(lua eval, (5+5) / 3))
 # Call module function directly
 $(info $(lua proc,hi,another hello))
 
-# Use eval to convert varible to string for display
-$(info Files = $(lua eval,tostring(a)))
+# Use eval to convert to string for display
+$(info result is $(lua eval,tostring(55)))
 
 .PHONY: hello
 hello:
