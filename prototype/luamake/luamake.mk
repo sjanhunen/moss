@@ -1,8 +1,8 @@
 load luamake.so
 
 # Load lua code from external file
-$(lua require,struct)
 $(lua require,luamake)
+$(lua require,struct)
 
 # Call built-in function directly
 $(lua print,This is a print from Lua)

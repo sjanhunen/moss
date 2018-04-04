@@ -8,3 +8,33 @@ end
 eval = function(code)
     return load("return " .. code)()
 end
+
+function seed(s)
+    return s
+end
+
+function platform(name, p)
+    return p
+end
+
+function executable(t)
+    return t
+end
+
+function library(t)
+    return t
+end
+
+function variant(t)
+    return t
+end
+
+function files(f)
+    -- Split files into table here
+    return f
+end
+
+function list(f)
+    -- Split files into table here
+    return f
+end

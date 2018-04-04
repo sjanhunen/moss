@@ -1,9 +1,4 @@
 -- Sanity checks on seed definition can be done here
-function seed(s)
-    -- Probably return a fuction that takes config as argument
-    return s
-end
-
 -- Artifact configuration seed defined entirely as table
 settings = seed {
     -- A flag that is simply present or absent
@@ -53,56 +48,79 @@ settings = seed {
     }
 }
 
-
--- Config table is used to create variables from seed
-config = {
-    debug = 'Y',
-    eval_mode = 'lazy',
-    memory_model = 'large'
+-- Seed creation should return a table of functions like so
+settings = {
+    debug = {},
+    eval_mode = {},
+    memory_model = {
+        doc = {},
+        defines = {},
+        source = {}
+    }
 }
 
-function eval(t)
-    -- TODO: aggregate variable across all instances of variable in seed
-    return function(setting, config)
-        if type(setting[t]) == 'table' then
-            return setting[t][config]
-        elseif type(setting[t]) ~= nil then
-            if config then
-                return setting[t]
-            end
-        end
-
-        return nil
-    end
-end
-
--- Sanity checks would take place here
-function executable(t)
-    return t
-end
-
 -- Artifacts can use functions to defer referencing seed variables
+-- (referencing seeds by name is one reason to define separately)
 main = executable {
-    seed = settings,
     source = {
         'common.c',
         'main.c',
-        eval('source')
+        settings.memory_model.source
     },
-    defines = eval('defines')
+    defines = settings.memory_model.defines
 }
 
--- Print different elements of the struct
-print(settings.debug.doc);
-print(settings.debug.source);
-print(settings.eval_mode.doc[1]);
-print(settings.eval_mode.defines.lazy);
+gcc_debug = variant {
+    cflags = list [[ -DDEBUG=1 -Og ]]
+}
 
-print(main.source[3](settings.debug, config.debug))
+clang_debug = variant {
+    cflags = list [[ -DDEBUG=1 -Og ]]
+}
 
-function files(f)
-    -- Split files into table here
-    return f
-end
+gcc_release = variant {
+    cflags = list [[ -O3 ]]
+}
+
+-- Fake out what a seed might be like
+myconfig = function(a) return a; end
+
+mylib = library {
+    name = "mycore",
+    src = files [[ lib1.c lib2.c ]],
+    defines = myconfig('option1')
+}
+
+platform {
+    -- We can specify options as named table entries
+    name = "host",
+
+    -- This platform may be built across these tool settings 
+    variants = {gcc_debug, gcc_release, clang_debug},
+
+    -- Setting seed options can be done by invoking the seed by name
+    myconfig {
+        option1 = "a",
+        option2 = "b"
+    },
+
+    -- Simply list artifacts that should be built for this platform
+    mylib, catch, main,
+
+    -- Create entirely new artifacts just for this platform
+
+    executable {
+        name = "bob",
+        src = files [[ a.c b.c c.c ]],
+        defines = {"RUN_TIME_CHECKS", "COMPILE_TIME_CHECKS"},
+        lib = mylib
+    },
+
+    executable {
+        name = "test-bob",
+        src = "test_bob.cpp",
+        lib = { mylib, catch }
+    }
+}
 
 a = files [[ src1.c src2.c src3.c ]]
