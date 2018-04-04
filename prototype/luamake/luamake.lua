@@ -10,7 +10,10 @@ eval = function(code)
 end
 
 function seed(s)
-    return s
+    -- Seed creation returns a function that is evaluated two ways
+    -- 1) With m as table to specify configuration
+    -- 2) With m as string to resolve option (returns another function)
+    return function(m) return m; end
 end
 
 function platform(name, p)
@@ -25,8 +28,12 @@ function library(t)
     return t
 end
 
-function variant(t)
-    return t
+function variant(v)
+    return v
+end
+
+function variants(v)
+    return v
 end
 
 function files(f)
@@ -37,6 +44,14 @@ end
 function list(f)
     -- Split files into table here
     return f
+end
+
+function flag(f)
+    return f
+end
+
+function choice(c)
+    return c
 end
 
 function export(variables)
