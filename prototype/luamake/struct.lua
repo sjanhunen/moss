@@ -1,3 +1,8 @@
+-- Terminology Questions:
+-- - can we actually use the term seed with moss?
+-- - should a seed be called a cell or something else?
+-- - should a 'module' actually be a 'spore'?
+
 -- Sanity checks on seed definition can be done here
 -- Artifact configuration seed defined entirely as table
 settings = seed {
@@ -85,18 +90,23 @@ gcc_release = variant {
 -- Fake out what a seed might be like
 myconfig = function(a) return a; end
 
+-- If an artifact doesn't have a name, the name could
+-- be based upon the variable name it is assigned to
 mylib = library {
-    name = "mycore",
+    -- name defaults to mylib
     src = files [[ lib1.c lib2.c ]],
     defines = myconfig('option1')
 }
 
-platform {
+-- Variable holding platform could differ from name of
+-- platform used within builds.
+-- If no platforms are defined, do we just build artifacts?
+host = platform {
     -- We can specify options as named table entries
-    name = "host",
+    name = "host-default",
 
-    -- This platform may be built across these tool settings 
-    variants = {gcc_debug, gcc_release, clang_debug},
+    -- variant may be a property of platform (TBD)
+    variants = { gcc_debug, clang_debug, gcc_release },
 
     -- Setting seed options can be done by invoking the seed by name
     myconfig {
@@ -123,4 +133,24 @@ platform {
     }
 }
 
+-- Consider declaring variants outside platform at highest level
+arm_cortex_cm5 = variant {
+    name = "arm-cm5",
+
+    -- Can tool configuration be totally defined by variant?
+    cflags = "--arch=arm",
+    cdefines = "ARM",
+    ldflags = "",
+
+    -- List the platforms to build for this variant
+    host, target,
+
+    -- Does it make sense to allow artifacts here directly?
+    mylib, main
+}
+
 a = files [[ src1.c src2.c src3.c ]]
+
+-- Explicitly define which variables are exported by moss module
+-- (only these are visible when the module is imported)
+export {mylib, p, a}
