@@ -36,7 +36,7 @@ myconfig = seed {
 mylib = library {
     -- name defaults to mylib
     src = files [[ lib1.c lib2.c ]],
-    defines = myconfig "memory_model.defines"
+    defines = myconfig "defines"
 }
 
 -- Artifacts use functions to defer referencing seed variables.
@@ -46,9 +46,9 @@ mymain = executable {
     source = {
         'common.c',
         'mymain.c',
-        myconfig "memory_model.source"
+        myconfig "source"
     },
-    defines = {myconfig "memory_model.defines", myconfig "debug.defines"},
+    defines = {myconfig "defines", myconfig "defines"},
     lib = {mylib, "c", "c++"}
 }
 
