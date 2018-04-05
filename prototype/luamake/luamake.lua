@@ -21,7 +21,7 @@ function platform(name, p)
 end
 
 function executable(t)
-    return t
+    return function(q) return t; end;
 end
 
 function library(t)

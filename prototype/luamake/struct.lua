@@ -99,7 +99,7 @@ target_board = platform {
     -- Simply list artifacts that should be built for this platform
     -- Think about how we could explicitly link special versions of libraries
     -- with very specific tools settings (e.g. target_lib_fast "mylib" as lib)
-    mymain
+    mymain { name = "main.elf" }
 }
 
 export {myconfig, mylib, mymain}
