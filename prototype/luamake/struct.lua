@@ -48,7 +48,7 @@ mymain = executable {
         'mymain.c',
         myconfig "source"
     },
-    defines = {myconfig "defines", myconfig "defines"},
+    defines = {myconfig "defines"},
     lib = {mylib, "c", "c++"}
 }
 
@@ -103,3 +103,51 @@ target_board = platform {
 }
 
 export {myconfig, mylib, mymain}
+
+-- Could we merge variant concept into platform and just create some type of
+-- nestable build or variant concept?  Any number of required permutations
+-- could be easily created this way.
+build = variant;
+host_gcc = variant {};
+arm_gcc = variant {};
+
+-- Perhaps the core concepts are just seed, artifact, tool, build.
+-- A build is a way to combine configuration & tools to create artifacts.
+build {
+    -- Common seed configuration for all builds
+    myconfig {
+        memory_model = "large";
+        debug = false;
+    };
+
+    -- This artifact is built for host-sim, target.debug, target.release
+    artifacts = {mymain};
+
+    build {
+        name = "host-sim";
+        myconfig { debug = true };
+        tools = { arm_gcc_debug };
+    };
+
+    build {
+        name = "target";
+        build {
+            name = "debug";
+            tools = {
+                arm_gcc { cflags = [[ DEBUG -Og ]] };
+            };
+            myconfig { debug = true };
+        };
+        build {
+            name = "release";
+            -- Consider nested build environments to specialize artifacts
+            build {
+                artifacts = mylib;
+                tools = {arm_gcc { cflags = [[ -O3 ]] }};
+            };
+            tools = {
+                arm_gcc { cflags = [[ -O3 ]] };
+            };
+        };
+    };
+};
