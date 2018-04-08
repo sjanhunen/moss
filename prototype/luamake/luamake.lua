@@ -29,7 +29,7 @@ function library(t)
 end
 
 function variant(v)
-    return v
+    return function(e) return v end
 end
 
 function variants(v)
