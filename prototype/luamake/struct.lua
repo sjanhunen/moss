@@ -104,49 +104,70 @@ target_board = platform {
 
 export {myconfig, mylib, mymain}
 
--- Could we merge variant concept into platform and just create some type of
--- nestable build or variant concept?  Any number of required permutations
--- could be easily created this way.
+-- Consider merting variant concept into platform for an overall concept of
+-- nestable build tree?  Any number of required permutations could be easily
+-- created this way.
 build = variant;
-host_gcc = variant {};
-arm_gcc = variant {};
 
--- Perhaps the core concepts are just seed, artifact, tool, build.
--- A build is a way to combine configuration & tools to create artifacts.
+-- Example tool definitions
+gcc5_arm = {
+    cc = function(s) return s; end;
+    ld = function(s) return s; end;
+    ar = function(s) return s; end;
+};
+clang = {
+    cc = function(s) return s; end;
+    ld = function(s) return s; end;
+    ar = function(s) return s; end;
+};
+
+-- Perhaps the core concepts become:
+-- - artifact: product of build
+-- - tool: produce artifacts
+-- - seed: core unit of definition for artifacts & tools
+-- - build: build tree with common tools (can be nested)
+
+-- All artifacts are created within a build tree using seeds and tools.
 build {
+    -- This name determines the top-level build output directory
+    -- (omitting this results in an in-place build)
+    name = "build";
+
     -- Common seed configuration for all builds
     myconfig {
         memory_model = "large";
         debug = false;
     };
 
-    -- This artifact is built for host-sim, target.debug, target.release
-    artifacts = {mymain};
+    -- This artifact is built for host-sim, target/debug, target/release
+    -- (tools and config differ within each build subtree)
+    artifacts = { mymain };
 
     build {
         name = "host-sim";
+        tools = { clang };
+
+        -- Configuration
         myconfig { debug = true };
-        tools = { arm_gcc_debug };
+        clang.cc { cflags = "-fsanitize=address -DDEBUG" };
     };
 
     build {
         name = "target";
+        tools = { gcc5_arm };
+
         build {
             name = "debug";
-            tools = {
-                arm_gcc { cflags = [[ DEBUG -Og ]] };
-            };
             myconfig { debug = true };
+            gcc5_arm.cc { cflags = "-Og -DDEBUG" };
         };
         build {
             name = "release";
-            -- Consider nested build environments to specialize artifacts
+            gcc5_arm.cc { cflags = "-O3" };
             build {
+                -- mylib for target.release requires different cflags
+                gcc5_arm.cc { cflags = "-O1" };
                 artifacts = mylib;
-                tools = {arm_gcc { cflags = [[ -O3 ]] }};
-            };
-            tools = {
-                arm_gcc { cflags = [[ -O3 ]] };
             };
         };
     };
