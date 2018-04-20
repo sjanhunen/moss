@@ -104,9 +104,7 @@ target_board = platform {
 
 export {myconfig, mylib, mymain}
 
--- Consider merting variant concept into platform for an overall concept of
--- nestable build tree?  Any number of required permutations could be easily
--- created this way.
+-- The build node concept will replace the variant concept
 build = variant;
 
 -- Example tool definitions
@@ -121,13 +119,18 @@ clang = {
     ar = function(s) return s; end;
 };
 
--- Perhaps the core concepts become:
--- - artifact: product of build
--- - tool: produce artifacts
--- - seed: core unit of definition for artifacts & tools
--- - build: build tree with common tools (can be nested)
+-- Moss has three core concepts:
+--  Spore: a reusable template used to form a particular class of build artifact
+--  Gene: a configurable unit of definition for spore artifacts
+--  Tree: a hierarchical structure used to
+--      * specify and organize the build artifacts that will be formed
+--      * define the processes used to form artifacts
+--      * specialize the genes used when forming variants of artifacts
 
--- All artifacts are created within a build tree using seeds and tools.
+-- Moss favors explicit definition over automatic discovery.
+-- The build tree is a structure used to explicitly define how software is built.
+-- This is in contrast to tools like autoconf that attempt to discover aspects of this.
+
 build {
     -- This name determines the top-level build output directory
     -- (omitting this results in an in-place build)
