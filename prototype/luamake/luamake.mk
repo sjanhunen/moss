@@ -3,7 +3,11 @@ load luamake.so
 # Load lua code from external file
 $(lua require,luamake)
 
+# Tool definition concept in makefile
 include tools.mk
+
+# Tool definition concept in Lua
+$(lua require,tools)
 
 $(lua require,struct)
 $(lua require,buildtree)
