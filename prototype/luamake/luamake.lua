@@ -16,24 +16,12 @@ function seed(s)
     return function(m) return m; end
 end
 
-function platform(name, p)
-    return p
-end
-
 function executable(t)
     return function(q) return t; end;
 end
 
 function library(t)
     return t
-end
-
-function variant(v)
-    return function(e) return v end
-end
-
-function variants(v)
-    return v
 end
 
 function files(f)
