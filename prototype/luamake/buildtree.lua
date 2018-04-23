@@ -32,7 +32,6 @@ build {
 
         -- Configuration
         myconfig { debug = true };
-        clang.cc { cflags = "-fsanitize=address -DDEBUG" };
     };
 
     build {
@@ -42,14 +41,11 @@ build {
         build {
             name = "debug";
             myconfig { debug = true };
-            gcc5_arm.cc { cflags = "-Og -DDEBUG" };
         };
         build {
             name = "release";
-            gcc5_arm.cc { cflags = "-O3" };
             build {
                 -- mylib for target.release requires different cflags
-                gcc5_arm.cc { cflags = "-O1" };
                 artifacts = mylib;
             };
         };

@@ -2,6 +2,9 @@ load luamake.so
 
 # Load lua code from external file
 $(lua require,luamake)
+
+include tools.mk
+
 $(lua require,struct)
 $(lua require,buildtree)
 
