@@ -1,7 +1,11 @@
--- Terminology Questions:
--- - can we actually use the term seed with moss?
--- - should a seed be called a cell or something else?
--- - should a 'module' actually be a 'spore'?
+-- Moss core concepts:
+--  Artifact: a completed software build output (e.g. executable, library, etc.)
+--  Build Tree: a hierarchical structure used to
+--      * define and organize the artifacts that will be formed
+--      * specify the tools used to form artifacts
+--      * specialize the genes used within artifacts by build
+--  Spore: a reusable template used to form a class of build artifact
+--  Gene: a configurable unit of definition used for spore artifacts
 
 myconfig = seed {
     -- A flag that is simply present or absent
@@ -40,7 +44,6 @@ mylib = library {
 }
 
 -- Artifacts use functions to defer referencing seed variables.
--- Functions are invoked later for each platform to get values.
 -- (referencing seeds by name is one reason to define separately)
 mymain = executable {
     source = {
@@ -52,60 +55,7 @@ mymain = executable {
     lib = {mylib, "c", "c++"}
 }
 
--- Variants are used to specialize tool settings
-arm_gcc_debug = variant {
-    cflags = list [[ -DDEBUG=1 -Og ]]
-}
-host_clang_debug = variant {
-    cflags = list [[ -DDEBUG=1 -Og ]]
-}
-arm_gcc_release = variant {
-    cflags = list [[ -O3 ]]
-}
-
-host_test = platform {
-    -- A single unnamed variant implies only a single build type
-    variants { host_clang_debug },
-
-    myconfig {
-        debug = true,
-        memory_model = "large"
-    },
-
-    -- Simply list artifacts that should be built for this platform
-    mymain,
-
-    -- Create entirely new artifact just for this platform
-    -- Artifacts mylib and catch are automatically built for this platform
-    executable {
-        name = "host-test",
-        src = "host-test.cpp",
-        lib = {mylib, catch, "c++"}
-    }
-}
-
-target_board = platform {
-    -- Multiple named variants implies platform can be built multiple ways
-    variants {
-        debug = arm_gcc_debug,
-        release = arm_gcc_release
-    },
-
-    myconfig {
-        debug = false,
-        memory_model = "large"
-    },
-
-    -- Simply list artifacts that should be built for this platform
-    -- Think about how we could explicitly link special versions of libraries
-    -- with very specific tools settings (e.g. target_lib_fast "mylib" as lib)
-    mymain { name = "main.elf" }
-}
-
 export {myconfig, mylib, mymain}
-
--- The build node concept will replace the variant concept
-build = variant;
 
 -- Example tool definitions
 gcc5_arm = {
@@ -117,61 +67,4 @@ clang = {
     cc = function(s) return s; end;
     ld = function(s) return s; end;
     ar = function(s) return s; end;
-};
-
--- Moss has three core concepts:
---  Spore: a reusable template used to form a particular class of build artifact
---  Gene: a configurable unit of definition for spore artifacts
---  Tree: a hierarchical structure used to
---      * specify and organize the build artifacts that will be formed
---      * define the processes used to form artifacts
---      * specialize the genes used when forming variants of artifacts
-
--- Moss favors explicit definition over automatic discovery.
--- The build tree is a structure used to explicitly define how software is built.
--- This is in contrast to tools like autoconf that attempt to discover aspects of this.
-
-build {
-    -- This name determines the top-level build output directory
-    -- (omitting this results in an in-place build)
-    name = "build";
-
-    -- Common seed configuration for all builds
-    myconfig {
-        memory_model = "large";
-        debug = false;
-    };
-
-    -- This artifact is built for host-sim, target/debug, target/release
-    -- (tools and config differ within each build subtree)
-    artifacts = { mymain };
-
-    build {
-        name = "host-sim";
-        tools = { clang };
-
-        -- Configuration
-        myconfig { debug = true };
-        clang.cc { cflags = "-fsanitize=address -DDEBUG" };
-    };
-
-    build {
-        name = "target";
-        tools = { gcc5_arm };
-
-        build {
-            name = "debug";
-            myconfig { debug = true };
-            gcc5_arm.cc { cflags = "-Og -DDEBUG" };
-        };
-        build {
-            name = "release";
-            gcc5_arm.cc { cflags = "-O3" };
-            build {
-                -- mylib for target.release requires different cflags
-                gcc5_arm.cc { cflags = "-O1" };
-                artifacts = mylib;
-            };
-        };
-    };
 };
