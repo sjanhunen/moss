@@ -48,7 +48,7 @@ int luamake_gmk_setup ()
     ls = luaL_newstate();
     luaL_openlibs(ls);
 
-    gmk_add_function("lua", gm_lua_pcall, 1, 32, 0);
+    gmk_add_function("lua", gm_lua_pcall, 1, 32, GMK_FUNC_NOEXPAND);
 
     return 1;
 }

@@ -2,10 +2,10 @@
 --  Artifact: a completed software build output (e.g. executable, library, etc.)
 --  Build Tree: a hierarchical structure used to
 --      * define and organize the artifacts that will be formed
---      * specify the tools used to form artifacts
---      * specialize the genes used within artifacts by build
+--      * select the tools used to form artifacts
+--      * specialize the genes used for forming artifacts within leaves
 --  Spore: a reusable template used to form a class of build artifact
---  Gene: a configurable unit of definition used for spore artifacts
+--  Gene: a configurable unit of definition used to control code for formed artifacts
 
 myconfig = seed {
     -- A flag that is simply present or absent
@@ -56,15 +56,3 @@ mymain = executable {
 }
 
 export {myconfig, mylib, mymain}
-
--- Example tool definitions
-gcc5_arm = {
-    cc = function(s) return s; end;
-    ld = function(s) return s; end;
-    ar = function(s) return s; end;
-};
-clang = {
-    cc = function(s) return s; end;
-    ld = function(s) return s; end;
-    ar = function(s) return s; end;
-};
