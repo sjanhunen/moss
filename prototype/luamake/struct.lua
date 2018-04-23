@@ -1,11 +1,12 @@
 -- Moss core concepts:
 --  Artifact: a completed software build output (e.g. executable, library, etc.)
---  Build Tree: a hierarchical structure used to
+--  Genome: collection of configurable genes used to define and specialize artifacts
+--  Process: a Makefile recipe used to translate code, compile code, or form artifacts
+--  Build: a hierarchical tree structure used to
 --      * define and organize the artifacts that will be formed
 --      * select the tools used to form artifacts
 --      * specialize the genes used for forming artifacts within leaves
---  Spore: a reusable template used to form a class of build artifact
---  Gene: a configurable unit of definition used to control code for formed artifacts
+--  Spore: a collection of genome, process, or build definitions used to create artifacts
 
 myconfig = seed {
     -- A flag that is simply present or absent
