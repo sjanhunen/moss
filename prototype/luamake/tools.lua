@@ -17,6 +17,13 @@ config = seed {
     defines = "";
 };
 
+clang_config = seed {
+    cc = {
+    };
+    ld = {
+    }
+};
+
 -- Expansion within recipe templates:
 -- @{.<name>} - expands to value of artifact parameter <name>
 -- @{<seed>.<parameter>} - expands to value of seed parameter <seed>.<parameter> 
@@ -24,6 +31,7 @@ config = seed {
 
 xml2cpp = translate(".xml", ".cpp") "@{xml2cpp} -o $@ $^";
 
+-- Consider this as translate(".cpp") - implicit output to object code
 clangcc = compile(".cpp")
     "@{clang_home}/clangcc                  \z
         $(addprefix -D,@{config.defines})   \z

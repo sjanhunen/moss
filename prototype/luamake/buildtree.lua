@@ -11,43 +11,53 @@ function build(v)
     return function(e) return v end
 end
 
-build {
-    -- This name determines the top-level build output directory
-    -- (omitting this results in an in-place build)
-    name = "build";
+--
+-- A compact approach to build tree that makes things very explicit
+--
 
-    -- Common seed configuration for all builds
+-- If we built this outside a directory, we would build in place
+main_image = build "executable" {
+    name = "main.exe";
+    -- could even customize tools & genes here
+    tools = {};
+};
+
+-- Build structures used to explicitly define everything that is created
+-- A directory artifact without name could imply current directory
+build "directory" {
+    name = "output";
+    tools = { clangld, clangcc };
+
     myconfig {
         memory_model = "large";
         debug = false;
     };
 
-    -- This artifact is built for host-sim, target/debug, target/release
-    -- (tools and config differ within each build subtree)
-    artifacts = { mymain };
+    build "directory" {
+        name = "debug";
+        clang_config {
+            cc = { cflags = "-Og -DDEBUG" };
+        };
 
-    build {
-        name = "host-sim";
-        tools = { clang };
-
-        -- Configuration
+        main_image;
+    };
+    build "directory" {
+        name = "release";
+        clang_config {
+            cc = { cflags = "-O3" };
+        };
         myconfig { debug = true };
+
+        main_image;
     };
 
-    build {
-        name = "target";
-        tools = { gcc5_arm };
+    build "directory" {
+        name = "package";
+        tools = { gzip };
 
-        build {
-            name = "debug";
-            myconfig { debug = true };
+        build "zipfile" {
+            name = "release.zip";
+            source = { main_image, "help.doc", "release-notes.txt" };
         };
-        build {
-            name = "release";
-            build {
-                -- mylib for target.release requires different cflags
-                artifacts = mylib;
-            };
-        };
-    };
+    }
 };
