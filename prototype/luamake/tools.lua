@@ -1,16 +1,16 @@
-function translate(src, dst, name)
-    return function(recipe) moss_translate(src, dst, "anonymous", recipe); end
-end
-
-function compile(src)
-    return function(recipe) moss_compile(src, "anonymous", recipe); end
+function translate(src, dst)
+    if(dst == nil) then
+        return function(recipe) moss_compile(src, ".obj", "anonymous", recipe); end
+    else
+        return function(recipe) moss_translate(src, dst, "anonymous", recipe); end
+    end
 end
 
 function form(artifact)
     return function(recipe) moss_form(artifact, "anonymous", recipe); end
 end
 
-xml2cpp = "/opt/tool/xml2cpp";
+xml2cpp_tool = "/opt/tool/xml2cpp";
 clang_home = "/opt/bin/clang";
 
 config = seed {
@@ -29,10 +29,11 @@ clang_config = seed {
 -- @{<seed>.<parameter>} - expands to value of seed parameter <seed>.<parameter> 
 -- @{<variable>} - expands to value of named <variable>
 
-xml2cpp = translate(".xml", ".cpp") "@{xml2cpp} -o $@ $^";
+-- Translate from one source file to another source file
+xml2cpp = translate(".xml", ".cpp") "@{xml2cpp_tool} -o $@ $^";
 
--- Consider this as translate(".cpp") - implicit output to object code
-clangcc = compile(".cpp")
+-- Translate from source file to object file (i.e. compile)
+clangcc = translate(".cpp")
     "@{clang_home}/clangcc                  \z
         $(addprefix -D,@{config.defines})   \z
         $(addprefix -D,@{.defines})         \z
