@@ -9,18 +9,6 @@ eval = function(code)
     return load("return " .. code)()
 end
 
-function moss_form(class, name, recipe)
-    print(name .. ": form " .. class .. " using recipe " .. recipe);
-end
-
-function moss_translate(src, dst, name, recipe)
-    print(name .. ": translate " .. src .. "->" .. dst .. " using recipe " .. recipe);
-end
-
-function moss_compile(src, name, recipe)
-    print(name .. ": compile " .. src .. " using recipe " .. recipe);
-end
-
 function seed(s)
     -- Seed creation returns a function that is evaluated two ways
     -- 1) With m as table to specify configuration

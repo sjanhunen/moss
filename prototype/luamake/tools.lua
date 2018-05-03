@@ -1,13 +1,22 @@
 function translate(src, dst)
     if(dst == nil) then
-        return function(recipe) moss_compile(src, ".obj", "anonymous", recipe); end
+        return function(recipe)
+            print("translate " .. src .. " -> OBJ using recipe " .. recipe);
+            return recipe;
+        end
     else
-        return function(recipe) moss_translate(src, dst, "anonymous", recipe); end
+        return function(recipe)
+            print("translate " .. src .. " -> " .. dst .. " using recipe " .. recipe);
+            return recipe;
+        end
     end
 end
 
 function form(artifact)
-    return function(recipe) moss_form(artifact, "anonymous", recipe); end
+    return function(recipe)
+        print("form " .. artifact .. " using recipe " .. recipe);
+        return recipe;
+    end
 end
 
 xml2cpp_tool = "/opt/tool/xml2cpp";
