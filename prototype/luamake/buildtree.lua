@@ -23,7 +23,7 @@ function with(g)
 end
 
 -- Directive
-function using(t)
+function using(...)
     return function(c) return c end
 end
 
@@ -49,7 +49,7 @@ main_image = artifact("executable") {
 -- Build structures used to explicitly define everything that is created
 -- A directory artifact without name could imply current directory
 build("output") {
-    using { clangld, clangcc };
+    using(clangld, clangcc);
 
     with(myconfig) {
         memory_model = "large";
@@ -81,8 +81,8 @@ build("output") {
     };
 
     build("package") {
-        using { gzip };
-        build(artifact "zipfile" {
+        using(gzip);
+        build(artifact("zipfile") {
             name = "release.zip";
             source = { main_image, "help.doc", "release-notes.txt" };
         });
