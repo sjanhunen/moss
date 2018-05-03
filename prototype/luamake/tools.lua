@@ -34,20 +34,22 @@ clang_config = seed {
 };
 
 -- Expansion within recipe templates:
--- @{.<name>} - expands to value of artifact parameter <name>
--- @{<seed>.<parameter>} - expands to value of seed parameter <seed>.<parameter> 
--- @{<variable>} - expands to value of named <variable>
+-- ${.<name>} - expands to value of parameter <name> for artifact
+-- ${<seed>.<name>} - expands to value of parameter <name> for <seed>
+-- ${<variable>} - expands to value of named <variable>
 
 -- Translate from one source file to another source file
-xml2cpp = translate(".xml", ".cpp") "@{xml2cpp_tool} -o $@ $^";
+xml2cpp = translate(".xml", ".cpp") "${xml2cpp_tool} -o $@ $^";
 
 -- Translate from source file to object file (i.e. compile)
 clangcc = translate(".cpp")
-    "@{clang_home}/clangcc                  \z
-        $(addprefix -D,@{config.defines})   \z
-        $(addprefix -D,@{.defines})         \z
+    "${clang_home}/clangcc                  \z
+        $(addprefix -D,${config.defines})   \z
+        $(addprefix -D,${.defines})         \z
         -o $@ $^";
+
+-- Would a generate(pattern, fn) tool be helpful for generated code?
 
 gzip = form("zip") "gzip -vf $@ $<";
 
-clangld = form("executable") "@{clang_home}/clangld -o $@ $<";
+clangld = form("executable") "${clang_home}/clangld -o $@ $<";
