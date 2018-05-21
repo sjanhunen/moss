@@ -8,25 +8,33 @@ function build(form)
     if(type(form) == "string") then
         print("build directory: " .. form);
     else
-        print("build form");
+        print("build form: " .. form.name);
     end
     return function(e) return function() return form end end
 end
 
-math_lib = build("static_lib") {
+math_lib = build(staticlib) {
     name = "fastmath.lib";
     source = [[ math1.c math2.c ]];
 }
 
-main_image = build("executable") {
+main_image = build(executable) {
     name = "main.exe";
     -- main_image requires math_lib within it's build
     libs = {math_lib};
 };
 
 build("output") {
+    [executable] = {
+        form = clangld;
+        translate = clangcc;
+    };
+    [staticlib] = {
+        form = clangar;
+        translate = clangcc;
+    };
+
     [clangcc] = { cflags = "-Wall" };
-    [clangld] = {};
 
     -- Traits cannot be expanded within a build unless they have been
     -- configured.  Traits are superior to global variables in that offer
@@ -57,7 +65,7 @@ build("output") {
     };
 
     -- In-place build artifact
-    build(gzip) {
+    build(zipfile) {
         name = "release.zip";
 
         -- TODO: how do we select which main_image to use?
@@ -67,7 +75,5 @@ build("output") {
             "help.doc",
             "release-notes.txt"
         };
-
-        [gzip] = { flags = "--best" };
     };
 };

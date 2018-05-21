@@ -50,6 +50,6 @@ clangcc = translate(".cpp")
 
 -- Would a generate(pattern, fn) tool be helpful for generated code?
 
-gzip = form("zip") "gzip -vf $@ $<";
-
 clangld = form("executable") "${clang_home}/clangld -o $@ $<";
+
+clangar = form("staticlib") "${clang_home}/clangar -o $@ $<";
