@@ -37,22 +37,4 @@ myconfig = seed {
     }
 }
 
-mylib = library {
-    -- name defaults to mylib
-    src = files [[ lib1.c lib2.c ]],
-    defines = myconfig "defines"
-}
-
--- Artifacts use functions to defer referencing seed variables.
--- (referencing seeds by name is one reason to define separately)
-mymain = executable {
-    source = {
-        'common.c',
-        'mymain.c',
-        myconfig "source"
-    },
-    defines = {myconfig "defines"},
-    lib = {mylib, "c", "c++"}
-}
-
 export {myconfig, mylib, mymain}
