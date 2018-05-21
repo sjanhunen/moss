@@ -1,75 +1,73 @@
--- Moss favors explicit definition over automatic discovery.
--- The build tree is a structure used to explicitly define how software is built.
--- This is in contrast to tools like autoconf that attempt to discover aspects of this.
+-- Moss favors explicit definition over automatic discovery.  The build tree is
+-- a structure used to explicitly define how software is built.  Large, complex
+-- builds can be composed from build nodes.  Each build node defines an
+-- artifact within the build tree along with the configuration for any traits
+-- used to build that artifact.
 
--- Definition
-function artifact(a)
-    return function(v) return v end
-end
-
--- Directive
-function build(artifact)
-    if(type(artifact) == "string") then
-        print("build sub-directory: " .. artifact);
+function build(form)
+    if(type(form) == "string") then
+        print("build directory: " .. form);
     else
-        print("build in place");
+        print("build form");
     end
-    return function(e) return artifact end
+    return function(e) return function() return form end end
 end
 
--- Directive
-function using(...)
-    return function(c) return c end
-end
-
-math_lib = artifact("static_lib") {
+math_lib = build("static_lib") {
     name = "fastmath.lib";
     source = [[ math1.c math2.c ]];
 }
 
-main_image = artifact("executable") {
+main_image = build("executable") {
     name = "main.exe";
     -- main_image requires math_lib within it's build
     libs = {math_lib};
 };
 
--- The build tree is one of the most important concepts within moss.
--- Its function is to select and specialze genes for artifacts within the node.
-
 build("output") {
-    using(clangcc) { cflags = "-Wall" };
-    using(clangld);
+    [clangcc] = { cflags = "-Wall" };
+    [clangld] = {};
 
-    using(myconfig) {
+    -- Traits cannot be expanded within a build unless they have been
+    -- configured.  Traits are superior to global variables in that offer
+    -- better scope control and are less brittle.  Specific traits can be
+    -- overriden too: myconfig.trait = { }
+    [myconfig] = {
         memory_model = "large";
         debug = false;
     };
 
     build("debug") {
-        main_image,
-        -- math_lib will be created in this build as a dependency of main_image
-        using(clangcc) { cflags = "-Og -DDEBUG" };
+        [clangcc] = { cflags = "-Og -DDEBUG" };
+
+        -- Each artifact produced within a build node
+        -- must be explicitly enumerated.
+        math_lib, main_image
     };
 
     build("release") {
-        main_image,
-        using(clangcc) { cflags = "-O3" };
-        using(myconfig) { debug = true };
+        [clangcc] = { cflags = "-O3" };
+        [myconfig] = { debug = true };
 
-        -- Explicit options for this build of math_lib
-        build {
-            math_lib,
-            using(clangcc) { cflags = "-Mfpu" };
+        main_image,
+        -- Explicit configuration for this build of math_lib
+        math_lib {
+            [clangcc] = { cflags = "-Mfpu" };
         };
     };
 
-    -- In-place build and artifact definition
-    build {
-        artifact("zipfile") {
-            name = "release.zip";
-            -- TODO: fix ambiguous main image reference
-            source = { main_image, "help.doc", "release-notes.txt" };
-        },
-        using(gzip) { flags = "--best" };
+    -- In-place build artifact
+    build(gzip) {
+        name = "release.zip";
+
+        -- TODO: how do we select which main_image to use?
+        source = {
+            "release/main.exe",
+            "debug/main.exe",
+            "help.doc",
+            "release-notes.txt"
+        };
+
+        [gzip] = { flags = "--best" };
     };
 };
