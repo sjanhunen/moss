@@ -11,11 +11,13 @@ math_lib = build(staticlib) {
 
 main_image = build(executable) {
     name = "main.exe";
-    -- main_image requires math_lib within it's build
+    -- main_image requires math_lib within its build
     libs = {math_lib};
 };
 
-build("output") {
+build(directory) {
+    name = "output";
+
     [executable] = {
         form = clangld;
         translate = clangcc;
@@ -36,7 +38,9 @@ build("output") {
         debug = false;
     };
 
-    build("debug") {
+    build(directory) {
+        name = "debug";
+
         [clangcc] = { cflags = "-Og -DDEBUG" };
 
         -- Each artifact produced within a build node
@@ -44,7 +48,9 @@ build("output") {
         math_lib, main_image
     };
 
-    build("release") {
+    build(directory) {
+        name = "release";
+
         [clangcc] = { cflags = "-O3" };
         [myconfig] = { debug = true };
 
@@ -60,7 +66,7 @@ build("output") {
         name = "release.zip";
 
         -- TODO: how do we select which main_image to use?
-        source = {
+        files = {
             "release/main.exe",
             "debug/main.exe",
             "help.doc",

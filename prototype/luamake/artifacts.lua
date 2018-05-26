@@ -2,6 +2,10 @@ function artifact(arg)
     return arg;
 end
 
+directory = artifact {
+    name = "Directory";
+};
+
 executable = artifact {
     name = "Executable";
     source = {};
