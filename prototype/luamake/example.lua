@@ -1,17 +1,8 @@
--- Moss favors explicit definition over automatic discovery.  The build tree is
--- a structure used to explicitly define how software is built.  Large, complex
--- builds can be composed from build nodes.  Each build node defines an
--- artifact within the build tree along with the configuration for any traits
--- used to build that artifact.
-
-function build(form)
-    if(type(form) == "string") then
-        print("build directory: " .. form);
-    else
-        print("build form: " .. form.name);
-    end
-    return function(e) return function() return form end end
-end
+-- Key moss concepts:
+--  Trait: config -> build variables
+--  Tool: build variables + traits -> build commands
+--  Build: tool + traits -> artifact definition
+--  Spore: a collection of trait, tool, and build definitions
 
 math_lib = build(staticlib) {
     name = "fastmath.lib";
