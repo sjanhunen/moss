@@ -22,11 +22,11 @@ end
 xml2cpp_tool = "/opt/tool/xml2cpp";
 clang_home = "/opt/bin/clang";
 
-config = seed {
+config = trait {
     defines = "";
 };
 
-clang_config = seed {
+clang_config = trait {
     cc = {
     };
     ld = {
@@ -35,7 +35,7 @@ clang_config = seed {
 
 -- Expansion within recipe templates:
 -- ${.<name>} - expands to value of parameter <name> for artifact
--- ${<seed>.<name>} - expands to value of parameter <name> for <seed>
+-- ${<trait>.<name>} - expands to value of parameter <name> for <trait>
 -- ${<variable>} - expands to value of named <variable>
 
 -- Translate from one source file to another source file

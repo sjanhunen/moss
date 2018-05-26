@@ -1,21 +1,44 @@
--- Moss core concepts:
---  Gene: collection of configurable settings used to specialize build artifact(s)
---  Tool: commands used to translate code or form artifacts
---  Build: a hierarchical structure used to
---      * define and organize the completed artifacts that will be formed
---      * select the tools used to form artifacts
---      * specialize the genes used for forming artifacts within leaves
---  Spore: a collection of genome, process, or build definitions used to create artifacts
+-- Traits enable modular and granular parameterization of builds.  A trait is a
+-- function that transforms parameters => build variables.  Traits implement
+-- explicit rules to compose variables and resolve conflicts.
 
-myconfig = seed {
+trait = function(arg)
+    return function(param, vars) return arg; end
+end
+
+-- Variable
+opt1 = trait { defines = "$*" };
+
+-- Switch
+opt2 = trait { defines = "SET_OPTION" };
+
+-- Choice
+opt3 = trait {
+    one = { defines = "OPTION_ONE" },
+    two = { defines = "OPTION_TWO" }
+    };
+
+-- Composition
+opt4 = trait {
+    option_a = opt1,
+    option_b = opt2,
+    option_c = opt3
+};
+
+-- The traits can be composed into a build variable table as follows
+local var = opt1({});
+var = opt2({}, var);
+var = opt3({}, var);
+
+myconfig = trait {
     -- A flag that is simply present or absent
-    debug = flag {
+    debug = trait {
         doc = "Set this to enable debug",
         -- These are only present if flag is true
         defines = "DEBUG=1",
         source = "src/debug/special.c"
     },
-    memory_model = choice {
+    memory_model = trait {
         {
             -- These settings are present for all options
             doc = "Choose appropriate memory model",
