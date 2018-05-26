@@ -3,7 +3,7 @@ load luamake.so
 # Load lua code from external file
 $(lua require,luamake)
 
-$(lua require,struct)
+$(lua require,trait)
 $(lua require,tools)
 $(lua require,artifacts)
 $(lua require,build)
