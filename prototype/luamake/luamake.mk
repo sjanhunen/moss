@@ -4,6 +4,7 @@ load luamake.so
 $(lua require,luamake)
 
 $(lua require,trait)
+$(lua require,rule)
 $(lua require,tools)
 $(lua require,artifacts)
 $(lua require,build)
