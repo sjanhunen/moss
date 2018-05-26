@@ -9,13 +9,6 @@ eval = function(code)
     return load("return " .. code)()
 end
 
-function seed(s)
-    -- Seed creation returns a function that is evaluated two ways
-    -- 1) With m as table to specify configuration
-    -- 2) With m as string to resolve option (returns another function)
-    return function(m) return m; end
-end
-
 function executable(t)
     return function(q) return t; end;
 end
