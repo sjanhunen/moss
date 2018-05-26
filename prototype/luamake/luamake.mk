@@ -6,7 +6,8 @@ $(lua require,luamake)
 $(lua require,struct)
 $(lua require,tools)
 $(lua require,artifacts)
-$(lua require,buildtree)
+$(lua require,build)
+$(lua require,example)
 
 # Call built-in function directly
 $(lua print,This is a print from Lua)
