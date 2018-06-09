@@ -4,6 +4,24 @@
 --  Build: tool + traits -> artifact definition
 --  Spore: a collection of trait, tool, and build definitions
 
+local debug = extend("flags", "DEBUG");
+local fast = extend("flags", "MCU_FAST");
+local slow = extend("flags", "MCU_SLOW");
+
+local myexe = {
+    name = "main.exe",
+    src = "main.c",
+    flags = "NOMMU"
+};
+
+local debug_build = build(prefix("debug/"), debug, slow)
+local release_build = build(prefix("release/"), fast)
+
+dumpbuild({
+    release_build(myexe),
+    debug_build(myexe)
+})
+
 math_lib = build(staticlib) {
     name = "fastmath.lib";
     source = [[ math1.c math2.c ]];
@@ -56,7 +74,7 @@ build(directory) {
 
         main_image,
         -- Explicit configuration for this build of math_lib
-        math_lib {
+        build(math_lib) {
             [clangcc] = { cflags = "-Mfpu" };
         };
     };
