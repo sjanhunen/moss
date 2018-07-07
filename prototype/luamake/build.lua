@@ -1,7 +1,8 @@
 -- Builds:
---  * Each build artifact is defined by an associated build table
---  * Everything required to build the artifact (variables and rules) are specified in the table
---  * The build function returns a build pipeline that transforms a build table
+--  * Each build artifact is fully defined through a build table
+--  * All definitions (config, rules, variables) for the artifact are stored within the table
+--  * Tables can be nested and composed for nested artifacts (e.g directories)
+--  * The build function returns a build pipeline function that transforms a build table
 --  * The output of a build pipeline is a build table
 --  * Rules and variables are composed and modified through the pipeline
 --  * Builds contain one or more local build variables
@@ -11,6 +12,9 @@
 
 function extend(variable, value)
     return function(bt)
+        if bt[variable] == nil then
+            bt[variable] = ""
+        end
         bt[variable] = bt[variable] .. " " .. value;
         return bt;
     end
@@ -33,7 +37,7 @@ end
 
 function build(...)
     local pipeline = {...}
-    return function(bt) 
+    return function(bt)
         bt = clone(bt)
         -- TODO: Run recursively on nested builds
         -- and perform a deep copy

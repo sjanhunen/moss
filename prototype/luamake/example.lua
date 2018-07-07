@@ -1,31 +1,32 @@
--- Key moss concepts:
---  Trait: config -> build variables
---  Tool: build variables + traits -> build commands
---  Build: tool + traits -> artifact definition
---  Spore: a collection of trait, tool, and build definitions
+-- Fundamental moss concepts:
+--  Artifact: a completed build output (definition vs product)
+--  Build Pipeline: a series of build functions that transform definition into product
+--  Tool: build function that translats source files or forms products
+--  Spore: collection of artifact definitions and build functions
 
 local debug = extend("flags", "DEBUG");
 local fast = extend("flags", "MCU_FAST");
 local slow = extend("flags", "MCU_SLOW");
 
-local myexe = {
-    name = "main.exe",
-    src = "main.c",
-    flags = "NOMMU"
-};
+local clang_debug_tools = function(bt) return bt end
+local clang_release_tools = function(bt) return bt end
+local clang_with_fpu = function(bt) return bt end
 
-local debug_build = build(prefix("debug/"), debug, slow)
-local release_build = build(prefix("release/"), fast)
+-- Debug build pipeline
+local debug_build = build(
+    clang_debug_tools,
+    debug,
+    slow)
 
-dumpbuild({
-    release_build(myexe),
-    debug_build(myexe)
-})
+-- Release build pipeline
+local release_build = build(
+    clang_release_tools,
+    fast)
 
 math_lib = build(staticlib) {
     name = "fastmath.lib";
     source = [[ math1.c math2.c ]];
-}
+};
 
 main_image = build(executable) {
     name = "main.exe";
@@ -36,55 +37,26 @@ main_image = build(executable) {
 build(directory) {
     name = "output";
 
-    [executable] = {
-        form = clangld;
-        translate = clangcc;
-    };
-    [staticlib] = {
-        form = clangar;
-        translate = clangcc;
-    };
-
-    [clangcc] = { cflags = "-Wall" };
-
-    -- Traits cannot be expanded within a build unless they have been
-    -- configured.  Traits are superior to global variables in that offer
-    -- better scope control and are less brittle.  Specific traits can be
-    -- overriden too: myconfig.trait = { }
-    [myconfig] = {
-        memory_model = "large";
-        debug = false;
-    };
-
-    build(directory) {
+    build(directory, debug_build) {
         name = "debug";
 
-        [clangcc] = { cflags = "-Og -DDEBUG" };
-
-        -- Each artifact produced within a build node
-        -- must be explicitly enumerated.
-        math_lib, main_image
+        math_lib;
+        main_image;
     };
 
-    build(directory) {
+    build(directory, release_build) {
         name = "release";
 
-        [clangcc] = { cflags = "-O3" };
-        [myconfig] = { debug = true };
-
-        main_image,
-        -- Explicit configuration for this build of math_lib
-        build(math_lib) {
-            [clangcc] = { cflags = "-Mfpu" };
-        };
+        main_image;
+        build(clang_with_fpu) { math_lib };
     };
 
     -- In-place build artifact
     build(zipfile) {
         name = "release.zip";
 
-        -- TODO: how do we select which main_image to use?
         files = {
+            -- We can refer to artifacts directly by path
             "release/main.exe",
             "debug/main.exe",
             "help.doc",
