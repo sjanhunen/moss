@@ -1,23 +1,36 @@
--- Would a generate(pattern, fn) tool be helpful for generated source code?
+-- Rules operate on build tables to create makefile rules + recipes for artifacts
+-- Types of rules:
+--  * Generate: TBD
+--	* Translate: src -> src
+--	* Compile: src -> obj
+--	* Form: files + obj -> artifact
+
+-- TBD: generate(src, recipe) tool be helpful for generated source code?
 
 function translate(src, dst, recipe)
 	return function(bt)
 		-- TODO: return the rule in addition to the recipe
-		return recipe(bt);
+		-- TODO: Need to extend bt translate with recipe
+		bt[translate] = recipe
+		return bt;
 	end
 end
 
 function compile(src, recipe)
 	return function(bt)
 		-- TODO: return the rule in addition to the recipe
-		return recipe(bt);
+		-- TODO: Need to extend bt compile form with recipe
+		bt[compile] = recipe
+		return bt;
 	end
 end
 
 function form(recipe)
     return function(bt)
 		-- TODO: return the rule in addition to the recipe
-        return recipe(bt);
+		-- TODO: Need to extend bt form with recipe
+		bt[form] = recipe
+		return bt;
     end
 end
 
@@ -52,7 +65,7 @@ clangar = form(function(bt)
 	return expand(bt, "${clang_home}/clangar -o $@ $<")
 end)
 
-print(xml2cpp())
-print(clangcc())
-print(clangld())
-print(clangar())
+print(xml2cpp({})[translate]())
+print(clangcc({})[compile]())
+print(clangld({})[form]())
+print(clangar({})[form]())
