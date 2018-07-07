@@ -59,5 +59,3 @@ myconfig = trait {
         }
     }
 }
-
-export {myconfig, mylib, mymain}
