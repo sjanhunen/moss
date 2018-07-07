@@ -1,14 +1,9 @@
 -- Builds:
---  * Each build artifact is fully defined through a build table
---  * All definitions (config, rules, variables) for the artifact are stored within the table
---  * Tables can be nested and composed for nested artifacts (e.g directories)
---  * The build function returns a build pipeline function that transforms a build table
---  * The output of a build pipeline is a build table
---  * Rules and variables are composed and modified through the pipeline
---  * Builds contain one or more local build variables
---  * Build variables can be defined directly
---  * Build variables can be composed from the pipeline
---  * Build variables can expanded within strings
+--  * Each build artifact is defined in a build table (which is a Lua table)
+--  * A build function transforms a build table and returns a new one
+--  * A build pipeline is created by composing a series of build functions
+--  * A build pipeline is iteself a build function
+--  * Build artifacts are composable with nested artifacts (e.g directories)
 
 function extend(variable, value)
     return function(bt)
