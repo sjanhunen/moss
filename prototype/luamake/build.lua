@@ -1,4 +1,30 @@
--- Builds:
+-- The build pipeline is fundamental to how moss creates build artifacts.
+-- Pipelines are composed using the build function:
+--
+--      pipeline = build(f1, f2, ... fn)
+--
+-- This composes build functions f1 ... fn into a pipeline function that
+-- transforms a build table. A new function is returned representing this
+-- pipeline that takes a table as an argument and returns the transformed
+-- table:
+--
+--      pipeline {
+--          key1 = value1;
+--          key2 = value2;
+--      }
+--
+--  Pipeliens may be nested within tables to create complex or  hierarchical
+--  builds with multiple build artifacts:
+--
+--      pipeline {
+--          key1 = value1;
+--          key2 = value2;
+--          pipeline {
+--              key3 = value3;
+--              key4 = value4;
+--          }
+--      }
+--
 --  * Each build artifact is defined in a build table (which is a Lua table)
 --  * A build function transforms a build table and returns a new one
 --  * A build pipeline is created by composing a series of build functions
