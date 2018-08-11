@@ -69,12 +69,23 @@ function build(...)
     end
 end
 
-function dumpbuild(bt)
+function dumpbuild(bt, depth)
+    if depth == nil then
+        depth = 0
+    end
+    local prefix = "| "
+
+    print(prefix:rep(depth) .. "+ " .. bt.name)
+
+    depth = depth + 1
     for k, v in pairs(bt) do
         if type(k) == "string" then
-            print(k .. ":" .. v)
-        elseif type(k) == "number" then
-            dumpbuild(v)
+            print(prefix:rep(depth) .. "- " .. k .. ": " .. tostring(v))
+        end
+    end
+    for k, v in pairs(bt) do
+        if type(k) == "number" then
+            dumpbuild(v, depth)
         end
     end
 end

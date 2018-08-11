@@ -38,7 +38,7 @@ main_image = build(executable) {
     libs = {math_lib};
 };
 
-build(directory) {
+local output = build(directory) {
     name = "output";
 
     build(directory, debug_build) {
@@ -52,7 +52,7 @@ build(directory) {
         name = "release";
 
         main_image;
-        build(clang_with_fpu) { math_lib };
+        build(clang_with_fpu)(math_lib);
     };
 
     -- In-place build artifact
@@ -68,3 +68,5 @@ build(directory) {
         };
     };
 };
+
+dumpbuild(output)
