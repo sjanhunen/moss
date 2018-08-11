@@ -11,6 +11,10 @@ local slow = extend("flags", "MCU_SLOW");
 local clang_debug_tools = function(bt) return bt end
 local clang_release_tools = function(bt) return bt end
 local clang_with_fpu = function(bt) return bt end
+local directory = function(bt) return bt end
+local staticlib = function(bt) return bt end
+local executable = function(bt) return bt end
+local zipfile = function(bt) return bt end
 
 -- Debug build pipeline
 local debug_build = build(

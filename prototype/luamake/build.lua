@@ -63,10 +63,7 @@ function build(...)
         -- TODO: Run recursively on nested builds
         -- and perform a deep copy
         for i,step in ipairs(pipeline) do
-            -- TODO: remove compatibility shim with example refactor
-            if type(step) == "function" then
-                bt = step(bt);
-            end
+            bt = step(bt);
         end
         return bt;
     end
