@@ -57,17 +57,21 @@ end
 function clone(bt)
     local copy = {}
     for k, v in pairs(bt) do
-        copy[k] = v
+        if type(v) == "table" then
+            copy[k] = clone(v)
+        else
+            copy[k] = v
+        end
     end
     return copy
 end
 
 function build(...)
     local pipeline = {...}
+
     return function(bt)
         bt = clone(bt)
-        -- TODO: Run recursively on nested builds
-        -- and perform a deep copy
+        -- TODO: Apply recursively for nested builds
         for i,step in ipairs(pipeline) do
             bt = step(bt);
         end
