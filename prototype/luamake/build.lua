@@ -13,29 +13,32 @@
 --          key2 = value2;
 --      }
 --
---  Pipelines may be nested within tables to create complex or hierarchical
+--  Pipelines may be applied to nested tables for complex or hierarchical
 --  builds with multiple build artifacts:
 --
---      pipeline {
+--      pipeline1 {
 --          key1 = value1;
 --          key2 = value2;
---          pipeline {
+--          pipeline2 {
 --              key3 = value3;
 --              key4 = value4;
 --          }
 --      }
 --
---  * Each build artifact is defined in a build table (which is a Lua table)
---  * A build function transforms a build table and returns a new (cloned) one
+--  Core principles:
+--  * Each build artifact is defined by a build table (Lua table)
+--  * A build function transforms and returns a cloned copy of the build table
 --  * A build pipeline is created by composing a series of build functions
 --  * A build pipeline is itself a build function
---  * Build tables can be composed to produce nested artifacts (e.g directories)
---  * A series of primitive transformations on build tables will be defined:
---    * addprefix - to string
---    * addsuffix - to string
---    * append - item to one list (table)
---    * extend - one list (table) to another list (table)
---  * Objective: create everything out of build pipelines and primitives
+--
+--  Pipelines are constructed out of a series of transformation primitives:
+--  * addprefix(key, prefix) - to string
+--  * addsuffix(key, suffix) - to string
+--  * append(key, item) - item to one list (table)
+--  * extend(table) - one build table extends or inherits from another table
+--  * etc.
+--
+--  The objective is to compose everything using build pipelines and primitives.
 
 function extend(variable, value)
     return function(bt)
