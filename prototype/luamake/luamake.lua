@@ -8,16 +8,3 @@ end
 eval = function(code)
     return load("return " .. code)()
 end
-
-function files(f)
-    -- Split files into table here
-    return f
-end
-
-function list(f)
-    -- Split files into table here
-    return f
-end
-
-function export(variables)
-end
