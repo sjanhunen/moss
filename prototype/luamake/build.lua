@@ -73,14 +73,14 @@ function clone(bt)
     return copy
 end
 
-function append(list, item)
-    -- TODO: refactor this to function within a lambda as described above
-    if list == nil then
-        list = {}
+function append(item)
+    return function(list)
+        if list == nil then
+            list = {}
+        end
+        table.insert(list, item)
+        return list
     end
-    local newList = clone(list)
-    table.insert(newList, item)
-    return newList
 end
 
 function build(...)
