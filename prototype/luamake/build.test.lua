@@ -4,21 +4,19 @@ describe("Moss build pipeline", function()
     describe("append", function()
         it("creates list from nil list", function()
             local item = "BOB"
-            local updated = append(item)(nil)
-            assert.are.same({item}, updated)
+            local list = append(item)(nil)
+            assert.are.same({item}, list)
         end)
         it("appends to empty list", function()
-            local original = {}
             local item = "BOB"
-            local updated = append(item)(original)
-            assert.are.same({item}, updated)
+            local list = append(item)({})
+            assert.are.same({item}, list)
         end)
         it("appends to non-empty list", function()
             local item1 = "BOB"
-            local item2 = "LARRY"
-            local original = {item1}
-            local updated = append(item2)(original)
-            assert.are.same({item1, item2}, updated)
+            local item2 = "ALICE"
+            local list = append(item2)({item1})
+            assert.are.same({item1, item2}, list)
         end)
     end)
 	describe("extend", function()
