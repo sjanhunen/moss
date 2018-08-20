@@ -1,44 +1,48 @@
 -- The build pipeline is fundamental to how moss creates build artifacts.
 -- Pipelines are composed using the build function:
 --
---      pipeline = build(f1, f2, ... fn)
+--      pipeline = build(op1, op2, ... opn)
 --
--- This composes build functions f1 ... fn into a pipeline function that
+-- This composes build lambdas op1 ... opn into a build pipeline that
 -- transforms a build table. A new function is returned representing this
 -- pipeline that takes a table as an argument and returns the transformed
 -- table:
 --
+--      -- Returns a new table that has passed through pipeline
 --      pipeline {
 --          key1 = value1;
 --          key2 = value2;
 --      }
 --
---  Pipelines may be applied to nested tables for complex or hierarchical
---  builds with multiple build artifacts:
+--  A build lambda is created from a table of functions describing the
+--  necessary transformations performed on a build table. Lambdas are
+--  composed into build pipelines:
 --
---      pipeline1 {
---          key1 = value1;
---          key2 = value2;
---          pipeline2 {
---              key3 = value3;
---              key4 = value4;
---          }
+--      debug_flag = lambda { defines = append("DEBUG=1") }
+--      debug_source = lambda { source = append("debug.c") }
+--      debug_build = build(debug_flag, debug_source)
+--
+--  Or, using more compact notation:
+--
+--      debug_build = lambda {
+--          defines = append("DEBUG=1");
+--          source = append("debug.c");
 --      }
 --
 --  Core principles:
---  * Each build artifact is defined by a build table (Lua table)
---  * A build function transforms and returns a cloned copy of the build table
---  * A build pipeline is created by composing a series of build functions
+--  * Every build artifact is defined within a unique build table (Lua table)
+--  * Build tables may be nested for complex or hierarchical build trees
+--  * A build operation transforms a particular variable within a build table
+--  * A build operation is applied recursively to any nested build tables
+--  * A build pipeline is a composition of a series of build operations
 --  * A build pipeline is itself a build function
 --
---  Pipelines are constructed out of a series of transformation primitives:
---  * addprefix(key, prefix) - to string
---  * addsuffix(key, suffix) - to string
---  * append(key, item) - item to one list (table)
---  * extend(table) - one build table extends or inherits from another table
---  * etc.
---
---  The objective is to compose everything using build pipelines and primitives.
+--  Lambdas are constructed using a series of transformation primitives that
+--  operate on a single build variable:
+--  * addprefix(prefix) - to string
+--  * addsuffix(suffix) - to string
+--  * append(item) - append item after end of list (table)
+--  * prepend(item) - insert item at beginning of list (table)
 
 function extend(variable, value)
     return function(bt)
@@ -67,6 +71,16 @@ function clone(bt)
         end
     end
     return copy
+end
+
+function append(list, item)
+    -- TODO: refactor this to function within a lambda as described above
+    if list == nil then
+        list = {}
+    end
+    local newList = clone(list)
+    table.insert(newList, item)
+    return newList
 end
 
 function build(...)
