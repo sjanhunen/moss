@@ -1,6 +1,28 @@
 require("build")
 
 describe("Moss build pipeline", function()
+    describe("append", function()
+        it("creates list from nil list", function()
+            local item = "BOB"
+            local updated = append(nil, item)
+            assert.are.same({item}, updated)
+        end)
+        it("appends to empty list", function()
+            local original = {}
+            local item = "BOB"
+            local updated = append(original, item)
+            assert.are.same({item}, updated)
+            assert.are.same({}, original)
+        end)
+        it("appends to non-empty list", function()
+            local item1 = "BOB"
+            local item2 = "LARRY"
+            local original = {item1}
+            local updated = append(original, item2)
+            assert.are.same({item1, item2}, updated)
+            assert.are.same({item1}, original)
+        end)
+    end)
 	describe("extend", function()
 		it("creates non-existant variables", function()
 			local result = extend("FLAG", "1") {}
