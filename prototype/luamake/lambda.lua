@@ -23,7 +23,11 @@ function lambda(op)
         -- TODO: Apply recursively for nested builds
         bt = shallowcopy(bt)
         for name,step in pairs(op) do
-            bt[name] = step(bt[name])
+            if type(bt[name]) == "table" then
+                bt[name] = step(deepcopy(bt[name]))
+            else
+                bt[name] = step(bt[name])
+            end
         end
         return bt;
     end
