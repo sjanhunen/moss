@@ -1,7 +1,27 @@
+function deepcopy(bt)
+    local copy = {}
+    for k, v in pairs(bt) do
+        if type(v) == "table" then
+            copy[k] = deepcopy(v)
+        else
+            copy[k] = v
+        end
+    end
+    return copy
+end
+
+function shallowcopy(bt)
+    local copy = {}
+    for k, v in pairs(bt) do
+        copy[k] = v
+    end
+    return copy
+end
+
 function lambda(op)
     return function(bt)
         -- TODO: Apply recursively for nested builds
-        -- TODO: clone table items before applying
+        bt = shallowcopy(bt)
         for name,step in pairs(op) do
             bt[name] = step(bt[name])
         end

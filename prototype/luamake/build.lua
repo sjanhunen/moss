@@ -44,6 +44,8 @@
 --  * append(item) - append item after end of list (table)
 --  * prepend(item) - insert item at beginning of list (table)
 
+require("lambda")
+
 function extend(variable, value)
     return function(bt)
         if bt[variable] == nil then
@@ -61,23 +63,11 @@ function prefix(value)
     end
 end
 
-function clone(bt)
-    local copy = {}
-    for k, v in pairs(bt) do
-        if type(v) == "table" then
-            copy[k] = clone(v)
-        else
-            copy[k] = v
-        end
-    end
-    return copy
-end
-
 function build(...)
     local pipeline = {...}
 
     return function(bt)
-        bt = clone(bt)
+        bt = deepcopy(bt)
         -- TODO: Apply recursively for nested builds
         for i,step in ipairs(pipeline) do
             bt = step(bt);
