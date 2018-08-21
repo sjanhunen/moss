@@ -12,6 +12,13 @@ describe("lambda", function()
         local output = fn { name = "before" }
         assert.are.same("after", output.name)
     end)
+    it("copies table before applying operation", function()
+        local input = { name = "before" }
+        local fn = lambda { name = set("after") }
+        local output = fn(input)
+        assert.are.same("before", input.name)
+        assert.are.same("after", output.name)
+    end)
 end)
 
 describe("append", function()

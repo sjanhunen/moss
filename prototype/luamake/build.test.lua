@@ -18,7 +18,7 @@ describe("Moss build pipeline", function()
             local result = build(f1, f2) { F = "0" }
             assert.are.same({F = "0 1 2"}, result)
         end)
-        it("deep clones build table", function()
+        it("deep copies build table", function()
             local expected = {
                 { f = "a" };
                 { f = "b" };
