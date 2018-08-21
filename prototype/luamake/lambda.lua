@@ -18,18 +18,31 @@ function shallowcopy(bt)
     return copy
 end
 
-function lambda(op)
-    return function(bt)
-        -- TODO: Apply recursively for nested builds
-        bt = shallowcopy(bt)
-        for name,step in pairs(op) do
-            if type(bt[name]) == "table" then
-                bt[name] = step(deepcopy(bt[name]))
-            else
-                bt[name] = step(bt[name])
-            end
+function apply(bt, operation)
+    bt = shallowcopy(bt)
+
+    -- Apply operation to all entries at this level
+    for name,step in pairs(operation) do
+        if type(bt[name]) == "table" then
+            bt[name] = step(deepcopy(bt[name]))
+        else
+            bt[name] = step(bt[name])
         end
-        return bt;
+    end
+
+    -- Apply operation recursively to nested tables
+    for i,v in ipairs(bt) do
+        if type(v) == "table" then
+            bt[i] = apply(v, operation)
+        end
+    end
+
+    return bt;
+end
+
+function lambda(operation)
+    return function(bt)
+        return apply(bt, operation)
     end
 end
 
