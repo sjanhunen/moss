@@ -2,43 +2,50 @@ require("lambda")
 require("build")
 
 describe("lambda", function()
-    local replace = function(value)
+    local substr = function(match, replace)
         return function(entry)
-            return value
+            return entry:gsub(match, replace)
         end
     end
-    local substitute = function(match, replace)
+
+    local subitems = function(match, replace)
         return function(entry)
-            entry[1] = entry[1]:gsub(match, replace)
+            for i,k in ipairs(entry) do
+                entry[i] = entry[i]:gsub(match, replace)
+            end
             return entry
         end
     end
+
     it("applies single operation", function()
-        local fn = lambda { name = replace("after") }
+        local fn = lambda { name = substr("before", "after") }
         local output = fn { name = "before" }
         assert.are.same("after", output.name)
     end)
+
     it("copies build table before applying operation", function()
         local input = { name = "before" }
-        local fn = lambda { name = replace("after") }
+        local fn = lambda { name = substr("before", "after") }
         local output = fn(input)
         assert.are.same("before", input.name)
         assert.are.same("after", output.name)
     end)
+
     it("copies table member before applying operation", function()
         local input = { name = { "before" } }
-        local fn = lambda { name = substitute("before", "after") }
+        local fn = lambda { name = subitems("before", "after") }
         local output = fn(input)
         assert.are.same({"before"}, input.name)
         assert.are.same({"after"}, output.name)
     end)
+
     it("recursively applies operation to nested tables", function()
         local input = {
             name = { "before1" };
             { name = { "before2" } };
             { name = { "before3" } };
         }
-        local fn = lambda { name = substitute("before", "after") }
+        local fn = lambda { name = subitems("before", "after") }
         local output = fn(input)
         assert.are.same({ "after1" }, output.name)
         assert.are.same({ "after2" }, output[1].name)
