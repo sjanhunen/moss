@@ -87,7 +87,21 @@ function dumpbuild(bt, depth)
     depth = depth + 1
     for k, v in pairs(bt) do
         if type(k) == "string" then
-            print(prefix:rep(depth) .. "- " .. k .. ": " .. tostring(v))
+            local txt = ""
+            if type(v) == "table" then
+                txt = "{"
+                for i,p in ipairs(v) do
+                    if type(p) == "string" then
+                        txt = txt .. "'" .. tostring(p) .. "',"
+                    else
+                        txt = txt .. tostring(p) .. ","
+                    end
+                end
+                txt = txt:sub(1,txt:len()-1) .. "}"
+            else
+                txt = tostring(v)
+            end
+            print(prefix:rep(depth) .. "- " .. k .. ": " .. txt)
         end
     end
     for k, v in pairs(bt) do
