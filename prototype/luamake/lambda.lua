@@ -58,3 +58,13 @@ function append(item)
         return list
     end
 end
+
+function addprefix(prefix)
+    return function(str)
+        if str == nil then
+            return prefix
+        else
+            return prefix .. str
+        end
+    end
+end
