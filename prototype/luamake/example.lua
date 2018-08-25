@@ -4,38 +4,37 @@
 --  Tool: build function that translats source files or forms products
 --  Spore: collection of artifact definitions and build functions
 
-local debug = extend("flags", "DEBUG");
-local fast = extend("flags", "MCU_FAST");
-local slow = extend("flags", "MCU_SLOW");
+require("lambda")
 
-local clang_debug_tools = function(bt) return bt end
-local clang_release_tools = function(bt) return bt end
-local clang_with_fpu = function(bt) return bt end
-local directory = function(bt) return bt end
-local staticlib = function(bt) return bt end
-local executable = function(bt) return bt end
-local zipfile = function(bt) return bt end
+local clang_debug_tools = lambda { cflags = append("-g") }
+local clang_release_tools = lambda { cflags = append("-O3") }
+local clang_with_fpu = lambda { cflags = append("-ffpu") }
+
+local debug = lambda { cflags = append("-DDEBUG") }
+local fast = lambda { cflags = append("-DLOG_NONE") }
+local verbose = lambda { cflags = append("-DLOG_VERBOSE") }
+
+local directory = lambda { forms = append("DIR") }
+local staticlib = lambda { forms = append("LIB") }
+local executable = lambda { forms = append("EXE") }
+local zipfile = lambda { forms = append("ZIP") }
 
 -- Debug build pipeline
-local debug_build = build(
-    clang_debug_tools,
-    debug,
-    slow)
+local debug_build = build(clang_debug_tools, debug, verbose)
 
 -- Release build pipeline
-local release_build = build(
-    clang_release_tools,
-    fast)
+local release_build = build(clang_release_tools, fast)
 
 math_lib = build(staticlib) {
     name = "fastmath.lib";
-    source = [[ math1.c math2.c ]];
+    source = {"math1.c", "math2.c"};
 };
 
 main_image = build(executable) {
     name = "main.exe";
+    source = "main.c";
     -- main_image requires math_lib within its build
-    libs = {math_lib};
+    libs = "fastmath";
 };
 
 local output = build(directory) {
