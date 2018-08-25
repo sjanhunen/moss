@@ -19,6 +19,10 @@ local staticlib = lambda { forms = append("LIB") }
 local executable = lambda { forms = append("EXE") }
 local zipfile = lambda { forms = append("ZIP") }
 
+local directory = function(path)
+    return lambda { name = addprefix(path .. "/") }
+end
+
 -- Debug build pipeline
 local debug_build = build(clang_debug_tools, debug, verbose)
 
@@ -37,19 +41,14 @@ main_image = build(executable) {
     libs = "fastmath";
 };
 
-local output = build(directory) {
-    name = "output";
+local output = build(directory("output")) {
 
-    build(directory, debug_build) {
-        name = "debug";
-
+    build(directory("debug"), debug_build) {
         math_lib;
         main_image;
     };
 
-    build(directory, release_build) {
-        name = "release";
-
+    build(directory("release"), release_build) {
         main_image;
         build(clang_with_fpu)(math_lib);
     };
