@@ -14,14 +14,13 @@ local debug = lambda { cflags = append("-DDEBUG") }
 local fast = lambda { cflags = append("-DLOG_NONE") }
 local verbose = lambda { cflags = append("-DLOG_VERBOSE") }
 
-local directory = lambda { forms = append("DIR") }
-local staticlib = lambda { forms = append("LIB") }
-local executable = lambda { forms = append("EXE") }
-local zipfile = lambda { forms = append("ZIP") }
-
 local directory = function(path)
-    return lambda { name = addprefix(path .. "/") }
+    return build(lambda { name = addprefix(path .. "/") })
 end
+local staticlib = build( lambda { forms = append("LIB") } )
+local executable = build( lambda { forms = append("EXE") } )
+local zipfile = build( lambda { forms = append("ZIP") } )
+
 
 -- Debug build pipeline
 local debug_build = build(clang_debug_tools, debug, verbose)
@@ -29,32 +28,32 @@ local debug_build = build(clang_debug_tools, debug, verbose)
 -- Release build pipeline
 local release_build = build(clang_release_tools, fast)
 
-math_lib = build(staticlib) {
+math_lib = staticlib {
     name = "fastmath.lib";
     source = {"math1.c", "math2.c"};
 };
 
-main_image = build(executable) {
+main_image = executable {
     name = "main.exe";
     source = "main.c";
     -- main_image requires math_lib within its build
     libs = "fastmath";
 };
 
-local output = build(directory("output")) {
+local output = directory("output") {
 
-    build(directory("debug"), debug_build) {
+    directory("debug")(build(debug_build) {
         math_lib;
         main_image;
-    };
+    });
 
-    build(directory("release"), release_build) {
+    directory("release")(build(release_build) {
         main_image;
         build(clang_with_fpu)(math_lib);
-    };
+    });
 
     -- In-place build artifact
-    build(zipfile) {
+    zipfile {
         name = "release.zip";
 
         files = {
