@@ -14,12 +14,6 @@ local debug = lambda { cflags = append("-DDEBUG") }
 local fast = lambda { cflags = append("-DLOG_NONE") }
 local verbose = lambda { cflags = append("-DLOG_VERBOSE") }
 
-local prefixpath = function(variable)
-    return function(string, bt)
-        return bt[variable] .. '/' .. string;
-    end
-end
-
 local subdir = function(name)
     return build(lambda { name = addprefix(name .. '/') })
 end
@@ -47,7 +41,13 @@ main_image = executable {
     libs = "fastmath";
 };
 
-local output = subdir("output") {
+-- The make directive (function) could be used to indicate what
+-- is actally exported from the build spore to the Makefile.
+-- Prototype this as a simple dump for now.
+local make = dumpbuild
+
+-- This would be what is returned when spores are included
+make(subdir("output") {
 
     build(subdir("debug"), debug_build) {
         math_lib;
@@ -71,6 +71,4 @@ local output = subdir("output") {
             "release-notes.txt"
         };
     };
-};
-
-dumpbuild(output)
+});
