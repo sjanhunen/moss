@@ -14,9 +14,16 @@ local debug = lambda { cflags = append("-DDEBUG") }
 local fast = lambda { cflags = append("-DLOG_NONE") }
 local verbose = lambda { cflags = append("-DLOG_VERBOSE") }
 
-local directory = function(path)
-    return build(lambda { name = addprefix(path .. "/") })
+local prefixpath = function(variable)
+    return function(string, bt)
+        return bt[variable] .. '/' .. string;
+    end
 end
+
+local subdir = function(name)
+    return build(lambda { name = addprefix(name .. '/') })
+end
+
 local staticlib = build( lambda { forms = append("LIB") } )
 local executable = build( lambda { forms = append("EXE") } )
 local zipfile = build( lambda { forms = append("ZIP") } )
@@ -40,17 +47,17 @@ main_image = executable {
     libs = "fastmath";
 };
 
-local output = directory("output") {
+local output = subdir("output") {
 
-    directory("debug")(build(debug_build) {
+    build(subdir("debug"), debug_build) {
         math_lib;
         main_image;
-    });
+    };
 
-    directory("release")(build(release_build) {
+    build(subdir("release"), release_build) {
         main_image;
         build(clang_with_fpu)(math_lib);
-    });
+    };
 
     -- In-place build artifact
     zipfile {
