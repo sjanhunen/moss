@@ -15,13 +15,12 @@ local fast = lambda { cflags = append("-DLOG_NONE") }
 local verbose = lambda { cflags = append("-DLOG_VERBOSE") }
 
 local subdir = function(name)
-    return build(lambda { name = addprefix(name .. '/') })
+    return lambda { name = addprefix(name .. '/') }
 end
 
-local staticlib = build( lambda { forms = append("LIB") } )
-local executable = build( lambda { forms = append("EXE") } )
-local zipfile = build( lambda { forms = append("ZIP") } )
-
+local staticlib = lambda { forms = append("LIB") }
+local executable = lambda { forms = append("EXE") }
+local zipfile = lambda { forms = append("ZIP") }
 
 -- Debug build pipeline
 local debug_build = build(clang_debug_tools, debug, verbose)
@@ -29,12 +28,12 @@ local debug_build = build(clang_debug_tools, debug, verbose)
 -- Release build pipeline
 local release_build = build(clang_release_tools, fast)
 
-math_lib = staticlib {
+math_lib = build(staticlib) {
     name = "fastmath.lib";
     source = {"math1.c", "math2.c"};
 };
 
-main_image = executable {
+main_image = build(executable) {
     name = "main.exe";
     source = "main.c";
     -- main_image requires math_lib within its build
@@ -44,7 +43,7 @@ main_image = executable {
 local spore = {}
 
 -- The spore global would be used to "export" artifacts
-spore.exports = subdir("output") {
+spore.exports = build(subdir("output")) {
     build(subdir("debug"), debug_build) {
         math_lib;
         main_image;
@@ -56,7 +55,7 @@ spore.exports = subdir("output") {
     };
 
     -- In-place build artifact
-    zipfile {
+    build(zipfile) {
         name = "release.zip";
 
         files = {
