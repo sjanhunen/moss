@@ -1,10 +1,16 @@
 -- Fundamental moss concepts:
 --  Artifact: a completed build output (definition vs product)
---  Build Pipeline: a series of build functions that transform definition into product
---  Tool: build function that translats source files or forms products
+--  Build: a composition build functions that transform definition into product
+--  Rule: series of functions that create makefile rules and recipes
 --  Spore: collection of artifact definitions and build functions
 
+
+--  Questions:
+--  * is it worth distinguishing leaf artifacts from build nodes?
+--  * can we combine lambda into build function?
+
 require("lambda")
+require("rules")
 
 local clang_debug_tools = lambda { cflags = append("-g") }
 local clang_release_tools = lambda { cflags = append("-O3") }
@@ -17,10 +23,6 @@ local verbose = lambda { cflags = append("-DLOG_VERBOSE") }
 local subdir = function(name)
     return lambda { name = addprefix(name .. '/') }
 end
-
-local staticlib = lambda { forms = append("LIB") }
-local executable = lambda { forms = append("EXE") }
-local zipfile = lambda { forms = append("ZIP") }
 
 -- Debug build pipeline
 local debug_build = build(clang_debug_tools, debug, verbose)
@@ -40,9 +42,9 @@ main_image = build(executable) {
     libs = "fastmath";
 };
 
-local spore = {}
-
 -- The spore global would be used to "export" artifacts
+spore = {}
+
 spore.exports = build(subdir("output")) {
     build(subdir("debug"), debug_build) {
         math_lib;
@@ -69,3 +71,4 @@ spore.exports = build(subdir("output")) {
 };
 
 dumpbuild(spore.exports)
+makerules(spore.exports)
