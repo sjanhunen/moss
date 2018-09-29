@@ -11,31 +11,29 @@
 
 require("lambda")
 require("rules")
-
-local clang_debug_tools = lambda { cflags = append("-g") }
-local clang_release_tools = lambda { cflags = append("-O3") }
-local clang_with_fpu = lambda { cflags = append("-ffpu") }
-
-local debug = lambda { cflags = append("-DDEBUG") }
-local fast = lambda { cflags = append("-DLOG_NONE") }
-local verbose = lambda { cflags = append("-DLOG_VERBOSE") }
+local zipfile = require("tools/zipfile")
+local clang = require("tools/clang")
 
 local subdir = function(name)
     return lambda { name = addprefix(name .. '/') }
 end
 
+local debug = lambda { cflags = append("-DDEBUG") }
+local fast = lambda { cflags = append("-DLOG_NONE") }
+local verbose = lambda { cflags = append("-DLOG_VERBOSE") }
+
 -- Debug build pipeline
-local debug_build = build(clang_debug_tools, debug, verbose)
+local debug_build = build(clang.debug, debug, verbose)
 
 -- Release build pipeline
-local release_build = build(clang_release_tools, fast)
+local release_build = build(clang.release, fast)
 
-math_lib = build(staticlib) {
+math_lib = build(clang.staticlib) {
     name = "fastmath.lib";
     source = {"math1.c", "math2.c"};
 };
 
-main_image = build(executable) {
+main_image = build(clang.executable) {
     name = "main.exe";
     source = "main.c";
     -- main_image requires math_lib within its build
@@ -53,7 +51,7 @@ spore.exports = build(subdir("output")) {
 
     build(subdir("release"), release_build) {
         main_image;
-        build(clang_with_fpu)(math_lib);
+        build(clang.fpu)(math_lib);
     };
 
     -- In-place build artifact
