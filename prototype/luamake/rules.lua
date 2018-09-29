@@ -6,6 +6,9 @@
 
 require("lambda")
 
+-- Use private key to store rules in build table
+local RULE_KEY = {}
+
 -- Expansion within recipe templates:
 -- ${<variable>} - expands to value of named variable in scope or build table
 -- ${<fn>(arg1, ... argn)} - expands to return value of function fn in scope or build table
@@ -16,21 +19,21 @@ function expand(bt, recipe)
 end
 
 function translate(src, dst, recipe)
-    return lambda { rules = append(function(bt)
+    return lambda { [RULE_KEY] = append(function(bt)
         -- TODO create both rule and recipe for makefile here
 		return expand(bt, recipe);
     end)}
 end
 
 function compile(src, recipe)
-    return lambda { rules = append(function(bt)
+    return lambda { [RULE_KEY] = append(function(bt)
         -- TODO create both rule and recipe for makefile here
 		return expand(bt, recipe);
     end)}
 end
 
 function form(recipe)
-    return lambda { rules = append(function(bt)
+    return lambda { [RULE_KEY] = append(function(bt)
         -- TODO create both rule and recipe for makefile here
 		return expand(bt, recipe);
     end)}
@@ -59,9 +62,9 @@ function makerules(bt)
             makerules(v)
         end
     end
-    if bt.rules then
+    if bt[RULE_KEY] then
         print("Rules for " .. bt.name)
-        for k, v in pairs(bt.rules) do
+        for k, v in pairs(bt[RULE_KEY]) do
             print(v(bt))
         end
     end
