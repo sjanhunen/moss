@@ -10,7 +10,7 @@
 --  * can we combine lambda into build function?
 
 require("lambda")
-require("rules")
+local rule = require("rule")
 local zipfile = require("tools/zipfile")
 local clang = require("tools/clang")
 
@@ -69,4 +69,4 @@ spore.exports = build(subdir("output")) {
 };
 
 dumpbuild(spore.exports)
-makerules(spore.exports)
+rule.dump(spore.exports)

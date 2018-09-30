@@ -1,5 +1,5 @@
-local rules = require("rules")
+local rule = require("rule")
 
 local ziptool = "zip.exe"
 
-return rules.form("${ziptool} $@ $<")
+return rule.form("${ziptool} $@ $<")

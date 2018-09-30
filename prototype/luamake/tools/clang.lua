@@ -1,20 +1,20 @@
 require("lambda")
-local rules = require("rules")
+local rule = require("rule")
 local clang = {}
 
 local clang_home = "/opt/bin/clang";
 
-clang.archive = rules.form("${ziptool} $@ $<")
+clang.archive = rule.form("${ziptool} $@ $<")
 
-clang.cc = rules.compile(".cpp",
+clang.cc = rule.compile(".cpp",
 		"${clang_home}/clangcc   		\z
         $(addprefix -D,${defines})   	\z
         $(addprefix -D,${defines})   	\z
         -o $@ $^")
 
-clang.executable = rules.form("${clang_home}/clangld $@ $<")
+clang.executable = rule.form("${clang_home}/clangld $@ $<")
 
-clang.staticlib = rules.form("${clang_home}/clangar $@ $<")
+clang.staticlib = rule.form("${clang_home}/clangar $@ $<")
 
 clang.debug = lambda { cflags = append("-g") }
 clang.release = lambda { cflags = append("-O3") }
