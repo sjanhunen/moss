@@ -11,6 +11,7 @@
 
 require("lambda")
 local rule = require("rule")
+local exe = require("rules/exe")
 local zipfile = require("tools/zipfile")
 local clang = require("tools/clang")
 
@@ -33,7 +34,7 @@ math_lib = build(clang.staticlib) {
     source = {"math1.c", "math2.c"};
 };
 
-main_image = build(clang.executable) {
+main_image = build(exe.rule) {
     name = "main.exe";
     source = "main.c";
     -- main_image requires math_lib within its build
@@ -43,7 +44,7 @@ main_image = build(clang.executable) {
 -- The spore global would be used to "export" artifacts
 spore = {}
 
-spore.exports = build(subdir("output")) {
+spore.exports = build(subdir("output"), clangexe) {
     build(subdir("debug"), debug_build) {
         math_lib;
         main_image;
