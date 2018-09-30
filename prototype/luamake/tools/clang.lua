@@ -1,6 +1,7 @@
 require("lambda")
 local rule = require("rule")
 local clang = {}
+local exe = require("rules/exe")
 
 local clang_home = "/opt/bin/clang";
 
@@ -12,12 +13,18 @@ clang.cc = rule.compile(".cpp",
         $(addprefix -D,${defines})   	\z
         -o $@ $^")
 
-clang.executable = rule.form("${clang_home}/clangld $@ $<")
-
 clang.staticlib = rule.form("${clang_home}/clangar $@ $<")
 
-clang.debug = lambda { cflags = append("-g") }
-clang.release = lambda { cflags = append("-O3") }
+clang.debug = lambda {
+    cflags = append("-g"),
+    [exe.recipe] = set("${clang_home}/clangld $@ $^")
+}
+
+clang.release = lambda {
+    cflags = append("-O3"),
+    [exe.recipe] = set("${clang_home}/clangld $@ $^")
+}
+
 clang.fpu = lambda { cflags = append("-ffpu") }
 
 return clang
