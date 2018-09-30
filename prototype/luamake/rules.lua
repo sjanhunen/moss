@@ -4,6 +4,27 @@
 --	* Compile: src -> obj
 --	* Form: files + obj -> artifact
 
+-- Consider separating this module as "rule"
+-- rule defines translate, compile, form
+--
+-- Create "rules" modules under rules/
+-- rules are generic rules for c, cpp, exe, slib, dlib, zip, etc.
+--
+-- c = require("rules/c")
+-- Enables build tree entries for
+-- [c.rule] - used for artifacts
+-- [c.flags] - used by tools
+-- [c.defines] - used by tools
+-- [c.debug] - used by tools
+-- [c.recipe] - defined by tools
+--
+-- Modules for tools are under tools/
+-- tools implement definitions used by rules (clang, gcc, msvc, etc.)
+--
+-- clang = require("tools/clang")
+-- Enables clang toolchain for rules in build
+-- build(clang) { ... }
+
 require("lambda")
 
 local rules = {}
