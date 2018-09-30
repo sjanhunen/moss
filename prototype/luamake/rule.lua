@@ -4,9 +4,6 @@
 --	* Compile: src -> obj
 --	* Form: files + obj -> artifact
 
--- Consider separating this module as "rule"
--- rule defines translate, compile, form
---
 -- Create "rules" modules under rules/
 -- rules are generic rules for c, cpp, exe, slib, dlib, zip, etc.
 --
@@ -27,7 +24,7 @@
 
 require("lambda")
 
-local rules = {}
+local rule = {}
 
 -- Use private key to store rules in build table
 local RULE_KEY = {}
@@ -41,31 +38,31 @@ local function expand(bt, recipe)
 	return recipe
 end
 
-function rules.translate(src, dst, recipe)
+function rule.translate(src, dst, recipe)
     return lambda { [RULE_KEY] = append(function(bt)
         -- TODO create both rule and recipe for makefile here
 		return expand(bt, recipe);
     end)}
 end
 
-function rules.compile(src, recipe)
+function rule.compile(src, recipe)
     return lambda { [RULE_KEY] = append(function(bt)
         -- TODO create both rule and recipe for makefile here
 		return expand(bt, recipe);
     end)}
 end
 
-function rules.form(recipe)
+function rule.form(recipe)
     return lambda { [RULE_KEY] = append(function(bt)
         -- TODO create both rule and recipe for makefile here
 		return expand(bt, recipe);
     end)}
 end
 
-function makerules(bt)
+function rule.dump(bt)
     for k, v in pairs(bt) do
         if type(k) == "number" then
-            makerules(v)
+            rule.dump(v)
         end
     end
     if bt[RULE_KEY] then
@@ -76,4 +73,4 @@ function makerules(bt)
     end
 end
 
-return rules
+return rule

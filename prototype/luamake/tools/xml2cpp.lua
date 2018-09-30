@@ -1,5 +1,5 @@
-local rules = require("rules")
+local rule = require("rule")
 
 local xml2cpp_tool = "/opt/tool/xml2cpp";
 
-return rules.translate(".xml", ".cpp", "${xml2cpp_tool} -o $@ $^")
+return rule.translate(".xml", ".cpp", "${xml2cpp_tool} -o $@ $^")
