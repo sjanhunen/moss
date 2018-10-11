@@ -30,25 +30,35 @@ local debug_build = build(clang.debug, debug, verbose)
 local release_build = build(clang.release, fast)
 
 
--- Refactor to core concepts of the build tree:
+-- Alternate view of core concepts of the build tree:
 --
 -- Artifacts are leaf nodes. An artifact is never a parent. An artifact is not a build.
 -- Builds are parents nodes. A build always has one or more children. A build may contain nested builds. A build is not an artifact.
 -- The Root build as the top level build containing all nested builds.
--- Operators are functions that operate recursively on all descendant artifacts within a node.
+-- Operators are functions that operate on artifacts.
+-- Operators can be composed for a single artifact or recursively for a whole build.
 --
 -- artifact(op1, op2, ... opn) { k1 = v1; k2 = v2; k3 = v3 }
+-- Returns an operator that creates an artifact.
 --
 -- build(op1, op2, ... opn) { n1 = artifact1, n2 = artifact2, n3 = artifact3, n4 = build(...) { ... } }
+-- Returns an operator that creates a build.
+-- Build members must refer either to another build or to an artifact.
+--
+-- Both builds and artifacts can be composed for flexibility.
 --
 -- Names of artifacts and nested builds are given within the build definition itself.
 -- This enables clear referencing of nodes through the root or through relative paths.
+-- Is there a clear use case for this? Is it actually better than naming the artifact itself?
 --
 -- build(op1, op2, .. opN) {
---  name1 = artifact(...) {};
---  name2 = artifact(...) {};
---  name3 = build(...) { };
+--  mylib = artifact(...) {};
+--  main = artifact(...) {};
+--  docs = build(...) { };
 -- }
+--
+-- References to artifacts within the build tree could be through special @artifact notation.
+-- For example: ["release-" .. version] = zipfile { files = {"@myexe", "@mylib"} }
 --
 -- Builds may also be defined as a sequence of ordered steps (without named artifacts):
 --
@@ -56,7 +66,7 @@ local release_build = build(clang.release, fast)
 --	step1, step2, step3
 -- }
 --
--- Are artifacts build before or after steps if they are combined?
+-- Are artifacts built before or after steps if they are combined?
 
 
 local artifact = build
