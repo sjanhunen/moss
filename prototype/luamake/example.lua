@@ -50,10 +50,12 @@ local release_build = build(clang.release, fast)
 -- Names of artifacts and nested builds are given within the build definition itself.
 -- This enables clear referencing of nodes through the root or through relative paths.
 -- Is there a clear use case for this? Is it actually better than naming the artifact itself?
+-- One advantage: specific artifacts can be hand-picked from trees and used stand alone.
 --
 -- build(op1, op2, .. opN) {
 --  mylib = artifact(...) {};
---  main = artifact(...) {};
+--  main = mymodule.main_image;
+--  test = mymodule.unit_tests;
 --  docs = build(...) { };
 -- }
 --
