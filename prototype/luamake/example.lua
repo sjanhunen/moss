@@ -10,6 +10,8 @@
 --  * can we combine lambda into build function?
 
 require("lambda")
+require("artifact")
+
 local rule = require("rule")
 local exe = require("rules/exe")
 local zipfile = require("tools/zipfile")
@@ -70,8 +72,6 @@ local release_build = build(clang.release, fast)
 --
 -- Are artifacts built before or after steps if they are combined?
 
-
-local artifact = build
 
 math_lib = artifact(clang.staticlib) {
     name = "fastmath.lib";
