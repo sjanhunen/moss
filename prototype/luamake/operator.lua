@@ -1,3 +1,15 @@
+-- Key design points for artifacts:
+--  Operators are functions that operate on artifacts.
+--  Operators can be applied to a single artifact or recursively for a whole build.
+--  Operators are composed using a series of transformation primitives.
+--
+-- Example transformations:
+--  * addprefix(prefix) - to string
+--  * addsuffix(suffix) - to string
+--  * append(item) - append item after end of list (table)
+--  * prepend(item) - insert item at beginning of list (table)
+--  * set(item) - sets the item (replacing all other values)
+
 function deepcopy(bt)
     local copy = {}
     for k, v in pairs(bt) do

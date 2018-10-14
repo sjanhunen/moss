@@ -1,8 +1,9 @@
--- Rules operate on build tables to create makefile rules + recipes for artifacts:
+-- Rules operate on artifacts to create makefile dependencies and recipes.
+-- Four classes of rules are current envisioned:
 --  * Generate: function -> src
---	* Translate: src -> src
+--	* Transpile: src -> src
 --	* Compile: src -> obj
---	* Form: files + obj -> artifact
+--	* Form: (src?) files + obj -> artifact
 
 -- Create "rules" modules under rules/
 -- rules are generic rules for c, cpp, exe, slib, dlib, zip, etc.
