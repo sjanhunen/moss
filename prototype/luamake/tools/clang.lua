@@ -1,4 +1,4 @@
-require("lambda")
+require("operator")
 local rule = require("rule")
 local clang = {}
 local exe = require("rules/exe")
@@ -15,16 +15,16 @@ clang.cc = rule.compile(".cpp",
 
 clang.staticlib = rule.form("${clang_home}/clangar $@ $<")
 
-clang.debug = lambda {
+clang.debug = operator {
     cflags = append("-g"),
     [exe.recipe] = set("${clang_home}/clangld $@ $^")
 }
 
-clang.release = lambda {
+clang.release = operator {
     cflags = append("-O3"),
     [exe.recipe] = set("${clang_home}/clangld $@ $^")
 }
 
-clang.fpu = lambda { cflags = append("-ffpu") }
+clang.fpu = operator { cflags = append("-ffpu") }
 
 return clang

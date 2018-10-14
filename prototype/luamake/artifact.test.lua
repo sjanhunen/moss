@@ -1,5 +1,5 @@
 require("artifact")
-require("lambda")
+require("operator")
 
 describe("artifact", function()
     describe("artifact()", function()
@@ -19,8 +19,8 @@ describe("artifact", function()
         end)
 
         it("applies operations to table", function()
-            local op1 = lambda({ bob = set(1) })
-            local op2 = lambda({ alice = set(2) })
+            local op1 = operator { bob = set(1) }
+            local op2 = operator { alice = set(2) }
             local node = artifact(op1, op2) { larry = 3 }
             assert.are.same(1, node.bob)
             assert.are.same(2, node.alice)

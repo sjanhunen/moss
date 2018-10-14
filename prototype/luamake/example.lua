@@ -7,9 +7,8 @@
 
 --  Questions:
 --  * is it worth distinguishing leaf artifacts from build nodes?
---  * can we combine lambda into build function?
 
-require("lambda")
+require("operator")
 require("artifact")
 
 local rule = require("rule")
@@ -18,12 +17,12 @@ local zipfile = require("tools/zipfile")
 local clang = require("tools/clang")
 
 local subdir = function(name)
-    return lambda { name = addprefix(name .. '/') }
+    return operator { name = addprefix(name .. '/') }
 end
 
-local debug = lambda { cflags = append("-DDEBUG") }
-local fast = lambda { cflags = append("-DLOG_NONE") }
-local verbose = lambda { cflags = append("-DLOG_VERBOSE") }
+local debug = operator { cflags = append("-DDEBUG") }
+local fast = operator { cflags = append("-DLOG_NONE") }
+local verbose = operator { cflags = append("-DLOG_VERBOSE") }
 
 -- Debug build pipeline
 local debug_build = build(clang.debug, debug, verbose)

@@ -22,7 +22,7 @@
 -- Enables clang toolchain for rules in build
 -- build(clang) { ... }
 
-require("lambda")
+require("operator")
 
 local rule = {}
 
@@ -43,19 +43,19 @@ local function expand(bt, recipe)
 end
 
 function rule.translate(src, dst, recipe)
-    return lambda { [RULE_KEY] = append(function(bt)
+    return operator { [RULE_KEY] = append(function(bt)
 		return expand(bt, recipe);
     end)}
 end
 
 function rule.compile(src, recipe)
-    return lambda { [RULE_KEY] = append(function(bt)
+    return operator { [RULE_KEY] = append(function(bt)
 		return expand(bt, recipe);
     end)}
 end
 
 function rule.form(recipe)
-    return lambda { [RULE_KEY] = append(function(bt)
+    return operator { [RULE_KEY] = append(function(bt)
 		return expand(bt, recipe);
     end)}
 end

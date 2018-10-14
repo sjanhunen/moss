@@ -3,7 +3,7 @@
 --
 --      pipeline = build(op1, op2, ... opn)
 --
--- This composes build lambdas op1 ... opn into a build pipeline that
+-- This composes build operators op1 ... opn into a build pipeline that
 -- transforms a build table. A new function is returned representing this
 -- pipeline that takes a table as an argument and returns the transformed
 -- table:
@@ -14,17 +14,17 @@
 --          key2 = value2;
 --      }
 --
---  A build lambda is created from a table of functions describing the
+--  A build operator is created from a table of functions describing the
 --  necessary transformations performed on a build table. Lambdas are
 --  composed into build pipelines:
 --
---      debug_flag = lambda { defines = append("DEBUG=1") }
---      debug_source = lambda { source = append("debug.c") }
+--      debug_flag = operator { defines = append("DEBUG=1") }
+--      debug_source = operator { source = append("debug.c") }
 --      debug_build = build(debug_flag, debug_source)
 --
 --  Or, using more compact notation:
 --
---      debug_build = lambda {
+--      debug_build = operator {
 --          defines = append("DEBUG=1");
 --          source = append("debug.c");
 --      }
@@ -44,7 +44,7 @@
 --  * append(item) - append item after end of list (table)
 --  * prepend(item) - insert item at beginning of list (table)
 
-require("lambda")
+require("operator")
 
 function extend(variable, value)
     return function(bt)
