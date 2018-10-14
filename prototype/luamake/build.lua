@@ -1,48 +1,42 @@
--- The build pipeline is fundamental to how moss creates build artifacts.
--- Pipelines are composed using the build function:
+-- Key design points for builds:
+-- 	Builds are the parents nodes in moss.
+--	A build always has one or more children.
+--	A build may contain nested builds.
+--	A build is not an artifact.
+--  Complex builds are composed hierarchically out of artifacts and other builds.
+--  Operators can be applied to all artifacts recursively when composing builds.
+--	All output filenames are defined explicitly within build nodes.
+-- 	The root is simply the topmost build containing all nested builds.
 --
---      pipeline = build(op1, op2, ... opn)
+-- Example 1:
+-- 	build(op1, op2, ... opn) {
+--		n1 = artifact1, n2 = artifact2, n3 = artifact3, n4 = build(...) { ... }
+--	}
+-- Returns a build that creates 3 files (n1, n2, n3) and one nested build directory (n4).
 --
--- This composes build operators op1 ... opn into a build pipeline that
--- transforms a build table. A new function is returned representing this
--- pipeline that takes a table as an argument and returns the transformed
--- table:
+-- Names of artifacts and nested builds are given within the build definition itself.
+-- This enables clear referencing of nodes through the root or through relative paths.
+-- Another advantage is that specific artifacts or builds can be hand-picked from trees
+-- and used stand alone.
 --
---      -- Returns a new table that has passed through pipeline
---      pipeline {
---          key1 = value1;
---          key2 = value2;
---      }
+-- Example 2:
+--  build(op1, op2, .. opN) {
+--   mylib = artifact(...) {};
+--   main = mymodule.main_image;
+--   test = mymodule.unit_tests;
+--   docs = build(...) { };
+--  }
 --
---  A build operator is created from a table of functions describing the
---  necessary transformations performed on a build table. Lambdas are
---  composed into build pipelines:
+-- References to artifacts within the build tree could be through special @artifact notation.
+-- For example: ["release-" .. version] = zipfile { files = {"@myexe", "@mylib"} }
 --
---      debug_flag = operator { defines = append("DEBUG=1") }
---      debug_source = operator { source = append("debug.c") }
---      debug_build = build(debug_flag, debug_source)
+-- We may consider Builds defined as a sequence of ordered steps (without named artifacts):
 --
---  Or, using more compact notation:
+-- build(...) {
+--	step1, step2, step3
+-- }
 --
---      debug_build = operator {
---          defines = append("DEBUG=1");
---          source = append("debug.c");
---      }
---
---  Core principles:
---  * Every build artifact is defined within a unique build table (Lua table)
---  * Build tables may be nested for complex or hierarchical build trees
---  * A build operation transforms a particular variable within a build table
---  * A build operation is applied recursively to any nested build tables
---  * A build pipeline is a composition of a series of build operations
---  * A build pipeline is itself a build function
---
---  Lambdas are constructed using a series of transformation primitives that
---  operate on a single build variable:
---  * addprefix(prefix) - to string
---  * addsuffix(suffix) - to string
---  * append(item) - append item after end of list (table)
---  * prepend(item) - insert item at beginning of list (table)
+-- Are artifacts built before or after steps if they are combined?
 
 require("operator")
 
