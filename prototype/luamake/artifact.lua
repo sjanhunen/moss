@@ -1,6 +1,6 @@
 require("lambda")
 
-local IS_ARTIFACT = {}
+local ARTIFACT = {}
 
 function artifact(...)
     local pipeline = {...}
@@ -8,7 +8,7 @@ function artifact(...)
     return function(leaf)
         leaf = deepcopy(leaf)
         
-        leaf[IS_ARTIFACT] = true
+        leaf[ARTIFACT] = true
 
         for i,step in ipairs(pipeline) do
             leaf = step(leaf);
@@ -18,5 +18,5 @@ function artifact(...)
 end
 
 function isartifact(node)
-    return type(node) == "table" and node[IS_ARTIFACT] == true
+    return type(node) == "table" and node[ARTIFACT] == true
 end
