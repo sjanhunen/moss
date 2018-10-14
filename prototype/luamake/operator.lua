@@ -40,7 +40,7 @@ function apply(bt, operation)
     return bt;
 end
 
-function lambda(operation)
+function operator(operation)
     return function(bt)
         return apply(bt, operation)
     end
