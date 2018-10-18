@@ -42,11 +42,11 @@ end
 --  ...
 -- }
 
-local spore = operator
+local gene = operator
 
-local debug = spore { cflags = append "-DDEBUG" }
-local fast = spore { cflags = append "-DLOG_NONE" }
-local verbose = spore { cflags = append "-DLOG_VERBOSE" }
+local debug = gene { cflags = append "-DDEBUG" }
+local fast = gene { cflags = append "-DLOG_NONE" }
+local verbose = gene { cflags = append "-DLOG_VERBOSE" }
 
 -- Debug build pipeline
 local debug_build = build(clang.debug, debug, verbose)
