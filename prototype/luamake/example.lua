@@ -16,17 +16,30 @@ local subdir = function(name)
     return operator { name = addprefix(name .. '/') }
 end
 
+-- A gene is the lowest level building block used to compose software artifacts.
+-- It is defined by a structure of operators that are used to expand artifact definition during
+-- evaluation (i.e. gene expression).
+--
+-- Example: definition single gene
+-- 	g1 = gene { p1 = op1; p2 = op2 }
+--
 -- An operator transforms a single parameter.
--- A spore is a composition of operators that transforms artifact parameters.
--- Spores are composed to create complete build artifacts.
 --
--- artifact(s1, s2, ... sN) {
---  v1 = fn() or literal;
---  v2 = fn() or literal;
--- }
+-- Sequences of genes are composed to create complete definitions for artifacts.
 --
--- build(s1, s2, ... sN) {
--- ...
+-- Example: gene sequence
+--  gs = gene(g1, g2, g3)
+--
+-- This returns a function that may be evaluated as follows
+--
+-- gs() or gs { <structure> } or gs(g5, g6, g7)
+--
+-- Artifacts are the named output products of gene expression in the build tree or structure.
+--
+-- build(g1, g2, ... gN) {
+-- 	product1 = g1;
+--  product2 = gs;
+--  ...
 -- }
 
 local spore = operator
