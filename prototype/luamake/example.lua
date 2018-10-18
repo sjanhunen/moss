@@ -16,9 +16,24 @@ local subdir = function(name)
     return operator { name = addprefix(name .. '/') }
 end
 
-local debug = operator { cflags = append("-DDEBUG") }
-local fast = operator { cflags = append("-DLOG_NONE") }
-local verbose = operator { cflags = append("-DLOG_VERBOSE") }
+-- An operator transforms a single parameter.
+-- A spore is a composition of operators that transforms artifact parameters.
+-- Spores are composed to create complete build artifacts.
+--
+-- artifact(s1, s2, ... sN) {
+--  v1 = fn() or literal;
+--  v2 = fn() or literal;
+-- }
+--
+-- build(s1, s2, ... sN) {
+-- ...
+-- }
+
+local spore = operator
+
+local debug = spore { cflags = append "-DDEBUG" }
+local fast = spore { cflags = append "-DLOG_NONE" }
+local verbose = spore { cflags = append "-DLOG_VERBOSE" }
 
 -- Debug build pipeline
 local debug_build = build(clang.debug, debug, verbose)
