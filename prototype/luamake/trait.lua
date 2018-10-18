@@ -1,6 +1,7 @@
--- Traits enable modular and granular parameterization of builds.  A trait is a
--- function that transforms parameters => build variables.  Traits implement
--- explicit rules to compose variables and resolve conflicts.
+-- Traits are externally manifested characteristics of an artifact that
+-- are ultimately encoded through genes.
+-- Genes are an internal detail required during expression.
+-- Traits enable robust and granular parameterization of characteristics.
 
 trait = function(arg)
     return function(param, vars) return arg; end
