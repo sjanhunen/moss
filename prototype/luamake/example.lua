@@ -16,29 +16,33 @@ local subdir = function(name)
     return operator { name = addprefix(name .. '/') }
 end
 
--- A gene is the lowest level building block used to compose software artifacts.
--- It is defined by a structure of operators that are used to expand artifact definition during
--- evaluation (i.e. gene expression).
+-- A gene is the lowest level building block used to create software build products.
+-- It is defined by a structure of operators that are used to expand product definition during
+-- gene expression.
 --
 -- Example: definition single gene
 -- 	g1 = gene { p1 = op1; p2 = op2 }
 --
 -- An operator transforms a single parameter.
 --
--- Sequences of genes are composed to create complete definitions for artifacts.
+-- Sequences of genes are composed to create products.
+-- A gene remains focused on a single structure of operators.
 --
--- Example: gene sequence
---  gs = gene(g1, g2, g3)
+-- Example: sequence of genes composed for product expression
+--  p = product(g1, g2, g3)
 --
 -- This returns a function that may be evaluated as follows
 --
--- gs() or gs { <structure> } or gs(g5, g6, g7)
+-- p(<defn>) or p { <defn> } or p(g5, g6, g7) { <defn> }
 --
--- Artifacts are the named output products of gene expression in the build tree or structure.
+-- The product definition is what the genes operate on to express the final product.
 --
--- build(g1, g2, ... gN) {
--- 	product1 = g1;
---  product2 = gs;
+-- Artifacts are named outputs of fully expressed products within the build tree.
+-- An artifact is a product with a name.
+--
+-- product(g1, g2, ... gN) {
+-- 	artifact1 = g1;
+--  artifact2 = gs;
 --  ...
 -- }
 
