@@ -1,8 +1,13 @@
--- Fundamental moss concepts:
---  Artifact: the definition of a single completed build product
---  Operator: functions that operate on artifacts to transform definitions
---  Build: a composition of named artifacts that matches the names and scructure of output
---  Rule: operators that create makefile rules and recipes
+-- Fundamental concepts:
+--  Operator: functions that operate on a single parameter
+--  Gene: lowest level structural building block used to expand definitions
+--  Product: a sequence of genes used to express an artifact
+--  Artifact: a single fully express build product with name
+--
+-- Secondary concepts:
+--  Tool:
+--  Rule:
+--  Trait:
 
 require("operator")
 require("artifact")
