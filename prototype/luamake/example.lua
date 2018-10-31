@@ -1,8 +1,7 @@
 -- Fundamental concepts:
---  Operator: functions that operate on a single parameter
+--  Pair: functions or definitions associated with a single parameter
 --  Gene: lowest level structural building block used to expand definitions
---  Product: a sequence of genes used to express an artifact
---  Artifact: a single fully express build product with name
+--  Build: a collection of named build artifacts defined by gene sequences
 --
 -- Secondary concepts:
 --  Tool:
@@ -22,34 +21,46 @@ local subdir = function(name)
 end
 
 -- A gene is the lowest level building block used to create software build products.
--- It is defined by a structure of operators that are used to expand product definition during
--- gene expression.
+-- It is defined through a structure of pairs that ultimately express an artifact.
 --
--- Example: definition single gene
--- 	g1 = gene { p1 = op1; p2 = op2 }
+-- Example: definition of gene with parameter pairs only
+--  g1 = gene { p1 = "file.c", p2 = "name" }
 --
--- An operator transforms a single parameter.
+-- Example: definition of gene with operator pairs (op1/op2 are functions)
+-- 	g2 = gene { p1 = op1; p2 = op2 }
 --
--- Sequences of genes are composed to create products.
--- A gene remains focused on a single structure of operators.
+-- A pair operator transforms the parameter to which it has been assigned.
+-- A pair definition sets the parameter to which it has been assigned.
 --
--- Example: sequence of genes composed for product expression
---  p = product(g1, g2, g3)
+-- Genes can be composed to create more complex gene sequences.
+-- The order of genes in a sequence is significant.
+-- This is because operators are not guaranteed to be commutative.
+--
+-- Example: composition of genes
+--  g4 = gene(g1, g2, g3)
 --
 -- This returns a function that may be evaluated as follows
 --
--- p(<defn>) or p { <defn> } or p(g5, g6, g7) { <defn> }
+--  g4(<defn>) or g4 { <defn> }
 --
--- The product definition is what the genes operate on to express the final product.
+-- Sequences may be composed with other genes and sequences.
 --
--- Artifacts are named outputs of fully expressed products within the build tree.
--- An artifact is a product with a name.
+-- Builds are collections of named artifacts of fully expressed gene sequences.
 --
--- product(g1, g2, ... gN) {
+-- build {
 -- 	artifact1 = g1;
---  artifact2 = gs;
+--  artifact2 = g4;
 --  ...
+--  artifact3 = build { ... }
 -- }
+--
+-- Builds may be nested to form subdirectories.
+-- Builds may also be composed within the same directory level.
+--
+-- build(b1, b2, b3)
+--
+-- TBD: how do we compose genes into builds?
+--  build { g1, g2, g3 }  -OR- build(g1, g2, g3)
 
 local gene = operator
 
