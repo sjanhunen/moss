@@ -47,20 +47,21 @@ end
 --
 -- Builds are collections of named artifacts of fully expressed gene sequences.
 --
--- build {
--- 	artifact1 = g1;
---  artifact2 = g4;
---  ...
---  artifact3 = build { ... }
--- }
+--  build {
+--   artifact1 = g1;
+--   artifact2 = g4;
+--   ...
+--   artifact3 = build { ... }
+--  }
 --
 -- Builds may be nested to form subdirectories.
 -- Builds may also be composed within the same directory level.
 --
--- build(b1, b2, b3)
+--  build {b1, b2, b3}
 --
--- TBD: how do we compose genes into builds?
---  build { g1, g2, g3 }  -OR- build(g1, g2, g3)
+-- Gene sequences can be applied to builds in place
+--
+--  build(g1, g2, g3) { ... }
 
 local gene = operator
 
