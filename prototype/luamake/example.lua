@@ -8,7 +8,7 @@
 --  Rule:
 --  Trait:
 
-require("operator")
+require("gene")
 require("artifact")
 
 local rule = require("rule")
@@ -17,7 +17,7 @@ local zipfile = require("tools/zipfile")
 local clang = require("tools/clang")
 
 local subdir = function(name)
-    return operator { name = addprefix(name .. '/') }
+    return gene { name = addprefix(name .. '/') }
 end
 
 -- A gene is the lowest level building block used to create software build products.
@@ -62,8 +62,6 @@ end
 -- Gene sequences can be applied to builds in place
 --
 --  build(g1, g2, g3) { ... }
-
-local gene = operator
 
 local debug = gene { cflags = append "-DDEBUG" }
 local fast = gene { cflags = append "-DLOG_NONE" }
