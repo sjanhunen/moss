@@ -52,7 +52,7 @@ function apply(bt, operation)
     return bt;
 end
 
-function operator(operation)
+function gene(operation)
     return function(bt)
         return apply(bt, operation)
     end

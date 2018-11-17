@@ -12,7 +12,7 @@
 --  artifact(op1, op2, ... opn) { k1 = v1; k2 = v2; k3 = v3 }
 -- Returns an artifact.
 
-require("operator")
+require("gene")
 
 local ARTIFACT = {}
 

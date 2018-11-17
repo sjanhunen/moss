@@ -38,7 +38,7 @@
 --
 -- Are artifacts built before or after steps if they are combined?
 
-require("operator")
+require("gene")
 
 function extend(variable, value)
     return function(bt)

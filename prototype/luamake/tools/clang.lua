@@ -1,4 +1,4 @@
-require("operator")
+require("gene")
 local rule = require("rule")
 local clang = {}
 local exe = require("rules/exe")
@@ -15,16 +15,16 @@ clang.cc = rule.compile(".cpp",
 
 clang.staticlib = rule.form("${clang_home}/clangar $@ $<")
 
-clang.debug = operator {
+clang.debug = gene {
     cflags = append("-g"),
     [exe.recipe] = set("${clang_home}/clangld $@ $^")
 }
 
-clang.release = operator {
+clang.release = gene {
     cflags = append("-O3"),
     [exe.recipe] = set("${clang_home}/clangld $@ $^")
 }
 
-clang.fpu = operator { cflags = append("-ffpu") }
+clang.fpu = gene { cflags = append("-ffpu") }
 
 return clang
