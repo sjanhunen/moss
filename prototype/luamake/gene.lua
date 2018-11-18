@@ -1,14 +1,28 @@
--- Key design points for artifacts:
---  Operators are functions that operate on artifacts.
---  Operators can be applied to a single artifact or recursively for a whole build.
---  Operators are composed using a series of transformation primitives.
+-- A gene is the lowest level building block used to create software build products.
+-- It is defined through a structure of pairs that ultimately express an artifact.
 --
--- Example transformations:
---  * addprefix(prefix) - to string
---  * addsuffix(suffix) - to string
---  * append(item) - append item after end of list (table)
---  * prepend(item) - insert item at beginning of list (table)
---  * set(item) - sets the item (replacing all other values)
+-- Example: definition of gene with parameter pairs only
+--  g1 = gene { p1 = "file.c", p2 = "name" }
+--
+-- Example: definition of gene with operator pairs (op1/op2 are functions)
+-- 	g2 = gene { p1 = op1; p2 = op2 }
+--
+-- A pair operator transforms the parameter to which it has been assigned.
+-- A pair definition sets the parameter to which it has been assigned.
+--
+-- Genes can be composed to create more complex gene sequences.
+-- The order of genes in a sequence is significant.
+-- This is because operators are not guaranteed to be commutative.
+--
+-- Example: composition of genes
+--  g4 = gene(g1, g2, g3)
+--
+-- This returns a function that may be evaluated as follows
+--
+--  g4(<defn>) or g4 { <defn> }
+--
+-- Sequences may be composed with other genes and sequences.
+--
 
 function deepcopy(bt)
     local copy = {}
