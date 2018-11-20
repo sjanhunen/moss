@@ -1,18 +1,26 @@
 -- Key design points for builds:
--- 	Builds are the parents nodes in moss.
+--  Builds are trees containing named artifacts and nested builds.
+--  Builds are the parents nodes in moss.
 --	A build always has one or more children.
 --	A build may contain nested builds.
 --	A build is not an artifact.
 --  Complex builds are composed hierarchically out of artifacts and other builds.
---  Operators can be applied to all artifacts recursively when composing builds.
+--  Genes can be applied to all artifacts recursively when composing builds.
 --	All output filenames are defined explicitly within build nodes.
--- 	The root is simply the topmost build containing all nested builds.
+--  The root is simply the topmost build containing all nested builds.
+--  Nested builds are used to define build tree subdirectories.
 --
--- Example 1:
--- 	build(op1, op2, ... opn) {
---		n1 = artifact1, n2 = artifact2, n3 = artifact3, n4 = build(...) { ... }
---	}
--- Returns a build that creates 3 files (n1, n2, n3) and one nested build directory (n4).
+-- Example:
+--  build {
+--   name1 = artifact { ... };
+--   name2 = some_artifact;
+--   ...
+--   subdir = build { ... }
+--  }
+--
+-- Gene sequences can be applied to builds in place
+--
+--  build(g1, g2, g3) { ... }
 --
 -- Names of artifacts and nested builds are given within the build definition itself.
 -- This enables clear referencing of nodes through the root or through relative paths.
@@ -20,7 +28,7 @@
 -- and used stand alone.
 --
 -- Example 2:
---  build(op1, op2, .. opN) {
+--  build(g1, g2, .. gN) {
 --   mylib = artifact(...) {};
 --   main = mymodule.main_image;
 --   test = mymodule.unit_tests;
@@ -30,13 +38,13 @@
 -- References to artifacts within the build tree could be through special @artifact notation.
 -- For example: ["release-" .. version] = zipfile { files = {"@myexe", "@mylib"} }
 --
--- We may consider Builds defined as a sequence of ordered steps (without named artifacts):
+-- We may also consider builds as a sequence of ordered steps (without named artifacts):
 --
 -- build(...) {
 --	step1, step2, step3
 -- }
 --
--- Are artifacts built before or after steps if they are combined?
+-- TBD: Are artifacts built before or after steps if they are combined?
 
 require("gene")
 

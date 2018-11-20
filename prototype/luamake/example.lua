@@ -1,9 +1,9 @@
 -- Fundamental concepts:
---  Pair: functions or definitions associated with a single parameter
---  Gene: lowest level structural building block used to expand definitions
---  Build: a collection of named build artifacts defined by gene sequences
+--  Gene: operator pairs used to expand artifact definitions
+--  Artifact: the product of gene sequence applied to base definition
+--  Build: named collections of artifacts and nested builds
 --
--- Secondary concepts:
+-- Derived concepts:
 --  Tool:
 --  Rule:
 --  Trait:
@@ -19,24 +19,6 @@ local clang = require("tools/clang")
 local subdir = function(name)
     return gene { name = addprefix(name .. '/') }
 end
-
--- Builds are collections of named artifacts of fully expressed gene sequences.
---
---  build {
---   artifact1 = g1;
---   artifact2 = g4;
---   ...
---   artifact3 = build { ... }
---  }
---
--- Builds may be nested to form subdirectories.
--- Builds may also be composed within the same directory level.
---
---  build {b1, b2, b3}
---
--- Gene sequences can be applied to builds in place
---
---  build(g1, g2, g3) { ... }
 
 local debug = gene { cflags = append "-DDEBUG" }
 local fast = gene { cflags = append "-DLOG_NONE" }

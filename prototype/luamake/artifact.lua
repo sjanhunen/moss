@@ -2,15 +2,23 @@
 --  Artifacts are leaf nodes within moss.
 --  An artifact is never a parent.
 --  An artifact is not a build.
---  Artifacts to not define the filename of the final output.
+--  Artifacts do not define the filename of the final output.
+--
+-- Gene sequences can be applied to artifacts in place:
+--
+--  artifact(g1, g2, g3, ...) { <base definition> }
+--
+-- Base definitions are given for artifacts.
+-- Genes are used to manipulate definitions.
 --
 -- Example 1:
---  artifact(op1, op2, ... opn) { k1 = v1; k2 = v2; k3 = v3 }
--- Returns a function that applies operators to an artifact, returning a copy.
+--  executable = artifact(g1, g2, g3, ...);
 --
 -- Example 2:
---  artifact(op1, op2, ... opn) { k1 = v1; k2 = v2; k3 = v3 }
--- Returns an artifact.
+--  artifact(g1, g2, ... gn) { k1 = v1; k2 = v2; k3 = v3 };
+--
+-- Example 3:
+--  artifact { k1 = v1; k2 = v2; k3 = v3 }
 
 require("gene")
 
