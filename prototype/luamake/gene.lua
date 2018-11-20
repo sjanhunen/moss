@@ -1,11 +1,12 @@
 -- A gene is the lowest level building block used to create software build products.
 -- It is defined through a structure of pairs that ultimately express an artifact.
---
--- Example: definition of gene with parameter pairs only
---  g1 = gene { p1 = "file.c", p2 = "name" }
+-- A pair operates on a single base artifact defintion.
 --
 -- Example: definition of gene with operator pairs (op1/op2 are functions)
 -- 	g2 = gene { p1 = op1; p2 = op2 }
+--
+-- Example: definition of gene with parameter pairs only
+--  g1 = gene { p1 = "file.c", p2 = "name" }
 --
 -- A pair operator transforms the parameter to which it has been assigned.
 -- A pair definition sets the parameter to which it has been assigned.
@@ -22,7 +23,6 @@
 --  g4(<defn>) or g4 { <defn> }
 --
 -- Sequences may be composed with other genes and sequences.
---
 
 function deepcopy(bt)
     local copy = {}
