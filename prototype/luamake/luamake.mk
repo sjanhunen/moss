@@ -10,7 +10,7 @@ platform_opts = -undefined dynamic_lookup
 endif
 
 luamake.so: luamake.c
-	gcc -Wall -shared -o $@ $^ $(platform_opts) -llua
+	gcc -Wall -shared -o $@ $^ $(platform_opts) -llua5.3 -I/usr/include/lua5.3
 
 .PHONY: test
 
