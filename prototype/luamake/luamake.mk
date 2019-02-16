@@ -9,6 +9,10 @@ ifeq ($(shell uname),Darwin)
 platform_opts = -undefined dynamic_lookup
 endif
 
+ifeq ($(shell uname),Linux)
+platform_opts = -fPIC
+endif
+
 luamake.so: luamake.c
 	gcc -Wall -shared -o $@ $^ $(platform_opts) -llua5.3 -I/usr/include/lua5.3
 
