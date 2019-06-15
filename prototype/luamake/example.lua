@@ -1,79 +1,88 @@
--- Fundamental concepts:
---  Trait: fundamental building block of configuration and reuse
---  Artifact: an output product present in at least one build
---  Rule: patterns and recipes for transpiling, compiling, and forming artifacts
---  Build: named collections of artifacts, potentially containing other nested builds
-
+require("build")
 require("gene")
 require("artifact")
 
-local rule = require("rule")
-local exe = require("rules/exe")
-local zipfile = require("tools/zipfile")
-local clang = require("tools/clang")
+-- Proposed core concepts:
+--  pair - base key-value definition
+--  gene - pure function that mutates one or more pair definitions
+--          gene(def) -> def
+--  product - pure function that creates rules for build product
+--          product(name) -> build rules
+--  build - structure that maps names to build products
+--          { name1: artifact1, name2: artifact2 }
 
-local subdir = function(name)
-    return gene { name = addprefix(name .. '/') }
+-- Higher order concepts:
+--  sequence - HOF that returns a composition of genes
+--          sequence(g1, g2, ...) -> gene(def) -> def
+--  mutation - HOF that returns a new gene
+--          mutation({ ... }) -> gene
+--  artifact - HOF that returns a new product
+--          artifact({ ... }) -> product
+
+-- TODO: implement gene sequence
+function sequence(def)
+    return {}
 end
 
-local debug = gene { cflags = append "-DDEBUG" }
-local fast = gene { cflags = append "-DLOG_NONE" }
-local verbose = gene { cflags = append "-DLOG_VERBOSE" }
+-- TODO: refactor gene as mutation
+mutation = gene
 
-math_lib = artifact(clang.staticlib) {
-    name = "fastmath.lib";
-    source = {"math1.c", "math2.c"};
+-- TODO: implement this artifact
+function executable(def)
+    -- Returns rules for cc, ld, and object files
+    return function()
+        return def
+    end
+end
+
+-- TODO: implement this artifact
+function binary(def)
+    -- Returns rules for bin file via objdump
+    return function()
+        return def
+    end
+end
+
+-- TODO: implement this artifact
+function static_lib(def)
+    -- Returns rules for cc, ar, and object files
+    return function()
+        return def
+    end
+end
+
+my_app = function(config)
+    -- TODO: do something with config
+    return {
+        src = {"main.c", "aux.c"};
+        defines = {"MY_OPTION"};
+    }
+end
+
+clang = {
+    cc = mutation {};
+    ld = mutation {};
+    armcm4 = mutation { cflags = append "-march=arm" };
+    thumb = mutation { cflags = append "-thumb2" };
+    x86_64 = mutation { cflags = append "-march=x86" };
+    fpu = mutation { cflags = append "-fpu" };
 };
 
-main_image = artifact(exe.rule) {
-    name = "main.exe";
-    source = "main.c";
-    -- main_image requires math_lib within its build
-    libs = "fastmath";
-};
+arch_arm = sequence(
+    clang.cc, clang.ld, clang.armcm4, clang.fpu, clang.thumb)
+arch_x86 = sequence(
+    clang.cc, clang.ar, clang.x86_64, clang.fpu)
 
--- The spore global would be used to "export" artifacts
-spore = {}
+arm_exe = function(def) return executable(sequence(arch_arm, def)) end
+arm_bin = function(def) return executable() end
+host_exe = function(def) return executable(sequence(arch_x86, def)) end
 
--- This is a placeholder for an actual trait that
--- configures build options
-build_options = {}
-
--- TODO: refactor according to new build design thinking
-spore.exports = build(subdir("output"), clangexe) {
-    [build_options] = {
-        debug = false;
-        log = true;
-        secure = false;
+concept = build {
+    arm = build {
+        ["my_app.elf"] = arm_exe(my_app { logging = n, fast = y });
+        ["my_app.bin"] = arm_bin("my_app.elf");
     };
-
-    build(subdir("debug")) {
-        [build_options] = { debug = true };
-
-        math_lib;
-        main_image;
-    };
-
-    build(subdir("release")) {
-        [build_options] = { secure = true };
-
-        main_image;
-        build(clang.fpu)(math_lib);
-    };
-
-    -- In-place build artifact
-    artifact(zipfile) {
-        name = "release.zip";
-
-        files = {
-            -- We can refer to artifacts directly by path
-            "release/main.exe",
-            "debug/main.exe",
-            "help.doc",
-            "release-notes.txt"
-        };
+    host = build {
+        my_app = host_exe(my_app { logging = y, fast = n });
     };
 };
-
-dumpbuild(spore.exports)
-rule.dump(spore.exports)
