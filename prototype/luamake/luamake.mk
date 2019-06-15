@@ -6,15 +6,15 @@ platform_opts = -L. -lgnumake-1.dll
 endif
 
 ifeq ($(shell uname),Darwin)
-platform_opts = -undefined dynamic_lookup
+platform_opts = -undefined dynamic_lookup -I/usr/local/Cellar/lua/5.3.5_1/include/lua
 endif
 
 ifeq ($(shell uname),Linux)
-platform_opts = -fPIC
+platform_opts = -fPIC -I/usr/include/lua5.3
 endif
 
 luamake.so: luamake.c
-	gcc -Wall -shared -o $@ $^ $(platform_opts) -llua5.3 -I/usr/include/lua5.3
+	gcc -Wall -shared -o $@ $^ $(platform_opts) -llua5.3
 
 .PHONY: test
 
