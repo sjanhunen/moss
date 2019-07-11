@@ -2,22 +2,21 @@ require("build")
 require("gene")
 require("artifact")
 
--- Proposed core concepts:
---  pair - base key-value definition
---  gene - pure function that mutates one or more pair definitions
---          gene(def) -> def
---  product - pure function that creates rules for build product
+-- Fundamental concepts:
+--  build - structure that maps artifact names to build products
+--          { name1: product1, name2: product2 }
+--  artifact - specific named instance of a build product in the build tree
+--  product - pure function that returns rules for a build product
 --          product(name) -> build rules
---  build - structure that maps names to build products
---          { name1: artifact1, name2: artifact2 }
 
--- Higher order concepts:
---  sequence - HOF that returns a composition of genes
---          sequence(g1, g2, ...) -> gene(def) -> def
---  mutation - HOF that returns a new gene
---          mutation({ ... }) -> gene
---  artifact - HOF that returns a new product
---          artifact({ ... }) -> product
+-- Secondary concepts:
+--  pair definition - base key-value definition
+--                    { name = value }
+--  pair mutation - modifies a key-value pair defined within a sequence
+--             { name = mutation(...) }
+--  gene - a set of pair definitions and/or mutations
+--  sequence - a composition of genes that returns a larger set of pairs
+--          sequence(g1, g2, ...) -> gene
 
 -- TODO: implement gene sequence
 function sequence(def)
