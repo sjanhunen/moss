@@ -1,22 +1,19 @@
 require("build")
 require("gene")
-require("artifact")
 
 -- Fundamental concepts:
---  build - structure that maps artifact names to build products
---          { name1: product1, name2: product2 }
---  artifact - specific named instance of a build product in the build tree
---  product - pure function that returns rules for a build product
---          product(name) -> build rules
-
--- Secondary concepts:
---  pair definition - base key-value definition
---                    { name = value }
---  pair mutation - modifies a key-value pair defined within a sequence
---             { name = mutation(...) }
---  gene - a set of pair definitions and/or mutations
---  sequence - a composition of genes that returns a larger set of pairs
---          sequence(g1, g2, ...) -> gene
+--  artifact - a fully realized build product (e.g. output file)
+--  definition - set of key value pairs that define an artifact
+--  transcript - set of rules with recipes required to build one artifact
+--
+-- Genetic analogy:
+--  definition (dna) -> mutation (mutate) -> definition (dna)
+--  definition (dna) -> rule (transcribe) -> transcript (rna)
+--  transcript (rna) -> build (translate) -> artifact (protein)
+--
+-- A mutation is a pure function that modifies a definition (mutation.lua)
+-- A rule creates a transcript from a definition (rule.lua)
+-- A build is used to realize final artifacts by following transcripts (build.lua)
 
 -- TODO: implement gene sequence
 function sequence(def)
