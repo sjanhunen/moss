@@ -1,27 +1,15 @@
 -- Rules operate on artifacts to create makefile dependencies and recipes.
--- Four classes of rules are current envisioned:
+-- Four classes of rules are envisioned:
 --  * Generate: function -> src
 --	* Transpile: src -> src
 --	* Compile: src -> obj
---	* Form: (src?) files + obj -> artifact
-
--- Create "rules" modules under rules/
--- rules are generic rules for c, cpp, exe, slib, dlib, zip, etc.
+--	* Form: files -> artifact
 --
--- c = require("rules/c")
--- Enables build tree entries for
--- [c.rule] - used for artifacts
--- [c.flags] - used by tools
--- [c.defines] - used by tools
--- [c.debug] - used by tools
--- [c.recipe] - defined by tools
---
--- Modules for tools are under tools/
--- tools implement definitions used by rules (clang, gcc, msvc, etc.)
---
--- clang = require("tools/clang")
--- Enables clang toolchain for rules in build
--- build(clang) { ... }
+-- Concepts (in JavaScript):
+--  generate = rule("my_special_file", (defn) => "contents of file")
+--  translate = rule("%.xml", "%.cpp", (defn) => `${defn.tool} ${defn.flags}`)
+--  compile = rule("%.o", "%.cpp", (defn) => `${defn.tool} ${defn.flags}`)
+--  form = rule((defn) => src2obj(defn.src), (defn) => `...`)
 
 require("gene")
 
