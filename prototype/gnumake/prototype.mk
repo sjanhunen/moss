@@ -21,14 +21,7 @@ endef
 # $(call using_arm_cc, myexe)
 # $(call with_debug, myexe)
 
-# TODO: consider ARTIFACT that returns artifact name and expands rules
-# myexe = $(call ARTIFACT, hello.exe, myexe)
-# -OR-
-# $(call ARTIFACT, hello.exe, myexe):
-
-define BUILD
-$(eval $(call $($(strip $2).rules),$(strip $2),$1))
-endef
+ARTIFACT = $(eval $(call $($(strip $2).rules),$(strip $2),$1)) $1
 
 # Explicit approach to definition
 
@@ -93,7 +86,7 @@ $(call MUTATE, opt.debug, $1)
 $(call MUTATE, opt.clang, $1)
 endef
 
-# Create build artifacts by calling BUILD
+# Create build artifacts by calling ARTIFACT
 
 $(info === myexe ===)
 $(call DUMP, myexe)
@@ -102,5 +95,6 @@ $(call DUMP, mylib)
 $(info === other_lib ===)
 $(call DUMP, other_lib)
 
-$(call BUILD, hello.exe, myexe)
-$(call BUILD, hello.lib, mylib)
+all:
+
+all: $(call ARTIFACT, hello.exe, myexe) $(call ARTIFACT, hello.lib, mylib)
