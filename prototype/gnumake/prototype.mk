@@ -1,85 +1,106 @@
-#
-# Test example
-#
+define DEFINE
+$(eval $(call $1,$1))
+endef
 
-M.spores = one two three base
-M.archs = armv5 host armv4
-M.tools = gcc clang
-M.variants = debug release
+define DUMP
+$(foreach v,$(filter $1.%, $(.VARIABLES)),$(info $v=$($v)))
+endef
 
-one.depends = two armv4/three
-one.artifacts = lib1
+define MUTATE
+$(eval $(call $(strip $1),$(strip $2),$(strip $3),$(strip $4),$(strip $5)))
+endef
 
-base.stuff1 = base_stuff_1
-base.stuff2 = another_stuff_1
-base.artifacts = lib2
-armv5/base.stuff_armv5 = special
-armv5/base.artifacts = lib5
-armv4/base.stuff_armv4 = special
-armv4/base.artifacts = lib4
+# TODO: should we create a CLONE? or perhaps combined DEFINE/MUTATE as TEMPLATE?
+# $(call CLONE, myexe, testexe)
+# $(call TEMPLATE, template, my_test_exe, for_clang_x86 for_bob others)
 
-armv5/base.stuff1 = base_stuff_1_armv5
+# TODO: consider creating MUTATION instead of MUTATE
+# This would enable referencing mutations by name directly
+# using_arm_cc = $(call MUTATION, using_arm_cc)
+# ...
+# $(call using_arm_cc, myexe)
+# $(call with_debug, myexe)
 
-two.depends = base
-two.code = src/two.c
-two.artifacts = exe map bin hex
+# TODO: consider ARTIFACT that returns artifact name and expands rules
+# myexe = $(call ARTIFACT, hello.exe, myexe)
+# -OR-
+# $(call ARTIFACT, hello.exe, myexe):
 
-package.depends = two
-package.code = $(armv5/two.artifact.lib) $(two.headers)
-package.artifacts = tarball
+define BUILD
+$(eval $(call $($(strip $2).rules),$(strip $2),$1))
+endef
 
-armv5/two.depends = armv4/base
-armv5/two.c.defines = USE_FPU
-armv5/two.code = $(two.code) src/arm/*
+# Explicit approach to definition
 
-# TODO: consider how core concepts might map back into
-# a pure gnumake-based implementation of moss
-#
-# - Each build is described within a single Makefile
-# - Nested builds are created with recursive make (a very targeted recursion)
-# - Namespace is maintained with 'structures' and sub-processes
-# - Structures can be created with some of the prototype approaches here
-
-# Compare to luamake example
-# Makefile
-TOOLS = clangexe clangcc clangc++
-
-# Explicit approach
 myzip.files = release/main.exe debug/main.exe help.doc release-notes.txt
 myzip.name = release.zip
 myzip.rules = zipfile
 
-# Recursive builds to traverse
-BUILDS = debug/Makefile release/Makefile
+# Compact definitions with DEFINE
 
-ARTIFACTS = myzip
+define myexe
+$1.rules = executable
+$1.src = main.c
+endef
 
-############################
-# debug/Makefile
-############################
+$(call DEFINE, myexe)
 
--include $(HOME)/lib/math.mk
--include $(HOME)/app/main.mk
+define mylib
+$1.src = lib1.c lib2.c
+$1.rules = static_lib
+endef
 
-GENES = debug_build
+$(call DEFINE, mylib)
 
-ARTIFACTS = math_lib main_image
+other_lib = $(mylib)
 
-############################
-# release/Makefile
-############################
+$(call DEFINE, other_lib)
 
--include $(HOME)/lib/math.mk
--include $(HOME)/app/main.mk
+other_lib.src := $(filter-out lib1.c, $(other_lib.src))
 
-GENES = release_build
 
-ARTIFACTS = math_lib main_image
+# Creation of rules using defintions
 
-math_lib.genes += clang.fpu
-math_lib.genes += clang.o3
+define executable
+$2:
+	@echo "Making EXE $$@ with $($1.src)"
+endef
 
-# Back to prototype
+define static_lib
+$2:
+	@echo "Making LIB $$@ with $($1.src)"
+endef
 
-include spore.mk
-include doc.mk
+# Define and componse mutataions using MUTATE
+
+$(call MUTATE, opt.debug, mylib)
+
+define opt.files
+$1.files += $2
+endef
+
+define opt.debug
+$1.cflags += -d -Od
+$1.src += debug.c
+endef
+
+define opt.clang
+endef
+
+define with_myoptions
+$(call MUTATE, opt.files, $1, hello.txt goodbye.txt)
+$(call MUTATE, opt.debug, $1)
+$(call MUTATE, opt.clang, $1)
+endef
+
+# Create build artifacts by calling BUILD
+
+$(info === myexe ===)
+$(call DUMP, myexe)
+$(info === mylib ===)
+$(call DUMP, mylib)
+$(info === other_lib ===)
+$(call DUMP, other_lib)
+
+$(call BUILD, hello.exe, myexe)
+$(call BUILD, hello.lib, mylib)
