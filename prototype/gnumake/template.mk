@@ -25,14 +25,16 @@ exe.TEMPLATES = cpp
 # We could pass the TEMPLATE into the ARTIFACT call
 # Should we call ARTIFACT TEMPLATE instead?
 bin/host/myprogram.exe: $(call ARTIFACT, myprogram, host.exe)
-bin/arm/myprogram.alf: $(call ARTIFACT, myprogram, arm.exe)
-bin/arm/myprogram.bin: $(call ARTIFACT, myprogram, arm.bin)
+# Could we potentially have multiple outputs?
+bin/arm/myprogram.alf bin/arm/myprogram.bin: $(call ARTIFACT, myprogram, arm.exe)
 
-# Or we could insist that each definition already has the TEMPLATE applied?
-# In this case, could we potentially have multiple outputs?
+# Or should we insist that each definition already has the TEMPLATE applied?
+# Could we potentially have multiple outputs?
 myprogram-host.exe: $(call ARTIFACT, myprogram_host)
 bin/arm/myprog.elf bin/arm/myprog.bin: $(call ARTIFACT, myprogram_target)
 
 # Note that if we want object directory structure to follow target directory
-# structure, we can't use this form of ARTIFACT macro. We need to use the form
-# $(call ARTIFACT, bin/host/myprogram.exe, myprogram, ...)
+# structure, we might have trouble with this form of ARTIFACT. We may need
+$(call ARTIFACT, bin/host/myprogram.exe, myprogram, ...)
+
+# Need to carefully examine whether we can automatically match object DIRS to target
