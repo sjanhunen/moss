@@ -22,19 +22,19 @@ exe.PREREQ = $($1.OBJS) $($1.LIBS)
 exe.TEMPLATES = cpp
 
 # How do we associate artifact template with final artifact?
-# We could pass the TEMPLATE into the ARTIFACT call
-# Should we call ARTIFACT TEMPLATE instead?
-bin/host/myprogram.exe: $(call ARTIFACT, myprogram, host.exe)
+# We could pass the TEMPLATE into the TEMPLATE call
+# Should we call TEMPLATE TEMPLATE instead?
+bin/host/myprogram.exe: $(call TEMPLATE, myprogram, host.exe)
 # Could we potentially have multiple outputs?
-bin/arm/myprogram.alf bin/arm/myprogram.bin: $(call ARTIFACT, myprogram, arm.exe)
+bin/arm/myprogram.alf bin/arm/myprogram.bin: $(call TEMPLATE, myprogram, arm.exe)
 
 # Or should we insist that each definition already has the TEMPLATE applied?
 # Could we potentially have multiple outputs?
-myprogram-host.exe: $(call ARTIFACT, myprogram_host)
-bin/arm/myprog.elf bin/arm/myprog.bin: $(call ARTIFACT, myprogram_target)
+myprogram-host.exe: $(call TEMPLATE, myprogram_host)
+bin/arm/myprog.elf bin/arm/myprog.bin: $(call TEMPLATE, myprogram_target)
 
 # Note that if we want object directory structure to follow target directory
-# structure, we might have trouble with this form of ARTIFACT. We may need
-$(call ARTIFACT, bin/host/myprogram.exe, myprogram, ...)
+# structure, we might have trouble with this form of TEMPLATE. We may need
+$(call TEMPLATE, bin/host/myprogram.exe, myprogram, ...)
 
 # Need to carefully examine whether we can automatically match object DIRS to target
