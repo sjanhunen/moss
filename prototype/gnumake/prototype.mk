@@ -22,14 +22,14 @@ endef
 # $(call with_debug, myexe)
 
 # Defining artifacts is through creation of a new target
-# artifact: $(call ARTIFACT, defn)
+# artifact: $(call TEMPLATE, defn)
 #
 # Where
 # defn.templates - templates that are expanded to create all rules and recipes
 # defn.depends - dependencies of final artifact
 # defn.recipe - recipe for final artifact
 
-ARTIFACT = $(eval $(call $(strip $1).template,$(strip $1))) $(call $(strip $1).depends,$(strip $1)); $(call $(strip $1).recipe,$(strip $1))
+TEMPLATE = $(eval $(call $(strip $1).template,$(strip $1))) $(call $(strip $1).depends,$(strip $1)); $(call $(strip $1).recipe,$(strip $1))
 
 # Explicit approach to definition
 
@@ -90,7 +90,7 @@ endef
 hello.depends = hello.lib hello.obj.hello
 
 # Recipes use a special stand-alone definition like below.
-# Spacing and new-lines are not an issue given how ARTIFACT works!
+# Spacing and new-lines are not an issue given how TEMPLATE works!
 define hello.recipe
 @echo "Creating $$@ for $1"
 touch $$@
@@ -106,13 +106,13 @@ endef
 
 .SECONDEXPANSION:
 
-# Create build artifacts by calling ARTIFACT
+# Create build artifacts by calling TEMPLATE
 # Definition of artifacts is very make-like and compact!
 
-hello: $(call ARTIFACT, hello)
-hello_again: $(call ARTIFACT, hello)
-hello.lib: $(call ARTIFACT, mylib)
-hello.exe: $(call ARTIFACT, myexe)
+hello: $(call TEMPLATE, hello)
+hello_again: $(call TEMPLATE, hello)
+hello.lib: $(call TEMPLATE, mylib)
+hello.exe: $(call TEMPLATE, myexe)
 
 
 .PHONY: dump
