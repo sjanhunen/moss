@@ -2,18 +2,21 @@ require("build")
 require("gene")
 
 -- Fundamental concepts:
---  artifact - a fully realized build product (e.g. output file)
+--  artifact - a single fully realized build product
 --  definition - set of key value pairs that define an artifact
---  transcript - set of rules with recipes required to build one artifact
+--  template - set of rules with recipes required to build one artifact
 --
 -- Genetic analogy:
 --  definition (dna) -> mutation (mutate) -> definition (dna)
---  definition (dna) -> rule (transcribe) -> transcript (rna)
---  transcript (rna) -> build (translate) -> artifact (protein)
+--  definition (dna) -> template expansion (transcribe) -> rules with recipes (rna)
+--  rules with recipes (rna) -> build (translate) -> artifacts (proteins)
 --
--- A mutation is a pure function that modifies a definition (mutation.lua)
--- A rule creates a transcript from a definition (rule.lua)
--- A build is used to realize final artifacts by following transcripts (build.lua)
+--  Templates are composed and configured using definitions and mutations.
+--  Rules and recipes are only expanded when artifacts are actuall built by make.
+--
+--  Lua modules for gmake (lmake) are primarily intended to assist with modular
+--  definitions, mutations, and namespace management.
+--  Definition of builds and artifacts will still be done within makefiles.
 
 -- TODO: implement gene sequence
 function sequence(def)
