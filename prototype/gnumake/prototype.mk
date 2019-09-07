@@ -21,7 +21,15 @@ endef
 # $(call using_arm_cc, myexe)
 # $(call with_debug, myexe)
 
-ARTIFACT = $(eval $(call $($(strip $2).rules),$(strip $2),$1)) $1
+# Defining artifacts is through creation of a new target
+# artifact: $(call ARTIFACT, defn)
+#
+# Where
+# defn.templates - templates that are expanded to create all rules and recipes
+# defn.depends - dependencies of final artifact
+# defn.recipe - recipe for final artifact
+
+ARTIFACT = $(eval $(call $(strip $1).template,$(strip $1))) $(call $(strip $1).depends,$(strip $1)); $(call $(strip $1).recipe,$(strip $1))
 
 # Explicit approach to definition
 
@@ -32,15 +40,21 @@ myzip.rules = zipfile
 # Compact definitions with DEFINE
 
 define myexe
-$1.rules = executable
 $1.src = main.c
+endef
+
+define myexe.recipe
+touch $$@
 endef
 
 $(call DEFINE, myexe)
 
 define mylib
 $1.src = lib1.c lib2.c
-$1.rules = static_lib
+endef
+
+define mylib.recipe
+touch $$@
 endef
 
 $(call DEFINE, mylib)
@@ -51,22 +65,7 @@ $(call DEFINE, other_lib)
 
 other_lib.src := $(filter-out lib1.c, $(other_lib.src))
 
-
-# Creation of rules using defintions
-
-define executable
-$2:
-	@echo "Making EXE $$@ with $($1.src)"
-endef
-
-define static_lib
-$2:
-	@echo "Making LIB $$@ with $($1.src)"
-endef
-
-# Define and componse mutataions using MUTATE
-
-$(call MUTATE, opt.debug, mylib)
+# Define and compose mutations using MUTATE
 
 define opt.files
 $1.files += $2
@@ -80,21 +79,50 @@ endef
 define opt.clang
 endef
 
+$(call MUTATE, opt.debug, mylib)
+
 define with_myoptions
 $(call MUTATE, opt.files, $1, hello.txt goodbye.txt)
 $(call MUTATE, opt.debug, $1)
 $(call MUTATE, opt.clang, $1)
 endef
 
+hello.depends = hello.lib hello.obj.hello
+
+# Recipes use a special stand-alone definition like below.
+# Spacing and new-lines are not an issue given how ARTIFACT works!
+define hello.recipe
+@echo "Creating $$@ for $1"
+touch $$@
+endef
+
+# TODO: find a way to define dependencies and recipes individually for templates
+define hello.template
+%.$1.cpp:
+	touch $$@
+%.obj.$1: %.$1.cpp
+	touch $$@
+endef
+
+.SECONDEXPANSION:
+
 # Create build artifacts by calling ARTIFACT
+# Definition of artifacts is very make-like and compact!
 
-$(info === myexe ===)
-$(call DUMP, myexe)
-$(info === mylib ===)
-$(call DUMP, mylib)
-$(info === other_lib ===)
-$(call DUMP, other_lib)
+hello: $(call ARTIFACT, hello)
+hello_again: $(call ARTIFACT, hello)
+hello.lib: $(call ARTIFACT, mylib)
+hello.exe: $(call ARTIFACT, myexe)
 
-all:
 
-all: $(call ARTIFACT, hello.exe, myexe) $(call ARTIFACT, hello.lib, mylib)
+.PHONY: dump
+
+dump:
+	$(info === myexe ===)
+	$(call DUMP, myexe)
+	$(info === mylib ===)
+	$(call DUMP, mylib)
+	$(info === other_lib ===)
+	$(call DUMP, other_lib)
+	$(info === hello ===)
+	$(call DUMP,hello)
