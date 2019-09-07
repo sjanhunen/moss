@@ -1,10 +1,10 @@
-define M.def.expand_struct
+define $_EXPAND
 	$(subst :,=?,$(subst @,$2.,$(call $1,$2)))
 endef
 
-PREFIX.fpu = bobby
+$_PREFIX.fpu = bobby
 
-define STRUCT/sloppy1
+define $_STRUCT/sloppy1
 @one : hello sjdklsd source.c
 @two : bye sdjklsd $($1.fpu)
 	@three:another sfjdkl
@@ -13,7 +13,7 @@ define STRUCT/sloppy1
 	@six: humbug
 endef
 
-define STRUCT/sloppy2
+define $_STRUCT/sloppy2
 @one : hello sjdklsd source.c
 @two : bye sdjklsd $($1.fpu)
 	@three:another sfjdkl
@@ -27,7 +27,10 @@ define STRUCT/sloppy2
 	@lang.c.define: $($0.const.memory_model.$($1.memory_model))
 endef
 
-$(info $(call M.def.expand_struct,STRUCT/sloppy1,PREFIX))
-$(eval $(call M.def.expand_struct,STRUCT/sloppy1,PREFIX))
-$(info $(call M.def.expand_struct,STRUCT/sloppy2,PREFIX))
-$(eval $(call M.def.expand_struct,STRUCT/sloppy2,PREFIX))
+$(info $(call $_EXPAND,$_STRUCT/sloppy1,$_ONE))
+$(eval $(call $_EXPAND,$_STRUCT/sloppy1,$_TWO))
+$(info $(call $_EXPAND,$_STRUCT/sloppy2,$_THREE))
+$(eval $(call $_EXPAND,$_STRUCT/sloppy2,$_FOUR))
+
+$_HELLO=test
+$_BYE=bye
