@@ -125,8 +125,10 @@ $(eval $1.$2.preq: $1.$2.dir; touch $$@)
 $(eval $1.$2.dir: ; mkdir -p $$(dir $$@); touch $$@)
 endef
 
+# Expands all templates for artifact and returns artifact name
 define ARTIFACT
 $(eval $(call _ARTIFACT,$(strip $1),$(strip $2)))
+$(strip $1)
 endef
 
 # The challenge:
@@ -141,10 +143,20 @@ endef
 #
 # Options b and d are looking like to most appealing options.
 
-# Totally non-recursive invocation of make
-$(call ARTIFACT, bin/target/name1.out, table)
-$(call ARTIFACT, bin/target/name2.out, table)
-$(call ARTIFACT, bin/host/name1.out, table)
+# Totally non-recursive invocation of make with useful phony targets
+
+.PHONY: all host target
+
+all: host target
+
+host: $(call ARTIFACT, bin/host/name1.out, table)
+
+target: \
+	$(call ARTIFACT, bin/target/name1.out, table) \
+	$(call ARTIFACT, bin/target/name2.out, table)
+
+# Using ARTIFACT directly requires target syntax
+$(call ARTIFACT, name1.out, table):
 
 # Small recursive invocation of make
 # (cross-build dependencies are tricky)
