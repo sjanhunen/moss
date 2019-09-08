@@ -118,3 +118,47 @@ dump:
 	$(call DUMP, other_lib)
 	$(info === hello ===)
 	$(call DUMP,hello)
+
+define _ARTIFACT
+$1: $1.$2.preq; touch $1
+$(eval $1.$2.preq: $1.$2.dir; touch $$@)
+$(eval $1.$2.dir: ; mkdir -p $$(dir $$@); touch $$@)
+endef
+
+define ARTIFACT
+$(eval $(call _ARTIFACT,$(strip $1),$(strip $2)))
+endef
+
+# The challenge:
+# 	We can only expand $@ within prerequisites or recipes (nowhere else!).
+# 	And adding additional rules only possible for first variable expansion (not second).
+#
+# So, how do we generate rules for prerequisites for each target object directory?
+# a) Invoking make recursively for each individual target (potentially slow)
+# b) Invoking make recursively for each nested build directory (single directory per makefile)
+# c) Basing object directories off of table names rather than target names (possibly confusing)
+# d) Accepting duplication or creation of ARTIFACTS without obvious rules (fastest, least duplication)
+#
+# Options b and d are looking like to most appealing options.
+
+# Totally non-recursive invocation of make
+$(call ARTIFACT, bin/target/name1.out, table)
+$(call ARTIFACT, bin/target/name2.out, table)
+$(call ARTIFACT, bin/host/name1.out, table)
+
+# Small recursive invocation of make
+# (cross-build dependencies are tricky)
+# (much more boilerplate)
+bin: $(call BUILD)
+bin/host: $(call BUILD)
+bin/target: $(call BUILD)
+
+ifeq ($(DIR),bin/host)
+$(DIR)/test1: $(call ARTIFACT, ...)
+$(DIR)/test2: $(call ARTIFACT, ...)
+endif
+
+ifeq ($(BUILD),bin/target)
+$(DIR)/test1: $(call ARTIFACT, ...)
+$(DIR)/test2: $(call ARTIFACT, ...)
+endif
