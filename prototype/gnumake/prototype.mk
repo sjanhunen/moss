@@ -120,14 +120,14 @@ dump:
 	$(call DUMP,hello)
 
 define _ARTIFACT
-$1: $1.$2.preq; touch $1
+$(eval $1: $1.$2.preq; touch $1)
 $(eval $1.$2.preq: $1.$2.dir; touch $$@)
 $(eval $1.$2.dir: ; mkdir -p $$(dir $$@); touch $$@)
 endef
 
 # Expands all templates for artifact and returns artifact name
 define ARTIFACT
-$(eval $(call _ARTIFACT,$(strip $1),$(strip $2)))
+$(call _ARTIFACT,$(strip $1),$(strip $2))
 $(strip $1)
 endef
 
@@ -136,41 +136,23 @@ endef
 # 	And adding additional rules only possible for first variable expansion (not second).
 #
 # So, how do we generate rules for prerequisites for each target object directory?
-# a) Invoking make recursively for each individual target (potentially slow)
-# b) Invoking make recursively for each nested build directory (single directory per makefile)
+# a) Invoking make recursively for each individual target (slow, tricky cross-build dependencies)
+# b) Invoking make recursively for each nested build directory (boilerplate, tricky cross-build dependencies)
 # c) Basing object directories off of table names rather than target names (possibly confusing)
 # d) Accepting duplication or creation of ARTIFACTS without obvious rules (fastest, least duplication)
 #
-# Options b and d are looking like to most appealing options.
+# Option d is looking like the clear winner.
 
-# Totally non-recursive invocation of make with useful phony targets
+# Totally non-recursive invocation of make with useful aggregate targets.
+# Phony targets that do not match build structure can be easily created too.
 
-.PHONY: all host target
+bin: bin/host bin/target
 
-all: host target
+bin/host: $(call ARTIFACT, bin/host/name1.out, table)
 
-host: $(call ARTIFACT, bin/host/name1.out, table)
-
-target: \
+bin/target: \
 	$(call ARTIFACT, bin/target/name1.out, table) \
 	$(call ARTIFACT, bin/target/name2.out, table)
 
 # Using ARTIFACT directly requires target syntax
 $(call ARTIFACT, name1.out, table):
-
-# Small recursive invocation of make
-# (cross-build dependencies are tricky)
-# (much more boilerplate)
-bin: $(call BUILD)
-bin/host: $(call BUILD)
-bin/target: $(call BUILD)
-
-ifeq ($(DIR),bin/host)
-$(DIR)/test1: $(call ARTIFACT, ...)
-$(DIR)/test2: $(call ARTIFACT, ...)
-endif
-
-ifeq ($(BUILD),bin/target)
-$(DIR)/test1: $(call ARTIFACT, ...)
-$(DIR)/test2: $(call ARTIFACT, ...)
-endif
