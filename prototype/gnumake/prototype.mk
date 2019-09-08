@@ -1,3 +1,5 @@
+include template.mk
+
 define DEFINE
 $(eval $(call $1,$1))
 endef
@@ -21,16 +23,6 @@ endef
 # $(call using_arm_cc, myexe)
 # $(call with_debug, myexe)
 
-# Defining artifacts is through creation of a new target
-# artifact: $(call TEMPLATE, defn)
-#
-# Where
-# defn.templates - templates that are expanded to create all rules and recipes
-# defn.depends - dependencies of final artifact
-# defn.recipe - recipe for final artifact
-
-TEMPLATE = $(eval $(call $(strip $1).template,$(strip $1))) $(call $(strip $1).depends,$(strip $1)); $(call $(strip $1).recipe,$(strip $1))
-
 # Explicit approach to definition
 
 myzip.files = release/main.exe debug/main.exe help.doc release-notes.txt
@@ -43,7 +35,7 @@ define myexe
 $1.src = main.c
 endef
 
-define myexe.recipe
+define myexe.RECIPE
 touch $$@
 endef
 
@@ -53,7 +45,7 @@ define mylib
 $1.src = lib1.c lib2.c
 endef
 
-define mylib.recipe
+define mylib.RECIPE
 touch $$@
 endef
 
@@ -87,22 +79,23 @@ $(call MUTATE, opt.debug, $1)
 $(call MUTATE, opt.clang, $1)
 endef
 
-hello.depends = hello.lib hello.obj.hello
+hello.PREREQ = hello.lib hello.obj.hello
 
 # Recipes use a special stand-alone definition like below.
 # Spacing and new-lines are not an issue given how TEMPLATE works!
-define hello.recipe
+define hello.RECIPE
 @echo "Creating $$@ for $1"
 touch $$@
 endef
 
-# TODO: find a way to define dependencies and recipes individually for templates
-define hello.template
-%.$1.cpp:
-	touch $$@
-%.obj.$1: %.$1.cpp
-	touch $$@
-endef
+cpp.RECIPE = touch $$@
+cpp.TARGET = %.obj.$1
+cpp.PREREQ = %.cpp
+
+cppgen.RECIPE = touch $$@
+cppgen.TARGET = %.cpp
+
+hello.RULES = cpp cppgen
 
 .SECONDEXPANSION:
 
@@ -113,7 +106,6 @@ hello: $(call TEMPLATE, hello)
 hello_again: $(call TEMPLATE, hello)
 hello.lib: $(call TEMPLATE, mylib)
 hello.exe: $(call TEMPLATE, myexe)
-
 
 .PHONY: dump
 
