@@ -29,7 +29,51 @@ myzip.files = release/main.exe debug/main.exe help.doc release-notes.txt
 myzip.name = release.zip
 myzip.rules = zipfile
 
-# Compact definitions with DEFINE
+# Compact definitions with TABLEs
+#
+# Option 1
+#
+# variant1 = my_table
+#
+# $(call TABLE, variant1, mutation1 mutation2)
+#
+# variant2 = my_table $(call TABLE, variant2, mutation1 mutation2)
+#
+# These approaches will always work regardless of the value of the mutations.
+#
+# There is value in making definition explicit with assignment either way.  The
+# question is mainly over how tables are expanded and mutated.  Mutating in
+# multiple steps is potentially risky as it may give the false impression that
+# the table value can be used in the intermediate stages safely. It is more
+# robust to define a table with all mutations at once.
+#
+# Option 2
+#
+# Expand tables at the latest possible time. Keep them in variables for as long as possible.
+#
+# define my_table
+# ...
+# endef
+#
+# define mutationN
+# ...
+# endef
+#
+# variant1 = $(call COMPOSE, my_table mutation1 mutation2)
+#
+# variant2 = $(call COMPOSE, my_table mutation3 mutation4)
+#
+# Nothing is expanded at this point. The table definitions are only
+# concatenated at this point.  COMPOSE needs to be very careful not to expand
+# anything. Note that my_table is evaluated no differently than the mutations.
+# The values of the variables are simply combined in order.
+#
+# Expansion and evaluation must be done later:
+#
+# $(call EXPAND, variant1)
+# $(call EXPAND, variant2)
+#
+# This could also happen automatically as part of ARTIFACT.
 
 define myexe
 $1.src = main.c
