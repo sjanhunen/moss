@@ -115,3 +115,19 @@ $(eval $(call goodbye,goodbye))
 
 $(call DUMP, hello)
 $(call DUMP, goodbye)
+
+
+# We could use $0 for name rather than $1.
+# This is more in light with gnumake intended use.
+define another
+$0.files = another.c
+endef
+
+$(eval $(call another))
+$(call DUMP, another)
+
+# Cloning is this easy
+another_copy = $(another)
+
+$(eval $(call another_copy))
+$(call DUMP, another_copy)
