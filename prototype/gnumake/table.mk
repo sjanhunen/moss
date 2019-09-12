@@ -11,26 +11,58 @@ myzip.files = release/main.exe debug/main.exe help.doc release-notes.txt
 myzip.name = release.zip
 myzip.rules = zipfile
 
-# Option 2: Implicit with explicit mutation steps
+# Using $1 for mutations is important if we ever want to
+# add arguments or reference the base definition name
+
+base_table.const = 42
+
+define base_table
+$1.the_number = $($0.const)
+endef
+
+# Option 2: Implicit table with explicit list of mutations
+
+define mutation1
+	$1.files += mfile1
+endef
+
+define mutation2
+	$1.output = myoutput
+	$1.target_in_rule = $$@
+endef
+
+# TODO: how can we insert base mutation here before all definitions?
+define my_table
+	$1.extends = base_table
+	$1.files = myfile1 myfile2
+	$1.mutations = mutation1 mutation2
+endef
+
+$(eval $(call my_table,my_table))
+$(foreach m,$(my_table.mutations),$(eval $(call $m,my_table)))
+$(call DUMP, my_table)
+
+# Option 3: Implicit table with explicit call to each mutation at any point
 #
-# variant1 = my_table
-#
-# $(call TABLE, variant1, mutation1 mutation2)
-#
-# variant2 = my_table $(call TABLE, variant2, mutation1 mutation2)
-#
-# These approaches will always work regardless of the value of the mutations.
-#
-# There is value in making definition explicit with assignment either way.  The
-# question is mainly over how tables are expanded and mutated.  Mutating in
-# multiple steps is potentially risky as it may give the false impression that
-# the table value can be used in the intermediate stages safely. It is more
-# robust to define a table with all mutations at once.
-#
+# The advantage of call is $0 always operates as expected in any mutation
+# and arguments can be used when necessary.
+# The trouble with call is the risk of space!
+
+define my_table_2
+	$(call base_table,$1)
+
+	$1.files = myfile1 myfile2
+
+	$(call mutation1,$1)
+	$(call mutation2,$1)
+endef
+
+
+$(eval $(call my_table_2,my_table_2))
+$(call DUMP, my_table_2)
+
 
 # Option 3: Implicit with composition outside definition 
-#
-# Expand tables at the latest possible time. Keep them in variables for as long as possible.
 #
 # define my_table
 # ...
@@ -40,16 +72,14 @@ myzip.rules = zipfile
 # ...
 # endef
 #
-# variant1 = $(call COMPOSE, my_table mutation1 mutation2)
+# variant1 = my_table mutation1 mutation2
 #
-# variant2 = $(call COMPOSE, my_table mutation3 mutation4)
+# variant2 = base_table my_table mutation3 mutation4
 #
-# Nothing is expanded at this point. The table definitions are only
-# concatenated at this point.  COMPOSE needs to be very careful not to expand
-# anything. Note that my_table is evaluated no differently than the mutations.
-# The values of the variables are simply combined in order.
+# Nothing is expanded or combined at this point. The table definitions are only
+# concatenated at this point.
 #
-# Expansion and evaluation must be done later:
+# Concatenation and evaluation could check for existence of everything.
 #
 # $(call EXPAND, variant1)
 # $(call EXPAND, variant2)
@@ -92,13 +122,17 @@ $(with_my_binfile)
 $(detect_aux)
 endef
 
+define filter_out_aux
+$1.cflags += $$(if $$(filter aux.%,$$($1.src)),-DAUX=1)
+endef
+
 # Defining an artifact is compact
 define hello
 $1.src = main.c aux.c other.c
 $1.cflags += -DSPECIAL=1
 # Even conditionals aren't too bad
-$1.cflags += $$(if $$(filter aux.%,$$($1.src)),-DAUX=1)
 $1.files += $$($1.src)
+$(call filter_out_aux,$1)
 $(with_hello_options)
 endef
 
@@ -115,19 +149,3 @@ $(eval $(call goodbye,goodbye))
 
 $(call DUMP, hello)
 $(call DUMP, goodbye)
-
-
-# We could use $0 for name rather than $1.
-# This is more in light with gnumake intended use.
-define another
-$0.files = another.c
-endef
-
-$(eval $(call another))
-$(call DUMP, another)
-
-# Cloning is this easy
-another_copy = $(another)
-
-$(eval $(call another_copy))
-$(call DUMP, another_copy)
