@@ -1,24 +1,16 @@
-# Templates are used to create the rules and recipes required for
+# Templates are used to create the rules and recipes required by
 # artifacts and their associated prerequisites.
 #
 # A template has the following table members:
 # 	RECIPE - the command(s) used to create the artifact or intermediate
 # 	PREREQ - any dependencies required by the final artifact
 # 	TARGET - for intermediates, the implicit target pattern
-# 	RULES - for artifacts that have prerequisites
 #
-# TODO: refactor to adopt this new approach to artifact templates
-#
-# $(call ARTIFACT, bin/host/myprogram.exe, myprogram)
-# $(call ARTIFACT, bin/host/mylibrary.ar, mylib)
+# Templates are used to create both final artifacts and intermediates.
+# An artifact definition must include all templates required by the artifact.
 
-define _RULES
-$(call $1.TARGET,$2): $(call $1.PREREQ,$2); $(call $1.RECIPE,$2)
+define EVAL_TEMPLATE
+$(if $($1),,$(error No template definition for '$1'))
+$(eval $(call $1,$(strip $1),$(strip $2),$3))
+$(eval $($1.TARGET): $($1.PREREQ); $(value $1.RECIPE))
 endef
-
-define _TEMPLATE
-$(call $1.PREREQ,$1); $(call $1.RECIPE,$1)
-$(foreach t,$($1.RULES),$(eval $(call _RULES,$t,$1)))
-endef
-
-TEMPLATE = $(call _TEMPLATE,$(strip $1))
