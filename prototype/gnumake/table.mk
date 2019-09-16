@@ -149,3 +149,23 @@ $(eval $(call goodbye,goodbye))
 
 $(call DUMP, hello)
 $(call DUMP, goodbye)
+
+# TODO: would it make sense to use custom template
+# expansions with {} or []
+define exe
+$1.PREREQ = {artifact.obj} | {artifact.dir}
+$1.TARGET = {@}
+$1.RECIPE = touch {@}
+endef
+
+# OR what about general table expansions?
+# [name] could be a shorthand for $(table.name)
+# But that still doesn't help for other calls that need to be deferred
+define atable
+$_.key1 = [key3]
+$_.key2 = bob
+endef
+
+# Or could we create an expansion that automatically substitutes
+# $_ for table name
+# Any other $ for $$
