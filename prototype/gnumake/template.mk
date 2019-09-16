@@ -9,7 +9,11 @@
 # Templates are used to create both final artifacts and intermediates.
 # An artifact definition must include all templates required by the artifact.
 
-define EVAL_TEMPLATE
+# Variables like this can make arguments more readable within templates
+TEMPLATE.objdir = $3.$2.dir
+TEMPLATE.target = $3
+
+define _TEMPLATE
 $(if $($1),,$(error No template definition for '$1'))
 $(eval $(call $1,$(strip $1),$(strip $2),$3))
 $(eval $($1.TARGET): $($1.PREREQ); $(value $1.RECIPE))

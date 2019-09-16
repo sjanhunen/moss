@@ -8,7 +8,7 @@ endef
 # is that artifact-specific values are required.
 define _ARTIFACT
 $(eval $(call $2,$2))
-$(eval $(foreach t,$($2.templates),$(call EVAL_TEMPLATE,$t,$2,$1)))
+$(eval $(foreach t,$($2.templates),$(call _TEMPLATE,$t,$2,$1)))
 $(eval $1.$2.dir: ; mkdir -p $$(dir $$@); touch $$@)
 endef
 
@@ -35,14 +35,14 @@ endef
 # Phony targets that do not match build structure can be easily created too.
 
 define cobj
-$1.PREREQ = %.c | $3.$2.dir
+$1.PREREQ = %.c | $(TEMPLATE.objdir)
 $1.TARGET = bin/%.o
 $1.RECIPE = touch $$@
 endef
 
 define exe
-$1.PREREQ = $$($2.obj) | $3.$2.dir
-$1.TARGET = $3
+$1.PREREQ = $$($2.obj) | $(TEMPLATE.objdir)
+$1.TARGET = $(TEMPLATE.target)
 $1.RECIPE = touch $$@
 endef
 
