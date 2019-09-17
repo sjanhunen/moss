@@ -8,7 +8,7 @@ endef
 # is that artifact-specific values are required.
 define _ARTIFACT
 $(eval $(call $2,$2))
-$(eval $(foreach t,$($2.templates),$(call _TEMPLATE,$t,$2,$1)))
+$(eval $(foreach t,$($2.templates),$(call TEMPLATE,$t,$2,$1)))
 $(eval $1.$2.dir: ; mkdir -p $$(dir $$@); touch $$@)
 endef
 
@@ -34,20 +34,18 @@ endef
 # Totally non-recursive invocation of make with useful aggregate targets.
 # Phony targets that do not match build structure can be easily created too.
 
-define cobj
-$1.PREREQ = %.c | $(TEMPLATE.objdir)
-$1.TARGET = bin/%.o
-$1.RECIPE = touch $$@
+define c.template
+bin/%.o: %.c | $(TEMPLATE.objdir)
+	touch $$@
 endef
 
-define exe
-$1.PREREQ = $$($2.obj) | $(TEMPLATE.objdir)
-$1.TARGET = $(TEMPLATE.target)
-$1.RECIPE = touch $$@
+define exe.template
+$(TEMPLATE.target): $($2.obj) | $(TEMPLATE.objdir)
+	touch $$@
 endef
 
 define table
-$1.templates = cobj exe
+$1.templates = c.template exe.template
 $1.obj = bin/$1.o
 endef
 
