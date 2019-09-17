@@ -122,23 +122,29 @@ $(with_my_binfile)
 $(detect_aux)
 endef
 
-define filter_out_aux
+# It is possible to hide some of the trickier expansions
+# behind functions
+define flag_for_aux
 $1.cflags += $$(if $$(filter aux.%,$$($1.src)),-DAUX=1)
 endef
+
+# Common definitions can be placed in the base definition
+# and remain accessible through $0 so long as the base
+# definition is expanded through call
+hello.common_src = common1.c common2.c
 
 # Defining an artifact is compact
 define hello
 $1.src = main.c aux.c other.c
 $1.cflags += -DSPECIAL=1
-# Even conditionals aren't too bad
-$1.files += $$($1.src)
-$(call filter_out_aux,$1)
+$1.files += $($0.common_src)
+$(flag_for_aux)
 $(with_hello_options)
 endef
 
 # Cloning and extending is easy
 define goodbye
-$(hello)
+$(call hello, $1)
 $(with_debug)
 $(with_my_binfile)
 $1.src += goodbye.c
@@ -150,22 +156,29 @@ $(eval $(call goodbye,goodbye))
 $(call DUMP, hello)
 $(call DUMP, goodbye)
 
-# TODO: would it make sense to use custom template
-# expansions with {} or []
-define exe
-$1.PREREQ = {artifact.obj} | {artifact.dir}
-$1.TARGET = {@}
-$1.RECIPE = touch {@}
+# It may be possible to make use of custom expansions such as
+# - {name} or [name] for table members (table.name) 
+# - $_ for table name
+# - Replacing $ with $$
+#
+# However, this adds a layer of hidden complexity and will be difficult
+# to get correct for all cases.
+
+# It is much better to live with the need to use $$ explicitly in cases where a
+# reference to the table itself is made or an automatic variable must be
+# expanded later. It is possible to use explicit variable definition to clarify
+# the names of arguments to functions and clean up some of the escaping. For
+# example:
+
+template.target = $1
+template.artifact = $2
+
+define my_template
+$(template.target): $($(template.artifact).obj)
+	@echo Building $$@
+	@touch $$@
 endef
 
-# OR what about general table expansions?
-# [name] could be a shorthand for $(table.name)
-# But that still doesn't help for other calls that need to be deferred
-define atable
-$_.key1 = [key3]
-$_.key2 = bob
-endef
+myexe.obj = myexe.o
 
-# Or could we create an expansion that automatically substitutes
-# $_ for table name
-# Any other $ for $$
+$(info $(call my_template,target.exe,myexe))
