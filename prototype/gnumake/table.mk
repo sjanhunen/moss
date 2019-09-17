@@ -161,8 +161,10 @@ $(call DUMP, goodbye)
 # - $_ for table name
 # - Replacing $ with $$
 #
-# However, this adds a layer of hidden complexity and will be difficult
-# to get correct for all cases.
+# However, this adds a layer of hidden complexity and will be difficult to get
+# correct for all cases. The bracket member replacement does have some merit
+# and is worth at least considering. It could streamline table and template
+# definitions if successful.
 
 # It is much better to live with the need to use $$ explicitly in cases where a
 # reference to the table itself is made or an automatic variable must be
