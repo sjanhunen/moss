@@ -44,6 +44,16 @@ $(TEMPLATE.target): $($2.obj) | $(TEMPLATE.objdir)
 	touch $$@
 endef
 
+# TODO: We should just specify the artifact name as part of the definition.
+# This is because there is no easy way to compose tables in-line with target
+# definitions. By default, the artifact name could default to the table name.
+# This makes specializing artifacts very compact and guarantees a unique table
+# name per artifact.
+#
+# And creating targets is clean too:
+#
+# all: $(call ARTIFACT, bin/artifact1) # $(call ARTIFACT, bin/artifact2)
+
 define table
 $1.templates = c.template exe.template
 $1.obj = bin/$1.o
