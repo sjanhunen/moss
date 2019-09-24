@@ -3,20 +3,24 @@ require("gene")
 
 -- Fundamental concepts:
 --  artifact - a single fully realized build product
---  definition - set of key value pairs that define an artifact
---  template - set of rules with recipes required to build one artifact
+--  table - set of key value pairs used to define an artifact
+--  template - a recipe with associated rule required to build one artifact
+--  build - set or subseet of artifacts defined within a makefile
 --
 -- Genetic analogy:
---  definition (dna) -> mutation (mutate) -> definition (dna)
---  definition (dna) -> template expansion (transcribe) -> rules with recipes (rna)
---  rules with recipes (rna) -> build (translate) -> artifacts (proteins)
+--  table (dna) -> mutation (mutate) -> table (dna)
+--  table (dna) -> template (transcribe) -> recipe (rna)
+--  recipe (rna) -> tool (translate) -> artifact (proteins)
 --
---  Templates are composed and configured using definitions and mutations.
---  Rules and recipes are only expanded when artifacts are actuall built by make.
+--  Template rules are used to contol when recipes are expanded and tools are
+--  invoked.
 --
---  Lua modules for gmake (lmake) are primarily intended to assist with modular
---  definitions, mutations, and namespace management.
---  Definition of builds and artifacts will still be done within makefiles.
+--  Templates are composed and configured using tables and mutations.  Rules
+--  and recipes are only expanded when artifacts are actuall built by make.
+--
+--  Lua modules for gmake (luamake) are primarily intended to assist with
+--  modular table definitions, mutations, and namespace management.  Definition
+--  of builds and artifacts will still be done within makefiles.
 
 -- TODO: implement gene sequence
 function sequence(def)
