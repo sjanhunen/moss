@@ -8,6 +8,7 @@ endef
 # is that artifact-specific values are required.
 define _ARTIFACT
 $(eval $(call $1,$1))
+$(eval $1.name ?= $1)
 $(eval $(foreach t,$($1.templates),$(call TEMPLATE,$t,$1)))
 $(eval $1.dir: ; mkdir -p $$(dir $$@); touch $$@)
 endef
@@ -56,33 +57,21 @@ endef
 
 bin: bin/host bin/target
 
-define bin/host/name1.out 
-$(table)
-$1.name = $0
-endef
+# Easily clone tables with default artifact names
+bin/host/name1.out = $(table)
+bin/target/name1.out = $(table)
+bin/target/name2.out = $(table)
 
 bin/host: $(call ARTIFACT, bin/host/name1.out)
-
-define bin/target/name1.out 
-$(table)
-$1.name = $0
-endef
-
-define bin/target/name2.out 
-$(table)
-$1.name = $0
-endef
 
 # TODO: why does build fail if both artifacts are on same line?
 bin/target: $(call ARTIFACT, bin/target/name1.out)
 bin/target: $(call ARTIFACT, bin/target/name2.out)
 
-define name1.out
+define special
 $(table)
-$1.name = $0
+$1.name = special_name.out
 endef
 
-$(call DUMP,name1.out)
-
 # Using ARTIFACT directly requires target syntax
-$(call ARTIFACT, name1.out):
+$(call ARTIFACT, special):
