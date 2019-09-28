@@ -1,7 +1,7 @@
-require("gene")
+require("mutation")
 require("build")
 
-describe("gene", function()
+describe("mutation", function()
     local substr = function(match, replace)
         return function(entry)
             return entry:gsub(match, replace)
@@ -18,14 +18,14 @@ describe("gene", function()
     end
 
     it("applies single operation", function()
-        local fn = gene { name = substr("before", "after") }
+        local fn = mutation { name = substr("before", "after") }
         local output = fn { name = "before" }
         assert.are.same("after", output.name)
     end)
 
     it("copies build table before applying operation", function()
         local input = { name = "before" }
-        local fn = gene { name = substr("before", "after") }
+        local fn = mutation { name = substr("before", "after") }
         local output = fn(input)
         assert.are.same("before", input.name)
         assert.are.same("after", output.name)
@@ -33,7 +33,7 @@ describe("gene", function()
 
     it("copies table member before applying operation", function()
         local input = { name = { "before" } }
-        local fn = gene { name = subitems("before", "after") }
+        local fn = mutation { name = subitems("before", "after") }
         local output = fn(input)
         assert.are.same({"before"}, input.name)
         assert.are.same({"after"}, output.name)
@@ -45,7 +45,7 @@ describe("gene", function()
             { name = { "before2" } };
             { name = { "before3" } };
         }
-        local fn = gene { name = subitems("before", "after") }
+        local fn = mutation { name = subitems("before", "after") }
         local output = fn(input)
         assert.are.same({ "after1" }, output.name)
         assert.are.same({ "after2" }, output[1].name)

@@ -5,7 +5,7 @@
 --	A build may contain nested builds.
 --	A build is not an artifact.
 --  Complex builds are composed hierarchically out of artifacts and other builds.
---  Genes can be applied to all artifacts recursively when composing builds.
+--  Mutations can be applied to all artifacts recursively when composing builds.
 --	All output filenames are defined explicitly within build nodes.
 --  The root is simply the topmost build containing all nested builds.
 --  Nested builds are used to define build tree subdirectories.
@@ -18,7 +18,7 @@
 --   subdir = build { ... }
 --  }
 --
--- Gene sequences can be applied to builds in place
+-- Mutations can be applied to builds in place
 --
 --  build(g1, g2, g3) { ... }
 --
@@ -46,7 +46,7 @@
 --
 -- TBD: Are artifacts built before or after steps if they are combined?
 
-require("gene")
+require("mutation")
 
 function extend(variable, value)
     return function(bt)

@@ -1,28 +1,24 @@
--- A gene is the lowest level building block used to create software build products.
--- It is defined through a structure of pairs that ultimately express an artifact.
--- A pair operates on a single base artifact defintion.
+-- A mutation is a function that is used to transform a table definition in some way.
 --
--- Example: definition of gene with operator pairs (op1/op2 are functions)
--- 	g2 = gene { p1 = op1; p2 = op2 }
+-- Example: definition of mutation with operator pairs (op1/op2 are functions)
+-- 	g2 = mutation { p1 = op1; p2 = op2 }
 --
--- Example: definition of gene with parameter pairs only
---  g1 = gene { p1 = "file.c", p2 = "name" }
+-- Example: definition of mutation with parameter pairs only
+--  g1 = mutation { p1 = "file.c", p2 = "name" }
 --
 -- A pair operator transforms the parameter to which it has been assigned.
 -- A pair definition sets the parameter to which it has been assigned.
 --
--- Genes can be composed to create more complex gene sequences.
--- The order of genes in a sequence is significant.
+-- mutations can be composed to create more complex mutation sequences.
+-- The order of mutations in a sequence is significant.
 -- This is because operators are not guaranteed to be commutative.
 --
--- Example: composition of genes
---  g4 = gene(g1, g2, g3)
+-- Example: composition of mutations
+--  m4 = mutation(m1, m2, m3)
 --
 -- This returns a function that may be evaluated as follows
 --
---  g4(<defn>) or g4 { <defn> }
---
--- Sequences may be composed with other genes and sequences.
+--  m4(<defn>) or m4 { <defn> }
 
 function deepcopy(bt)
     local copy = {}
@@ -66,7 +62,7 @@ function apply(bt, operation)
     return bt;
 end
 
-function gene(operation)
+function mutation(operation)
     return function(bt)
         return apply(bt, operation)
     end
