@@ -1,23 +1,6 @@
 require("build")
 require("gene")
 
--- Fundamental concepts:
---  artifact - a single fully realized build product
---  table - set of key value pairs used to define an artifact
---  template - a recipe with associated rule required to build one artifact
---  build - set or subseet of artifacts defined within a makefile
---
--- Genetic analogy:
---  table (dna) -> mutation (mutate) -> table (dna)
---  table (dna) -> template (transcribe) -> recipe (rna)
---  recipe (rna) -> tool (translate) -> artifact (proteins)
---
---  Template rules are used to contol when recipes are expanded and tools are
---  invoked.
---
---  Templates are composed and configured using tables and mutations.  Rules
---  and recipes are only expanded when artifacts are actuall built by make.
---
 --  Lua modules for gmake (luamake) are primarily intended to assist with
 --  modular table definitions, mutations, and namespace management.  Definition
 --  of builds and artifacts will still be done within makefiles.
