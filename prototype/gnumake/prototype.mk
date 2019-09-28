@@ -7,16 +7,16 @@ endef
 # The trouble with evaluating the template before this point
 # is that artifact-specific values are required.
 define _ARTIFACT
-$(eval $(call $2,$2))
-$(eval $(foreach t,$($2.templates),$(call TEMPLATE,$t,$2,$1)))
-$(eval $1.$2.dir: ; mkdir -p $$(dir $$@); touch $$@)
+$(eval $(call $1,$1))
+$(eval $(foreach t,$($1.templates),$(call TEMPLATE,$t,$1)))
+$(eval $1.dir: ; mkdir -p $$(dir $$@); touch $$@)
 endef
 
 # Expands all templates for artifact and returns artifact name
 # We use strip here to cleanup extra white space.
 define ARTIFACT
-$(strip $(call _ARTIFACT,$(strip $1),$(strip $2)))
-$(strip $1)
+$(strip $(call _ARTIFACT,$(strip $1)))
+$($(strip $1).name)
 endef
 
 # The challenge:
@@ -44,15 +44,10 @@ $(TEMPLATE.target): $($2.obj) | $(TEMPLATE.objdir)
 	touch $$@
 endef
 
-# TODO: We should just specify the artifact name as part of the definition.
-# This is because there is no easy way to compose tables in-line with target
-# definitions. By default, the artifact name could default to the table name.
-# This makes specializing artifacts very compact and guarantees a unique table
-# name per artifact.
-#
-# And creating targets is clean too:
-#
-# all: $(call ARTIFACT, bin/artifact1) # $(call ARTIFACT, bin/artifact2)
+# We specify the artifact name as part of the definition. This is because there
+# is no easy way to compose tables in-line with target definitions. By default,
+# the artifact name could default to the table name. This makes specializing
+# artifacts very compact and guarantees a unique table name per artifact.
 
 define table
 $1.templates = c.template exe.template
@@ -61,11 +56,33 @@ endef
 
 bin: bin/host bin/target
 
-bin/host: $(call ARTIFACT, bin/host/name1.out, table)
+define bin/host/name1.out 
+$(table)
+$1.name = $0
+endef
+
+bin/host: $(call ARTIFACT, bin/host/name1.out)
+
+define bin/target/name1.out 
+$(table)
+$1.name = $0
+endef
+
+define bin/target/name2.out 
+$(table)
+$1.name = $0
+endef
 
 # TODO: why does build fail if both artifacts are on same line?
-bin/target: $(call ARTIFACT, bin/target/name1.out, table)
-bin/target: $(call ARTIFACT, bin/target/name2.out, table)
+bin/target: $(call ARTIFACT, bin/target/name1.out)
+bin/target: $(call ARTIFACT, bin/target/name2.out)
+
+define name1.out
+$(table)
+$1.name = $0
+endef
+
+$(call DUMP,name1.out)
 
 # Using ARTIFACT directly requires target syntax
-$(call ARTIFACT, name1.out, table):
+$(call ARTIFACT, name1.out):
