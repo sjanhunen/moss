@@ -1,17 +1,9 @@
 require("build")
-require("gene")
+require("mutation")
 
 --  Lua modules for gmake (luamake) are primarily intended to assist with
 --  modular table definitions, mutations, and namespace management.  Definition
 --  of builds and artifacts will still be done within makefiles.
-
--- TODO: implement gene sequence
-function sequence(def)
-    return {}
-end
-
--- TODO: refactor gene as mutation
-mutation = gene
 
 -- TODO: implement this artifact
 function executable(def)
@@ -54,14 +46,12 @@ clang = {
     fpu = mutation { cflags = append "-fpu" };
 };
 
-arch_arm = sequence(
-    clang.cc, clang.ld, clang.armcm4, clang.fpu, clang.thumb)
-arch_x86 = sequence(
-    clang.cc, clang.ar, clang.x86_64, clang.fpu)
+arch_arm = mutation(clang.cc, clang.ld, clang.armcm4, clang.fpu, clang.thumb)
+arch_x86 = mutation(clang.cc, clang.ar, clang.x86_64, clang.fpu)
 
-arm_exe = function(def) return executable(sequence(arch_arm, def)) end
+arm_exe = function(def) return executable(mutation(arch_arm, def)) end
 arm_bin = function(def) return executable() end
-host_exe = function(def) return executable(sequence(arch_x86, def)) end
+host_exe = function(def) return executable(mutation(arch_x86, def)) end
 
 concept = build {
     arm = build {
