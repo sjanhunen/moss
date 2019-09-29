@@ -2,7 +2,7 @@
 
 This document is a journal of implementation considerations, tradeoffs, and decisions encountered during the implementation of Moss.
 
-== Structure Definition
+== Table Definition
 
 A significant challenge in writing large makefiles is structuring and scoping the large number of variable definitions required.
 
@@ -18,7 +18,7 @@ util.depends = common
 
 This approach leads to significant duplication and requires that the group is 'registered' using a global list (`M.spores` in this case).
 
-Another approach is a more traditional structure definition that can automatically be expanded into individual makefile variables using pattern replacement.
+Another approach is a more traditional table definition that can automatically be expanded into individual makefile variables using pattern replacement.
 
 [source,makefile]
 ----
@@ -30,7 +30,7 @@ endef
 ----
 
 This eliminates much of the duplication and is fairly readable.
-No registration variable is required to register these structures.
+No registration variable is required to register these tables.
 They can simply be discovered by name using the path-style prefix.
 
 Error handling may be more difficult or cryptic, since evaluating the definition won't allow a specific line to be cited if make encounters a syntax error.
@@ -63,6 +63,11 @@ util = library "utility" {
 
 This approach is the most promising since the full expressive power of Lua can be harnessed to create a DSL specifically for Moss.
 Syntax checking is provided by the Lua compiler itself. Additional checks can be built through careful creation of the DSL definition functions.
+
+As an alternative, YAML files could be used as a way to create table and variable definitions with a very compact and readable syntax.
+A special gnumake extension (e.g. `$(yaml ...)`) could then be created to load YAML files as namespaced variable definitions.
+Table and template definition could then be expressed almost fully in YAML files.
+Final table composition for artifact definition would still take place in makefiles.
 
 == Dependency Generation
 
