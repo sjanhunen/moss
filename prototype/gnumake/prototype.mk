@@ -46,11 +46,8 @@ bin/host/name1.out = $(host_output)
 
 bin/host: $(call ARTIFACT, bin/host/name1.out)
 
-# TODO: why does build fail if both artifacts are on same line?
-bin/target: $(call ARTIFACT, target_output1)
-bin/target: $(call ARTIFACT, target_output2)
-
-# TODO: consider extending ARTIFACT to accepts pattern like target_% or bin/xyz/%
+# TODO: extend ARTIFACT to accepts pattern like target_% or bin/xyz/%
+bin/target: $(call ARTIFACT, target_output1) $(call ARTIFACT, target_output2)
 
 define special1
 $(table)

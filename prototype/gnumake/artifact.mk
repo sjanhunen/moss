@@ -30,9 +30,9 @@ $(eval $(foreach t,$($1.templates),$(call TEMPLATE,$t,$1)))
 $(if $(_has_obj_dir),$(eval $($1.name).dir: ; mkdir -p $$(dir $$@); touch $$@))
 endef
 
-# Expands all templates for artifact and returns artifact name
-# We use strip here to cleanup extra white space.
+# Expands table and templates for artifact and returns final artifact name.
+# This must happen in a single line to support multiple ARTIFACTs
+# as dependencies of a single target in one line.
 define ARTIFACT
-$(strip $(call _ARTIFACT,$(strip $1)))
-$($(strip $1).name)
+$(strip $(call _ARTIFACT,$(strip $1))) $($(strip $1).name)
 endef
