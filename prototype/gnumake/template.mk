@@ -7,8 +7,13 @@
 # An artifact definition must include all templates required by the artifact.
 
 # Define named arguments for readability within templates
-TEMPLATE.objdir = $1.dir
-TEMPLATE.target = $$($1.name)
+
+define _has_obj_dir
+$(filter-out ./,$($1.dir))
+endef
+
+TEMPLATE.objdir = $(if $(_has_obj_dir),$($1.name).dir)
+TEMPLATE.target = $($1.name)
 
 define TEMPLATE
 $(if $($1),,$(error No template definition for '$1'))
