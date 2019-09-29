@@ -50,7 +50,7 @@ bin/host: $(call ARTIFACT, bin/host/name1.out)
 bin/target: $(call ARTIFACT, target_output1)
 bin/target: $(call ARTIFACT, target_output2)
 
-# TODO: consider extending ARTIFACT to accepts pattern like target_%
+# TODO: consider extending ARTIFACT to accepts pattern like target_% or bin/xyz/%
 
 define special1
 $(table)
