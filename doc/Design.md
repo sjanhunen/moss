@@ -7,10 +7,16 @@ multiple variants, artifacts, and toolchains.
 
 ## Fundamental Concepts
 
-The design of Moss is based on four fundamental concepts. These concepts
-enforce a healthy separation of concerns but still allow for great
-flexibility in application. These concepts help avoid many pitfalls of more
-traditional makefile-based build systems.
+The design of Moss is based on a few fundamental concepts that encourage a
+healthy separation of several important concerns:
+
+1. Definition of the software itself
+2. Definition of the build rules and recipes
+3. Layout and names of the build artifacts 
+4. Selection and configuration of the build tools
+
+This separation of concerns helps avoid many pitfalls of more traditional
+makefile-based build systems.
 
 ### Builds
 
