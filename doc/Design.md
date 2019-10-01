@@ -5,31 +5,26 @@ software builds with many artifacts. Moss makes it easy to create and manage
 the makefile rules, recipes, and dependencies required for builds with
 multiple variants, artifacts, and toolchains.
 
-## Fundamental Concepts
-
-The design of Moss is based on a few fundamental concepts that encourage a
-healthy separation of several important concerns:
-
-1. Definition of the software itself
-2. Definition of the build rules and recipes
-3. Layout and names of the build artifacts 
-4. Selection and configuration of the build tools
-
-This separation of concerns helps avoid many pitfalls of more traditional
-makefile-based build systems.
-
-### Builds
+## Build Concepts
 
 A build is defined as a single (non-recursive) invocation of `make` that
-creates some or all makefile targets.
+creates some or all makefile targets. This avoids the pitfalls of recursive
+make that have been well documented in the paper "Recursive Make Considered
+Harmful".
 
 As part of the build concept, Moss intentionally avoids formalizing support
 for multiple architectures, platforms, or variants. Instead, this type of specialization
 is handled explicitly on a case by case basis as build artifacts are defined.
 
-Pitfalls:
-- recursive application of make
-- attempting to formalize concepts that are highly application and artifact specific
+The design of Moss is based on a few fundamental concepts that encourage a
+healthy separation of several important concerns:
+
+1. Layout and naming of the build artifacts 
+2. Definition of the build rules and recipes
+3. Definition and configuration of the build artifacts 
+
+This separation of concerns helps avoid many pitfalls of more traditional
+makefile-based build systems.
 
 ### Artifacts
 
@@ -66,7 +61,7 @@ Pitfalls:
 - global variables that are hard to understand and debug
 - no way to compose and mutate definitions with granular building blocks
 
-## Processes
+## Build Processes
 
 Three proceses are carried out during a build to produce the required artifacts.
 These concepts can be put into perspective by way of a genetic analogy of protein synthesis.
