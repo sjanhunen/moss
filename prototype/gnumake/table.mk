@@ -84,7 +84,7 @@ $(call DUMP, my_table_2)
 # $(call EXPAND, variant1)
 # $(call EXPAND, variant2)
 #
-# This could also happen automatically as part of ARTIFACT.
+# This could also happen automatically as part of BUILD.
 
 
 # Option 4: Implicit with composition within definition

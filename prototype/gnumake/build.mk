@@ -22,7 +22,7 @@ endef
 
 # The trouble with evaluating the template before this point
 # is that artifact-specific values are required.
-define _ARTIFACT
+define _BUILD
 $(eval $(call $1,$1))
 $(eval $1.name ?= $1)
 $(eval $1.dir = $(dir $($1.name)))
@@ -33,6 +33,6 @@ endef
 # Expands table and templates for artifact and returns final artifact name.
 # This must happen in a single line to support multiple ARTIFACTs
 # as dependencies of a single target in one line.
-define ARTIFACT
-$(strip $(call _ARTIFACT,$(strip $1))) $($(strip $1).name)
+define BUILD
+$(strip $(call _BUILD,$(strip $1))) $($(strip $1).name)
 endef
