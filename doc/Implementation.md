@@ -1,33 +1,31 @@
-= Moss Implementation Considerations
+# Moss Implementation Considerations
 
 This document is a journal of implementation considerations, tradeoffs, and decisions encountered during the implementation of Moss.
 
-== Table Definition
+## Table Definition
 
 A significant challenge in writing large makefiles is structuring and scoping the large number of variable definitions required.
 
 One approach to doing this right in make is the use of prefixes to create a namespace convention.
 
-[source,makefile]
-----
+```makefile
 M.library += util
 util.name = utility
 util.source = util.c helper.c
 util.depends = common
-----
+```
 
 This approach leads to significant duplication and requires that the group is 'registered' using a global list (`M.spores` in this case).
 
 Another approach is a more traditional table definition that can automatically be expanded into individual makefile variables using pattern replacement.
 
-[source,makefile]
-----
+```makefile
 define library/util
   @name: utility
   @source: util.c helper.c
   @depends: common
 endef
-----
+````
 
 This eliminates much of the duplication and is fairly readable.
 No registration variable is required to register these tables.
@@ -40,8 +38,7 @@ Syntax errors in the generated makefile would be easier to and trace back to the
 The most flexible approach is to actually use a domain-specific language to define the structural description of the software.
 For exmaple, Lua's table definition and function invocation syntax can be combined to make something that is highly readable.
 
-[source,lua]
-----
+```lua
 util = library "utility" {
     source = {
         'util.c',
@@ -49,17 +46,16 @@ util = library "utility" {
     },
     includes = common
 }
-----
+```
 
 Some string-to-table helpers could make this even more compact.
 
-[source,lua]
-----
+```lua
 util = library "utility" {
     source = [[ util.c helper.c ]],
     includes = common
 }
-----
+```
 
 This approach is the most promising since the full expressive power of Lua can be harnessed to create a DSL specifically for Moss.
 Syntax checking is provided by the Lua compiler itself. Additional checks can be built through careful creation of the DSL definition functions.
@@ -69,32 +65,42 @@ A special gnumake extension (e.g. `$(yaml ...)`) could then be created to load Y
 Table and template definition could then be expressed almost fully in YAML files.
 Final table composition for artifact definition would still take place in makefiles.
 
-== Dependency Generation
+## Dependency Generation
 
 The most reliable way to get dependencies right with minimal maintenance is to use the compiler iteself with the same options as an actual build.
 Otherwise, there is a risk that preprocessor macros will not be evaluated correctly.
 
 Reference build performance with no dependencies:
 
-	Not parallel: 14.229s
-	Parallel (-j4): 0m4.096s
+```
+Not parallel: 14.229s
+Parallel (-j4): 0m4.096s
+```
 
 Alternatives:
 
 1. Generate dependencies first, one at a time
 
-Not parallel: 0m21.822s
-Parallel (-j4): 0m6.318s
+	```
+	Not parallel: 0m21.822s
+	Parallel (-j4): 0m6.318s
+	```
 
 2. Generate dependencies after compile, one at a time
-Not parallel: 0m19.663s
-Parallel (-j4): 0m6.329s
+
+	```
+	Not parallel: 0m19.663s
+	Parallel (-j4): 0m6.329s
+	```
 
 3. Generate dependencies during compile, one at a time
-Not parallel: 0m14.578s
-Parallel (-j4): 0m4.217s
 
-3. Generate bulk dependencies for spore first: Not feasable without extra
+	```
+	Not parallel: 0m14.578s
+	Parallel (-j4): 0m4.217s
+	```
+
+4. Generate bulk dependencies for spore first: Not feasable without extra
    post-processing due to the fact that each target needs custom name
 
 Option 3 is the clear winner. For compilers that support dependency generation
@@ -107,35 +113,41 @@ One remaining challenge in this design is the performance of make with nothing
 to do for large code bases (e.g 10,000 files). Include the per-file dependency
 information can take a significant amount of time. For example:
 
-	make: Nothing to be done for 'all'. (no dependencies)
+```
+make: Nothing to be done for 'all'. (no dependencies)
 
-	real    0m0.969s
-	user    0m0.312s
-	sys     0m0.656s
+real    0m0.969s
+user    0m0.312s
+sys     0m0.656s
+```
 
-	make: Nothing to be done for 'all'. (using individual .d files for dependencies)
+```
+make: Nothing to be done for 'all'. (using individual .d files for dependencies)
 
-	real    0m7.629s
-	user    0m1.484s
-	sys     0m3.406s
+real    0m7.629s
+user    0m1.484s
+sys     0m3.406s
+```
 
 The make with nothing to do slows down by nearly an order of magnitude when
 full dependency information is used. An experiment was performed to rule out
 the performance of include. All dependency files were concatenated into a
 single all.d with the following result:
 
-	make: Nothing to be done for 'all'. (using single all.d for dependencies)
+```
+make: Nothing to be done for 'all'. (using single all.d for dependencies)
 
-	real    0m1.030s
-	user    0m0.281s
-	sys     0m0.734s
+real    0m1.030s
+user    0m0.281s
+sys     0m0.734s
+```
 
 This is a significant performance improvement over including individual
 dependency files and represents one path forward for high-performance
 dependency generation.
 
 
-== Build Tree Structure
+## Build Tree Structure
 
 All Moss build object files and artifacts are placed in a Moss build tree
 structure called `moss.build` by default.
@@ -198,7 +210,7 @@ Moss assumes that header files are shared across all platforms and
 toolchains. Any platform-specific header files are an internal
 implementation detail of the source code for a spore that defines them.
 
-== Recursive vs Inclusive
+## Recursive vs Inclusive
 
 There are some high-level considerations to make. Do we use any amount of
 recursive make to help with iteration over toolchains, platforms, or
