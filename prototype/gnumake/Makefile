@@ -1,4 +1,4 @@
-include artifact.mk
+include build.mk
 
 define c.template
 bin/%.o: %.c | $(TEMPLATE.objdir)
@@ -60,10 +60,10 @@ endef
 # Easily clone tables with default artifact names
 bin/host/name1.out = $(host_output)
 
-bin/host: $(call ARTIFACT, bin/host/name1.out)
+bin/host: $(call BUILD, bin/host/name1.out)
 
-# TODO: extend ARTIFACT to accepts pattern like target_% or bin/xyz/%
-bin/target: $(call ARTIFACT, target_output1) $(call ARTIFACT, target_output2)
+# TODO: extend BUILD to accepts pattern like target_% or bin/xyz/%
+bin/target: $(call BUILD, target_output1) $(call BUILD, target_output2)
 
 define special1
 $(table)
@@ -76,6 +76,6 @@ $(table)
 $(host_executable)
 endef
 
-# Using ARTIFACT directly requires target syntax
-$(call ARTIFACT, special1):
-$(call ARTIFACT, special2.out):
+# Using BUILD directly requires target syntax
+$(call BUILD, special1):
+$(call BUILD, special2.out):
