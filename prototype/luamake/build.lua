@@ -72,6 +72,9 @@ function build(...)
         bt = deepcopy(bt)
         -- TODO: Apply recursively for nested builds
         for i,step in ipairs(pipeline) do
+            if type(step) ~= "function" then
+                step = mutation(step)
+            end
             bt = step(bt);
         end
         return bt;
@@ -82,16 +85,13 @@ function dumpbuild(bt, depth)
     if depth == nil then
         depth = 0
     end
-    local prefix = "| "
-
-    print(prefix:rep(depth) .. "+ " .. bt.name)
+    local prefix = " "
 
     depth = depth + 1
     for k, v in pairs(bt) do
         if type(k) == "string" then
-            local txt = ""
             if type(v) == "table" then
-                txt = "{"
+                local txt = "" 
                 for i,p in ipairs(v) do
                     if type(p) == "string" then
                         txt = txt .. "'" .. tostring(p) .. "',"
@@ -99,16 +99,18 @@ function dumpbuild(bt, depth)
                         txt = txt .. tostring(p) .. ","
                     end
                 end
-                txt = txt:sub(1,txt:len()-1) .. "}"
+                if txt:len() > 0 then
+                    -- This is an ordered list value
+                    print(prefix:rep(depth) .. "- " .. k .. ": {" .. txt .. "}")
+                else
+                    -- This is a nested table value
+                    print(prefix:rep(depth) .. "+ " .. k .. ":")
+                    dumpbuild(v, depth)
+                end
             else
-                txt = tostring(v)
+                -- This is a string value
+                print(prefix:rep(depth) .. "- " .. k .. ": " .. tostring(v))
             end
-            print(prefix:rep(depth) .. "- " .. k .. ": " .. txt)
-        end
-    end
-    for k, v in pairs(bt) do
-        if type(k) == "number" then
-            dumpbuild(v, depth)
         end
     end
 end

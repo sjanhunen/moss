@@ -45,6 +45,11 @@ function apply(bt, operation)
 
     -- Apply operation to all entries at this level
     for name,step in pairs(operation) do
+        if type(step) ~= "function" then
+            -- Values (non functions) are treated as direct assignment
+            local contents = step
+            step = function() return contents end
+        end
         if type(bt[name]) == "table" then
             bt[name] = step(deepcopy(bt[name]))
         else
