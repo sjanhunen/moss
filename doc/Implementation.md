@@ -1,64 +1,74 @@
-# Moss Implementation Considerations
+# Implementation Alternatives
 
-This document is a journal of implementation considerations, tradeoffs, and decisions encountered during the implementation of Moss.
+This document is a journal of implementation considerations, alternatives, and decisions encountered during the implementation of Moss.
 
 ## Table Definition
 
-A significant challenge in writing large makefiles is structuring and scoping the large number of variable definitions required.
+A significant challenge in writing large makefiles is structuring and scoping the large number of variable definitions required. Adding structure to this via tables can help significantly, since individual artifacts or components can be defined separately without concern for table members with the same name.
 
-One approach to doing this right in make is the use of prefixes to create a namespace convention.
+### Explicit Table Definition
+
+All approaches to managing this in make boil down to some form of use of prefixes to create a namespace convention. For example:
 
 ```makefile
-M.library += util
 util.name = utility
 util.source = util.c helper.c
 util.depends = common
 ```
 
-This approach leads to significant duplication and requires that the group is 'registered' using a global list (`M.spores` in this case).
+This particular approach leads to significant duplication and also means that cloning the definiton requires coping each individual definition, as they are all separate variables at this point.
 
-Another approach is a more traditional table definition that can automatically be expanded into individual makefile variables using pattern replacement.
+### Implicit Table Definition
+
+A more interesting approach keeps tables defined (implicitly) inside of a multi-line variable definition for as long as possible. For example:
+
 
 ```makefile
-define library/util
-  @name: utility
-  @source: util.c helper.c
-  @depends: common
+define util
+$1.name = utility
+$1.source = util.c helper.c
+$1.depends = common
 endef
-````
+```
 
-This eliminates much of the duplication and is fairly readable.
-No registration variable is required to register these tables.
-They can simply be discovered by name using the path-style prefix.
+This eliminates duplication of the table name and is quite readable.
+Expansion is performed as late as possible in the build process to ensure that tables can be compied and composed as a single variable definitoin. Error handling may be more difficult or cryptic, since syntax errors during evaluation won't be tracable back to a specific line in the definition. This disadvantage must be weighed against the advantages of the approach.
 
-Error handling may be more difficult or cryptic, since evaluating the definition won't allow a specific line to be cited if make encounters a syntax error.
-It may be possible to overcome this issue by expanding each spore definition into a generated makefile that is then included or checked for syntax errors.
-Syntax errors in the generated makefile would be easier to and trace back to the original definition.
+Cloning the table is as simple as assigning the variable:
 
-The most flexible approach is to actually use a domain-specific language to define the structural description of the software.
-For exmaple, Lua's table definition and function invocation syntax can be combined to make something that is highly readable.
+```makefile
+another_util = $(util)
+```
+
+### Lua Table Definition
+
+Another approach to table definition is to actually use a domain-specific language to define tables outside of makefiles entirely.
+
+For exmaple, Lua's table definition syntax is compact and readable:
 
 ```lua
-util = library "utility" {
-    source = {
-        'util.c',
-        'helper.c',
-    },
-    includes = common
+util = {
+	name = 'utility',
+    source = { 'util.c', 'helper.c', },
+    depends = common
 }
 ```
 
-Some string-to-table helpers could make this even more compact.
+Some string-to-table helpers could make this even more compact:
 
 ```lua
-util = library "utility" {
+util = {
+	name = 'utility',
     source = [[ util.c helper.c ]],
-    includes = common
+    depends = common
 }
 ```
 
-This approach is the most promising since the full expressive power of Lua can be harnessed to create a DSL specifically for Moss.
-Syntax checking is provided by the Lua compiler itself. Additional checks can be built through careful creation of the DSL definition functions.
+It would be necessary to define an approach for including these definitions into a makefile. For example, a gnumake extension (e.g. `$(lua ...)`) might be used to include an external Lua module with table definitions.
+
+The disadvantage here is that the solutoin cannot be implemented in pure gnumake, which was one of the stated goals of the project. However, there are significant advantages in terms of syntax checking and flexibility. From a pure character count metric, the approach may be slightly (but not significantly) more compact.
+
+### YAML Table Definition
 
 As an alternative, YAML files could be used as a way to create table and variable definitions with a very compact and readable syntax.
 A special gnumake extension (e.g. `$(yaml ...)`) could then be created to load YAML files as namespaced variable definitions.
