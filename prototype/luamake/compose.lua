@@ -65,7 +65,7 @@ function prefix(value)
     end
 end
 
-function build(...)
+function compose(...)
     local pipeline = {...}
 
     return function(bt)
