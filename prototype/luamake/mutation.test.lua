@@ -1,5 +1,5 @@
 require("mutation")
-require("build")
+require("compose")
 
 describe("mutation", function()
     local substr = function(match, replace)

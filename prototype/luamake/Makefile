@@ -3,5 +3,5 @@ hello:
 
 include luamake.mk
 
-$(lua require,build)
+$(lua require,compose)
 $(lua require,example)

@@ -1,12 +1,6 @@
-require("build")
-require("mutation")
-
 --  Lua modules for gmake (luamake) are primarily intended to assist with
 --  modular table definitions, mutations, and namespace management.  Definition
 --  of builds and artifacts will still be done within makefiles.
-
--- TODO: remove alias once we refactor build
-compose = build
 
 exe_template = [[ ${name}: ${obj}; ${tool.ld} -o $@ $< ]]
 
