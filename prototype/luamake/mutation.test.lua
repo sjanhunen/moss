@@ -18,14 +18,14 @@ describe("mutation", function()
     end
 
     it("applies single operation", function()
-        local fn = mutation { name = substr("before", "after") }
+        local fn = compose { name = substr("before", "after") }
         local output = fn { name = "before" }
         assert.are.same("after", output.name)
     end)
 
     it("copies build table before applying operation", function()
         local input = { name = "before" }
-        local fn = mutation { name = substr("before", "after") }
+        local fn = compose { name = substr("before", "after") }
         local output = fn(input)
         assert.are.same("before", input.name)
         assert.are.same("after", output.name)
@@ -33,7 +33,7 @@ describe("mutation", function()
 
     it("copies table member before applying operation", function()
         local input = { name = { "before" } }
-        local fn = mutation { name = subitems("before", "after") }
+        local fn = compose { name = subitems("before", "after") }
         local output = fn(input)
         assert.are.same({"before"}, input.name)
         assert.are.same({"after"}, output.name)
@@ -45,7 +45,7 @@ describe("mutation", function()
             { name = { "before2" } };
             { name = { "before3" } };
         }
-        local fn = mutation { name = subitems("before", "after") }
+        local fn = compose { name = subitems("before", "after") }
         local output = fn(input)
         assert.are.same({ "after1" }, output.name)
         assert.are.same({ "after2" }, output[1].name)
