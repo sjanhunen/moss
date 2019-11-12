@@ -20,9 +20,3 @@ function addprefix(prefix)
         end
     end
 end
-
-function set(value)
-    return function(str)
-        return value
-    end
-end
