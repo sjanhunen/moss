@@ -8,12 +8,14 @@ require("mutation")
 -- TODO: remove alias once we refactor build
 compose = build
 
--- TODO: actually implement these tables with templates
-executable = mutation {}
-binary = mutation {}
-static_lib = mutation {}
+exe_template = [[ ${name}: ${obj}; ${tool.ld} -o $@ $< ]]
 
-my_app = {
+-- TODO: actually implement these tables with templates
+executable = compose { templates = exe_template }
+binary = {}
+static_lib = {}
+
+my_app = executable {
     src = {"main.c", "aux.c"},
     defines = "MY_OPTION"
 }
@@ -27,17 +29,21 @@ clang = {
     fpu = { cflags = append "-fpu" };
 }
 
+-- Compose functions to create appropriate building blocks
 arm_tools = compose(clang.cc, clang.ld, clang.armcm4, clang.fpu, clang.thumb)
 host_tools = compose(clang.cc, clang.ar, clang.x86_64, clang.fpu)
+arm_app = compose(arm_tools, my_app)
+host_app = compose(host_tools, my_app)
+arm_bin = compose(arm_tools, binary)
 
 stuff = {
     bin = {
         target = {
-            ["app.elf"] = compose(arm_tools, my_app) { logging = n, fast = y },
-            ["app.bin"] = compose(arm_tools, binary) { exename = "my_app.elf" },
+            ["app.elf"] = arm_app { logging = n, fast = y },
+            ["app.bin"] = arm_bin { exename = "my_app.elf" },
         },
         host = {
-            ["app.exe"] = compose(host_tools, my_app) { logging = y, fast = n },
+            ["app.exe"] = host_app { logging = y, fast = n },
         }
     }
 }
