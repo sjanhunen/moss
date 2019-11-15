@@ -15,13 +15,3 @@ endif
 
 luamake.so: luamake.c
 	gcc -Wall -shared -o $@ $^ $(platform_opts) -llua5.3
-
-.PHONY: test
-
-$(lua require,luamake)
-
-test:
-	# Call module function directly
-	$(info $(lua proc,hi,another hello))
-	# Use eval to convert to string for display
-	$(info result is $(lua eval,tostring(55)))
