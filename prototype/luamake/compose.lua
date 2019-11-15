@@ -85,13 +85,12 @@ function compose(...)
     end
 end
 
-function dumpbuild(bt, depth)
-    if depth == nil then
-        depth = 0
-    end
-    local prefix = " "
+function dumpbuild(bt, tablename)
+    local tabledef = {}
+    -- TODO: use some type of string buffer or memory file instead
+    -- of just repeatedly concatenating strings!
+    local output = ""
 
-    depth = depth + 1
     for k, v in pairs(bt) do
         if type(k) == "string" then
             if type(v) == "table" then
@@ -105,16 +104,29 @@ function dumpbuild(bt, depth)
                 end
                 if txt:len() > 0 then
                     -- This is an ordered list value
-                    print(prefix:rep(depth) .. "- " .. k .. ": {" .. txt .. "}")
+                    table.insert(tabledef, "$1." .. k .. " = " .. txt)
                 else
-                    -- This is a nested table value
-                    print(prefix:rep(depth) .. "+ " .. k .. ":")
-                    dumpbuild(v, depth)
+                    -- This is a nested definition
+                    if tablename then
+                        output = output .. dumpbuild(v, tablename .. "/" .. k)
+                    else
+                        output = output .. dumpbuild(v, k)
+                    end
                 end
             else
                 -- This is a string value
-                print(prefix:rep(depth) .. "- " .. k .. ": " .. tostring(v))
+                table.insert(tabledef, "$1." .. k .. " = " .. tostring(v))
             end
         end
     end
+
+    if tablename and #tabledef > 0 then
+        output = output .. "define " .. tablename .. "\n"
+        for i,line in ipairs(tabledef) do
+            output = output .. line .. "\n"
+        end
+        output = output .. "endef" .. "\n"
+    end
+
+    return output
 end
