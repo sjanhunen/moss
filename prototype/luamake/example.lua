@@ -30,7 +30,7 @@ arm_app = compose(arm_tools, my_app)
 host_app = compose(host_tools, my_app)
 arm_bin = compose(arm_tools, binary)
 
-stuff = {
+return {
     bin = {
         target = {
             ["app.elf"] = arm_app { logging = n, fast = y },
@@ -41,5 +41,3 @@ stuff = {
         }
     }
 }
-
-return dumpbuild(stuff)

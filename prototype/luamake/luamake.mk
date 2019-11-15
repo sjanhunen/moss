@@ -15,3 +15,7 @@ endif
 
 luamake.so: luamake.c
 	gcc -Wall -shared -o $@ $^ $(platform_opts) -llua5.3
+
+$(lua require,compose)
+$(lua require,mutation)
+$(lua require,luafile)
