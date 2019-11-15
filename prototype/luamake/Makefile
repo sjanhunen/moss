@@ -5,4 +5,6 @@ include luamake.mk
 
 $(lua require,compose)
 $(lua require,mutation)
-$(lua require,example)
+
+$(info $(lua require,example))
+$(eval $(lua require,example))

@@ -42,4 +42,4 @@ stuff = {
     }
 }
 
-dumpbuild(stuff)
+return dumpbuild(stuff)
