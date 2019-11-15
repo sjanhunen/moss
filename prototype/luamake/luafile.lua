@@ -1,29 +1,20 @@
 function dumptable(bt, tablename)
     local tabledef = {}
-    -- TODO: use some type of string buffer or memory file instead
-    -- of just repeatedly concatenating strings!
-    local output = ""
+    local output = {}
 
     for k, v in pairs(bt) do
         if type(k) == "string" then
             if type(v) == "table" then
-                local txt = "" 
-                for i,p in ipairs(v) do
-                    if type(p) == "string" then
-                        txt = txt .. "'" .. tostring(p) .. "',"
-                    else
-                        txt = txt .. tostring(p) .. ","
-                    end
-                end
-                if txt:len() > 0 then
+                if #v > 0 then
                     -- This is an ordered list value
-                    table.insert(tabledef, "$1." .. k .. " = " .. txt)
+                    table.insert(tabledef, "$1." .. k .. " = " .. table.concat(v, " "))
                 else
-                    -- This is a nested definition
                     if tablename then
-                        output = output .. dumptable(v, tablename .. "/" .. k)
+                        -- This is a nested definition
+                        table.insert(output, dumptable(v, tablename .. "/" .. k))
                     else
-                        output = output .. dumptable(v, k)
+                        -- This is a top-level definition
+                        table.insert(output, dumptable(v, k))
                     end
                 end
             else
@@ -34,14 +25,12 @@ function dumptable(bt, tablename)
     end
 
     if tablename and #tabledef > 0 then
-        output = output .. "define " .. tablename .. "\n"
-        for i,line in ipairs(tabledef) do
-            output = output .. line .. "\n"
-        end
-        output = output .. "endef" .. "\n"
+        table.insert(output, "define " .. tablename)
+        table.insert(output, table.concat(tabledef, "\n"))
+        table.insert(output, "endef")
     end
 
-    return output
+    return table.concat(output, "\n")
 end
 
 function luafile(name)
