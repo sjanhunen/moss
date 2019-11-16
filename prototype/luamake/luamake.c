@@ -66,8 +66,6 @@ int luamake_gmk_setup ()
     ls = luaL_newstate();
     luaL_openlibs(ls);
 
-    require("compose");
-    require("mutation");
     require("luafile");
 
     gmk_add_function("luafile", gm_lua_pcall, 1, 32, GMK_FUNC_NOEXPAND);

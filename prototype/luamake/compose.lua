@@ -20,7 +20,7 @@
 --
 --  m4(<defn>) or m4 { <defn> }
 
-function deepcopy(bt)
+local function deepcopy(bt)
     local copy = {}
     for k, v in pairs(bt) do
         if type(v) == "table" then
@@ -32,7 +32,7 @@ function deepcopy(bt)
     return copy
 end
 
-function shallowcopy(bt)
+local function shallowcopy(bt)
     local copy = {}
     for k, v in pairs(bt) do
         copy[k] = v
@@ -40,7 +40,7 @@ function shallowcopy(bt)
     return copy
 end
 
-function apply(bt, operation)
+local function apply(bt, operation)
     bt = shallowcopy(bt)
 
     -- Apply operation to all entries at this level
