@@ -21,6 +21,7 @@ static void error(const char *msg)
     if(err_msg) {
         snprintf(err_msg, len, format, msg);
         gmk_eval(err_msg, NULL);
+        gmk_free(err_msg);
     }
 }
 
@@ -48,7 +49,12 @@ char *gm_lua_pcall(const char *nm, unsigned int argc, char **argv)
             error(result);
         }
         else if(result != NULL) {
-            gmk_eval(result, NULL);
+            char *definition = gmk_alloc(strlen(result) + 1);
+            if (definition) {
+                strcpy(definition, result);
+                gmk_eval(definition, NULL);
+                gmk_free(definition);
+            }
         }
     }
 
