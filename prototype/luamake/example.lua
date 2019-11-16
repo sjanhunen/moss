@@ -31,6 +31,7 @@ host_app = compose(host_tools, my_app)
 arm_bin = compose(arm_tools, binary)
 
 return {
+    hello = "Hello World!",
     bin = {
         target = {
             ["app.elf"] = arm_app { logging = n, fast = y },
