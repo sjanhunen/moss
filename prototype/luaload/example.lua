@@ -1,6 +1,6 @@
---  Lua modules for gmake (luamake) are primarily intended to assist with
---  modular table definitions, mutations, and namespace management.  Definition
---  of builds and artifacts will still be done within makefiles.
+--  Lua module loader for gnumake (luaload) is intended to assist with modular
+--  table definitions, mutations, and namespace management.  Definition of
+--  build rules and templates will still be done within makefiles.
 
 -- Actual templates are defined in makefiles
 executable = compose { templates = exe_template }
