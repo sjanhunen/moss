@@ -8,7 +8,8 @@
 # TODO: implement nested require support
 # - save and restore context variable _
 # - only perform single before and after check
-define REQUIRE
+
+define _REQUIRE
 $(eval _=$2.)
 $(eval _BEFORE = $(.VARIABLES))
 $(eval include $1)
@@ -21,12 +22,6 @@ $(eval undefine _DIFF)
 $(eval undefine _)
 endef
 
-# Example 
-
-$(eval B=$(.VARIABLES))
-
-$(call REQUIRE,struct.mk,P1)
-$(call REQUIRE,struct.mk,P2)
-
-$(eval A=$(.VARIABLES))
-$(info $(filter-out $(B),$(A)))
+define REQUIRE
+$(eval $(call _REQUIRE,$(strip $1),$(strip $2)))
+endef
