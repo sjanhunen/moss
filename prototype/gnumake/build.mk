@@ -1,5 +1,3 @@
-include template.mk
-
 # The challenge:
 # 	We can only expand $@ within prerequisites or recipes (nowhere else!).
 # 	And adding additional rules only possible for first variable expansion (not second).
@@ -18,6 +16,28 @@ include template.mk
 # Use to dump any artifact table
 define DUMP
 $(foreach v,$(filter $1.%, $(.VARIABLES)),$(info $v=$($v)))
+endef
+
+# Templates are used to create the rules and recipes required by
+# artifacts and their associated prerequisites.
+#
+# A template is simply a definition of a rule together with recipe.
+#
+# Templates are used to create both final artifacts and intermediates.
+# An artifact definition must include all templates required by the artifact.
+
+# Useful check for object directory
+define _has_obj_dir
+$(filter-out ./,$($1.dir))
+endef
+
+# Define named arguments for readability within templates
+TEMPLATE.objdir = $(if $(_has_obj_dir),$($1.name).dir)
+TEMPLATE.target = $($1.name)
+
+define TEMPLATE
+$(if $($1),,$(error No template definition for '$1'))
+$(eval $(call $1,$(strip $2)))
 endef
 
 # The trouble with evaluating the template before this point
