@@ -1,5 +1,5 @@
 require("compose")
-require("mutation")
+require("mutations")
 
 local function dumptable(bt, tablename)
     local tabledef = {}

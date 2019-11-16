@@ -1,4 +1,4 @@
-require("mutation")
+require("mutations")
 
 describe("append", function()
     it("creates list from nil list", function()
