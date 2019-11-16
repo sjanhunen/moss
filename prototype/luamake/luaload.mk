@@ -1,4 +1,4 @@
--load luamake.so
+-load luaload.so
 
 ifdef WINDIR
 # ASSUMES we have makenew and libgnumake-1.dll.a in this directory
@@ -13,5 +13,5 @@ ifeq ($(shell uname),Linux)
 platform_opts = -fPIC -I/usr/include/lua5.3
 endif
 
-luamake.so: luamake.c
+luaload.so: luaload.c
 	gcc -Wall -shared -o $@ $^ $(platform_opts) -llua5.3

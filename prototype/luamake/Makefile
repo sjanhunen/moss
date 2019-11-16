@@ -1,8 +1,8 @@
 .PHONY: hello
 hello:
 
-include luamake.mk
+include luaload.mk
 
-$(luafile example)
+$(luaload example)
 
 $(info $(hello))
