@@ -39,7 +39,7 @@ static void require(const char *module)
 char *gm_lua_pcall(const char *nm, unsigned int argc, char **argv)
 {
     if(argc >= 1) {
-        lua_getglobal(ls, "luafile");
+        lua_getglobal(ls, "luaload");
         for(int i = 0; i < argc; ++i) {
             lua_pushstring(ls, argv[i]);
         }
@@ -61,14 +61,14 @@ char *gm_lua_pcall(const char *nm, unsigned int argc, char **argv)
     return NULL;
 }
 
-int luamake_gmk_setup ()
+int luaload_gmk_setup ()
 {
     ls = luaL_newstate();
     luaL_openlibs(ls);
 
-    require("luafile");
+    require("luaload");
 
-    gmk_add_function("luafile", gm_lua_pcall, 1, 32, GMK_FUNC_NOEXPAND);
+    gmk_add_function("luaload", gm_lua_pcall, 1, 32, GMK_FUNC_NOEXPAND);
 
     return 1;
 }

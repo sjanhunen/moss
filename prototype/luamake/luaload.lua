@@ -47,6 +47,6 @@ local function dumptable(bt, tablename)
     return table.concat(output, "\n")
 end
 
-function luafile(name)
+function luaload(name)
     return dumptable(require(name))
 end
