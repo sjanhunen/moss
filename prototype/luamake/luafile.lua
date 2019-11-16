@@ -1,4 +1,7 @@
-function dumptable(bt, tablename)
+require("compose")
+require("mutation")
+
+local function dumptable(bt, tablename)
     local tabledef = {}
     local output = {}
     local prefix = ""
@@ -43,6 +46,5 @@ function dumptable(bt, tablename)
 end
 
 function luafile(name)
-    defs = require(name)
-    return dumptable(defs)
+    return dumptable(require(name))
 end
