@@ -2,12 +2,9 @@
 --  modular table definitions, mutations, and namespace management.  Definition
 --  of builds and artifacts will still be done within makefiles.
 
-exe_template = [[ ${name}: ${obj}; ${tool.ld} -o $@ $< ]]
-
--- TODO: actually implement these tables with templates
+-- Actual templates are defined in makefiles
 executable = compose { templates = exe_template }
-binary = {}
-static_lib = {}
+binary = compose { templates = bin_template }
 
 my_app = executable {
     src = {"main.c", "aux.c"},
