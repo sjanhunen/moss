@@ -28,6 +28,8 @@ local function dumptable(bt, tablename)
             else
                 -- This is a string value
                 table.insert(tabledef, prefix .. k .. " = " .. tostring(v))
+                -- TODO: think about how we can support multi-line string definitions
+                -- at the top-level and avoid multi-line problems within tables
             end
         end
     end
