@@ -3,5 +3,6 @@ hello:
 
 include luamake.mk
 
-$(info $(lua luafile,example))
-$(eval $(lua luafile,example))
+$(luafile example)
+
+$(info $(hello))
