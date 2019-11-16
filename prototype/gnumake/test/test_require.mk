@@ -25,7 +25,6 @@ endef
 define test_without_module_prefix
 
 $(call REQUIRE,$(MODULE))
-# TODO: fix REQUIRE so no prefix is functional
 ifneq ($(.variable1),v1)
 $(error FAIL)
 endif

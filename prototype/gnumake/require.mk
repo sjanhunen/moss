@@ -5,9 +5,12 @@
 #
 # Usage: $(call REQUIRE, module, prefix)
 
-# TODO: implement nested require support
-# - save and restore context variable _
-# - only perform single before and after check
+# TODO:
+# - fix REQUIRE so no prefix is functional
+# - add support for $@ relative paths
+# - implement nested require support
+#  - save and restore context variable _
+#  - only perform single before and after check
 
 define _REQUIRE
 $(eval _=$2.)
