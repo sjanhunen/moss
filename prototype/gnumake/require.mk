@@ -6,11 +6,27 @@
 # Usage: $(call REQUIRE, module, prefix)
 
 # TODO:
+# - use $. as scope prefix
 # - fix REQUIRE so no prefix is functional
-# - add support for $@ relative paths
+# - add support for $/ relative paths
 # - implement nested require support
 #  - save and restore context variable _
 #  - only perform single before and after check
+#
+
+# NOTES
+#
+# We can use an immediate assignemnt like this to capture module path
+# for later use within a table definition
+# $._path := ...
+# It will be necessary to discover module name through $0 to actually
+# reference $._path from within a table.
+#
+# CAVIETS
+#
+# can't capture module name or path unless we immediately expand
+# can't reference path $/ directly within variable definitions
+# can reference $. or $/ within table definitions that are expanded via call
 
 define _REQUIRE
 $(eval _=$2.)
