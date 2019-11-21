@@ -3,6 +3,9 @@ define DUMP
 $(foreach v,$(filter $1.%, $(.VARIABLES)),$(info $v=$(value $v)))
 endef
 
+# Create namespace prefix $. (simply an alias for $1)
+. = $1.
+
 # Option 1: Explicit
 #
 # Simply write out all key value pairs
@@ -17,25 +20,25 @@ myzip.rules = zipfile
 base_table.const = 42
 
 define base_table
-$1.the_number = $($0.const)
+$.the_number = $($0.const)
 endef
 
 # Option 2: Implicit table with explicit list of mutations
 
 define mutation1
-	$1.files += mfile1
+	$.files += mfile1
 endef
 
 define mutation2
-	$1.output = myoutput
-	$1.target_in_rule = $$@
+	$.output = myoutput
+	$.target_in_rule = $$@
 endef
 
 # TODO: how can we insert base mutation here before all definitions?
 define my_table
-	$1.extends = base_table
-	$1.files = myfile1 myfile2
-	$1.mutations = mutation1 mutation2
+	$.extends = base_table
+	$.files = myfile1 myfile2
+	$.mutations = mutation1 mutation2
 endef
 
 $(eval $(call my_table,my_table))
@@ -93,25 +96,25 @@ $(call DUMP, my_table_2)
 # Mutations and tables can easily be created and composed using gnumake define.
 
 define build_executable
-$1.rule = $1.exe: $$($1.src); touch $$@;
+$.rule = $.exe: $$($.src); touch $$@;
 endef
 
 define with_keys
-$1.key1 = First Key
-$1.key2 = Second Key
+$.key1 = First Key
+$.key2 = Second Key
 endef
 
 define with_debug
 $(with_keys)
-$1.cflags += -g -Od
+$.cflags += -g -Od
 endef
 
 define with_bin
-$1.binfile = $2
+$.binfile = $2
 endef
 
 define with_my_binfile
-$(call with_bin,$1,$1.file)
+$(call with_bin,$1,$.file)
 endef
 
 # Composing several mutations is easy
@@ -125,7 +128,7 @@ endef
 # It is possible to hide some of the trickier expansions
 # behind functions
 define flag_for_aux
-$1.cflags += $$(if $$(filter aux.%,$$($1.src)),-DAUX=1)
+$.cflags += $$(if $$(filter aux.%,$$($.src)),-DAUX=1)
 endef
 
 # Common definitions can be placed in the base definition
@@ -135,9 +138,9 @@ hello.common_src = common1.c common2.c
 
 # Defining an artifact is compact
 define hello
-$1.src = main.c aux.c other.c
-$1.cflags += -DSPECIAL=1
-$1.files += $($0.common_src)
+$.src = main.c aux.c other.c
+$.cflags += -DSPECIAL=1
+$.files += $($0.common_src)
 $(flag_for_aux)
 $(with_hello_options)
 endef
@@ -147,7 +150,7 @@ define goodbye
 $(call hello, $1)
 $(with_debug)
 $(with_my_binfile)
-$1.src += goodbye.c
+$.src += goodbye.c
 endef
 
 $(eval $(call hello,hello))
