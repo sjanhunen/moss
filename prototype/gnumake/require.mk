@@ -31,13 +31,19 @@
 # TODO: why can't we undefine in here?
 # We get missing separator errors
 
+# Positional arguments for _REQUIRE
+_REQUIRE.module = $1
+_REQUIRE.name = $2
+
 define _REQUIRE
-.:=$2.
+. := $(_REQUIRE.name).
+
 _BEFORE := $$(.VARIABLES)
-include $1
+include $(_REQUIRE.module)
 _AFTER := $$(.VARIABLES)
-_DIFF := $$(filter-out _BEFORE $2.% $$(_BEFORE),$$(_AFTER))
-$$(if $$(_DIFF), $$(error $1 defines non-module scope $$(_DIFF)),)
+
+_DIFF := $$(filter-out _BEFORE $(_REQUIRE.name).% $$(_BEFORE),$$(_AFTER))
+$$(if $$(_DIFF), $$(error $(_REQUIRE.module) defines non-module scope $$(_DIFF)),)
 endef
 
 REQUIRE = $(eval $(call _REQUIRE,$(strip $1),$(strip $2)))
