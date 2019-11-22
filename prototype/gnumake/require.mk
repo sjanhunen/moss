@@ -6,9 +6,9 @@
 # Usage: $(call REQUIRE, module, prefix)
 
 # TODO:
-# - use $. as scope prefix
 # - fix REQUIRE so no prefix is functional
 # - add support for $/ relative paths
+# - figure out how to restore $. after use
 # - implement nested require support
 #  - save and restore context variable _
 #  - only perform single before and after check
@@ -28,19 +28,16 @@
 # can't reference path $/ directly within variable definitions
 # can reference $. or $/ within table definitions that are expanded via call
 
+# TODO: why can't we undefine in here?
+# We get missing separator errors
+
 define _REQUIRE
-$(eval _=$2.)
-$(eval _BEFORE = $(.VARIABLES))
-$(eval include $1)
-$(eval _AFTER = $(.VARIABLES))
-$(eval _DIFF = $(filter-out _BEFORE $_% $(_BEFORE),$(_AFTER)))
-$(eval $(if $(_DIFF), $(error $1 defines non-module scope $(_DIFF)),))
-$(eval undefine _BEFORE)
-$(eval undefine _AFTER)
-$(eval undefine _DIFF)
-$(eval undefine _)
+.:=$2.
+_BEFORE := $$(.VARIABLES)
+include $1
+_AFTER := $$(.VARIABLES)
+_DIFF := $$(filter-out _BEFORE $2.% $$(_BEFORE),$$(_AFTER))
+$$(if $$(_DIFF), $$(error $1 defines non-module scope $$(_DIFF)),)
 endef
 
-define REQUIRE
-$(eval $(call _REQUIRE,$(strip $1),$(strip $2)))
-endef
+REQUIRE = $(eval $(call _REQUIRE,$(strip $1),$(strip $2)))

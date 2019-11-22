@@ -2,8 +2,8 @@ ifneq ($(MODULE),)
 
 # Use this as a module for testing REQUIRE
 
-$_variable1 = v1
-$_variable2 = v2
+$.variable1 = v1
+$.variable2 = v2
 
 else
 
