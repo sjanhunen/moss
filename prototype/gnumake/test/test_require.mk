@@ -25,7 +25,7 @@ endef
 define test_without_module_prefix
 
 $(call REQUIRE,$(MODULE))
-ifneq ($(.variable1),v1)
+ifneq ($(variable1),v1)
 $(error FAIL)
 endif
 

@@ -6,7 +6,7 @@
 # Usage: $(call REQUIRE, module, prefix)
 
 # TODO:
-# - fix REQUIRE so no prefix is functional
+# - improve error handling in unit tests
 # - add support for $/ relative paths
 # - figure out how to restore $. after use
 # - implement nested require support
@@ -36,13 +36,13 @@ _REQUIRE.module = $1
 _REQUIRE.name = $2
 
 define _REQUIRE
-. := $(_REQUIRE.name).
+. := $(if $(_REQUIRE.name),$(_REQUIRE.name).,)
 
 _BEFORE := $$(.VARIABLES)
 include $(_REQUIRE.module)
 _AFTER := $$(.VARIABLES)
 
-_DIFF := $$(filter-out _BEFORE $(_REQUIRE.name).% $$(_BEFORE),$$(_AFTER))
+_DIFF := $$(if $(_REQUIRE.name),$$(filter-out _BEFORE $(_REQUIRE.name).% $$(_BEFORE),$$(_AFTER)),)
 $$(if $$(_DIFF), $$(error $(_REQUIRE.module) defines non-module scope $$(_DIFF)),)
 endef
 
