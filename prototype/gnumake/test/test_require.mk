@@ -18,29 +18,28 @@ MODULE = $(strip $(firstword $(MAKEFILE_LIST)))
 
 include require.mk
 
-define test_with_module_prefix
+# Combine name and list into one variable to support ifdef use
+unittest = unittest_$(strip $1) $(eval TEST_CASES += $1)
+
+ifdef $(call unittest,with_module_prefix)
 
 $(call REQUIRE,$(MODULE),bob)
 ifneq ($(bob.variable1),v1)
 $(error FAIL)
 endif
 
-endef
+endif
 
-define test_without_module_prefix
+ifdef $(call unittest,without_module_prefix)
 
 $(call REQUIRE,$(MODULE))
 ifneq ($(variable1),v1)
 $(error FAIL)
 endif
 
-endef
-
-TEST_CASES = $(filter test_%,$(.VARIABLES))
+endif
 
 ifneq ($(TEST_CASE),)
-
-$(eval $(value $(TEST_CASE)))
 
 .PHONY: test
 test:
@@ -52,7 +51,7 @@ else
 test: $(TEST_CASES)
 $(TEST_CASES):
 	@echo $@
-	@make -s -f $(MODULE) TEST_CASE=$@
+	@make -s -f $(MODULE) unittest_$@=y TEST_CASE=unittest_$@
 
 endif
 

@@ -6,8 +6,8 @@
 # Usage: $(call REQUIRE, module, prefix)
 
 # TODO:
-# - improve error handling in unit tests
 # - rename REQUIRE as import
+# - move unittest to separate file
 # - add support for $/ relative paths
 # - implement nested import support
 
