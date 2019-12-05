@@ -33,7 +33,7 @@ _REQUIRE.module = $1
 _REQUIRE.name = $2
 
 # Use $0 to figure out the context of . and expand appropriately
-. = $(if $(filter REQUIRE,$0),$(if $(_REQUIRE.name),$(_REQUIRE.name).,),$(if $1,$1.))
+. = $(if $(filter REQUIRE,$0),$(if $(_REQUIRE.name),$(_REQUIRE.name).,),$(if $1,$1.,$(error $$. is only valid in module or table context)))
 
 define _REQUIRE
 
