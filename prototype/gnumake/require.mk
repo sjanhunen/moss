@@ -7,12 +7,9 @@
 
 # TODO:
 # - improve error handling in unit tests
+# - rename REQUIRE as import
 # - add support for $/ relative paths
-# - figure out how to restore $. after use
-# - implement nested require support
-#  - save and restore context variable _
-#  - only perform single before and after check
-#
+# - implement nested import support
 
 # NOTES
 #
@@ -35,8 +32,10 @@
 _REQUIRE.module = $1
 _REQUIRE.name = $2
 
+# Use $0 to figure out the context of . and expand appropriately
+. = $(if $(filter REQUIRE,$0),$(if $(_REQUIRE.name),$(_REQUIRE.name).,),$(if $1,$1.))
+
 define _REQUIRE
-. := $(if $(_REQUIRE.name),$(_REQUIRE.name).,)
 
 _BEFORE := $$(.VARIABLES)
 include $(_REQUIRE.module)

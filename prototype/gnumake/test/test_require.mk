@@ -5,6 +5,11 @@ ifneq ($(MODULE),)
 $.variable1 = v1
 $.variable2 = v2
 
+define $.struct
+$.member1 = 4
+$.member2 = 8
+endef
+
 else
 
 # Use this to define test cases
