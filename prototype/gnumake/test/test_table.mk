@@ -187,3 +187,27 @@ endef
 myexe.obj = myexe.o
 
 $(info $(call my_template,target.exe,myexe))
+
+# Option 5: definition "decorator"
+#
+
+# Create wrapper for definitions that can be used to trace
+# expansions for debugging
+# e.g.
+# define $(call mutation, <name>)
+# ...
+# endef
+
+test_table = $$(info $(lastword $(MAKEFILE_LIST)) test_table ($1))$(call _test_table,$1)
+define _test_table
+$1.a = 5
+$1.b = 7
+endef
+
+define top_table
+$(call test_table,test1)
+$(call test_table,test2)
+endef
+
+
+$(eval $(call top_table))

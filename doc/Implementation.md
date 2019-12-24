@@ -75,6 +75,21 @@ A special gnumake extension (e.g. `$(yaml ...)`) could then be created to load Y
 Table and template definition could then be expressed almost fully in YAML files.
 Final table composition for artifact definition would still take place in makefiles.
 
+## Namespaces
+
+Namespaces are enforced by convention using the dot (`.`) as a separator.
+The current scope determines how namespace is used.
+
+1. Global scope (no namespace prefix)
+2. Module scope (`$.` and `$/` prefixes)
+3. Definition scope (`$1.`)
+
+Namespace notes:
+- Need to keep consistent meaning for $. and $/ in both module and definition scope
+- $. and $/ need different expansions to work in both module and definition scope
+- $1. is the namespace prefix for mutation definition
+- $. is the namespace prefix for modules
+
 ## Dependency Generation
 
 The most reliable way to get dependencies right with minimal maintenance is to use the compiler iteself with the same options as an actual build.
