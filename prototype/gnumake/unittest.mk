@@ -1,6 +1,7 @@
 ifndef __unittest__
 
 _unittest.case = test_$(strip $1)
+_unittest.file = $(strip $(firstword $(MAKEFILE_LIST)))
 define _unittest
 
 .PHONY: $(_unittest.case)
@@ -14,7 +15,7 @@ endif
 # TODO: implement support for expected return code (for failure testing)
 $(_unittest.case):
 	@echo $$@
-	@make -s -f $(MODULE) $$@=y TEST_CASE=$$@
+	@make -s -f $(_unittest.file) $$@=y TEST_CASE=$$@
 	@echo OK
 
 endef
