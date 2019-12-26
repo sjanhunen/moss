@@ -6,7 +6,6 @@
 # Usage: $(call REQUIRE, module, prefix)
 
 # TODO:
-# - rename REQUIRE as import
 # - move unittest to separate file
 # - add support for $/ relative paths
 # - implement nested import support
@@ -28,21 +27,21 @@
 # TODO: why can't we undefine in here?
 # We get missing separator errors
 
-# Positional arguments for _REQUIRE
-_REQUIRE.module = $1
-_REQUIRE.name = $2
+# Positional arguments for _import
+_import.module = $1
+_import.name = $2
 
 # Use $0 to figure out the context of . and expand appropriately
-. = $(if $(filter REQUIRE,$0),$(if $(_REQUIRE.name),$(_REQUIRE.name).,),$(if $1,$1.,$(error $$. is only valid in module or table context)))
+. = $(if $(filter import,$0),$(if $(_import.name),$(_import.name).,),$(if $1,$1.,$(error $$. is only valid in module or table context)))
 
-define _REQUIRE
+define _import
 
-_BEFORE := $$(.VARIABLES)
-include $(_REQUIRE.module)
-_AFTER := $$(.VARIABLES)
+_before := $$(.VARIABLES)
+include $(_import.module)
+_after := $$(.VARIABLES)
 
-_DIFF := $$(if $(_REQUIRE.name),$$(filter-out _BEFORE $(_REQUIRE.name).% $$(_BEFORE),$$(_AFTER)),)
-$$(if $$(_DIFF), $$(error $(_REQUIRE.module) defines non-module scope $$(_DIFF)),)
+_diff := $$(if $(_import.name),$$(filter-out _before $(_import.name).% $$(_before),$$(_after)),)
+$$(if $$(_diff), $$(error $(_import.module) defines non-module scope $$(_diff)),)
 endef
 
-REQUIRE = $(eval $(call _REQUIRE,$(strip $1),$(strip $2)))
+import = $(eval $(call _import,$(strip $1),$(strip $2)))

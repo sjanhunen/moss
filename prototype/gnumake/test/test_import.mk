@@ -1,6 +1,6 @@
 ifneq ($(MODULE),)
 
-# Use this as a module for testing REQUIRE
+# Use this as a module for testing import
 
 $.variable1 = v1
 $.variable2 = v2
@@ -16,14 +16,14 @@ else
 
 MODULE = $(strip $(firstword $(MAKEFILE_LIST)))
 
-include require.mk
+include import.mk
 
 # Combine name and list into one variable to support ifdef use
 unittest = unittest_$(strip $1) $(eval TEST_CASES += $1)
 
 ifdef $(call unittest,with_module_prefix)
 
-$(call REQUIRE,$(MODULE),bob)
+$(call import,$(MODULE),bob)
 ifneq ($(bob.variable1),v1)
 $(error FAIL)
 endif
@@ -32,7 +32,7 @@ endif
 
 ifdef $(call unittest,without_module_prefix)
 
-$(call REQUIRE,$(MODULE))
+$(call import,$(MODULE))
 ifneq ($(variable1),v1)
 $(error FAIL)
 endif
