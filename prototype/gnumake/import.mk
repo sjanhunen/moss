@@ -27,14 +27,13 @@
 # We get missing separator errors
 
 # Positional arguments for _import
-_import.module = $1
-_import.name = $2
+_import.module = $(strip $1)
+_import.name = $(strip $2)
 
 # Use $0 to figure out the context of . and expand appropriately
 . = $(if $(filter import,$0),$(if $(_import.name),$(_import.name).,),$(if $1,$1.,$(error $$. is only valid in module or table context)))
 
 define _import
-
 _before := $$(.VARIABLES)
 include $(_import.module)
 _after := $$(.VARIABLES)

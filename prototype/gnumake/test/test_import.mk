@@ -8,6 +8,12 @@ $(call import,test/module.mk,bob)
 $(call assert_equal, $(bob.variable1), v1)
 
 endif
+ifdef $(call unittest,with_module_prefix_and_spaces)
+
+$(call import, test/module.mk , sue )
+$(call assert_equal, $(sue.variable1), v1)
+
+endif
 ifdef $(call unittest,without_module_prefix)
 
 $(call import,test/module.mk)
