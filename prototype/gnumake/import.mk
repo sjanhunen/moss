@@ -6,7 +6,6 @@
 # Usage: $(call REQUIRE, module, prefix)
 
 # TODO:
-# - move unittest to separate file
 # - add support for $/ relative paths
 # - implement nested import support
 
