@@ -1,9 +1,10 @@
-# REQURE solves the global namespace problem when including modules.
-# Any module that follows the module scope convention can be included
+ifndef __import__
+
+# Modular imports with namespace support for gnumake.
+# Any module following the module scope convention may be imported
 # with all variable definitions prefixed in the specified namespace.
-# REQUIRE guarantees that the module does not pollute the global namespace.
 #
-# Usage: $(call REQUIRE, module, prefix)
+# Usage: $(call import, module, prefix)
 
 # TODO:
 # - add support for $/ relative paths
@@ -43,3 +44,5 @@ $$(if $$(_diff), $$(error $(_import.module) defines non-module scope $$(_diff)),
 endef
 
 import = $(eval $(call _import,$(strip $1),$(strip $2)))
+
+endif
