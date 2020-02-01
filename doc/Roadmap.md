@@ -1,15 +1,14 @@
 # 0.1.0 Release
-=================
 
 - import function with unit tests
 - template decorator with unit tests
 - rule decorator with unit tests
 - artifact function with unit tests
-- Delete obsolete code
+- obsolete code cleanup
 
 # 0.2.0 Release
 
-- Working templates for Debian package creation
+- Working templates & rules for Debian package creation
 
 # Future
 
