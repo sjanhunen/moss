@@ -1,8 +1,18 @@
-Upcoming work
-=============
+# 0.1.0 Release
+=================
 
-- Cleanup BUILD and REQUIRE implementation and tests for gnumake
-- Implement working templates for executable and static_lib
-- Implement working support for build dependencies
-- Delete obsolete moss code (simply include BUILD and REQUIRE)
-- Implement support for gcc and clang toolchains
+- import function with unit tests
+- template decorator with unit tests
+- rule decorator with unit tests
+- artifact function with unit tests
+- Delete obsolete code
+
+# 0.2.0 Release
+
+- Working templates for Debian package creation
+
+# Future
+
+- Templates for executable and static_lib
+- Support for build dependencies
+- Support for gcc and clang toolchains
