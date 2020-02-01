@@ -2,13 +2,11 @@
 
 This document is a journal of implementation considerations, alternatives, and decisions encountered during the implementation of Moss.
 
-## Table Definition
+## Template Definition
 
-A significant challenge in writing large makefiles is structuring and scoping the large number of variable definitions required. Adding structure to this via tables can help significantly, since individual artifacts or components can be defined separately without concern for table members with the same name.
-
-### Explicit Table Definition
-
-All approaches to managing this in make boil down to some form of use of prefixes to create a namespace convention. For example:
+Without the use of templates, managing definitions and namespaces is tedious
+and repetitive.  For example, creating several definitions in the namespace
+`util` may look something like this:
 
 ```makefile
 util.name = utility
@@ -16,12 +14,14 @@ util.source = util.c helper.c
 util.depends = common
 ```
 
-This particular approach leads to significant duplication and also means that cloning the definiton requires coping each individual definition, as they are all separate variables at this point.
+This particular approach quickly creates significant duplication and also means
+that cloning the `util` definition requires coping each individual definition,
+as they are all separate variables at this point.
 
-### Implicit Table Definition
+### Basic Template Definition
 
-A more interesting approach keeps tables defined (implicitly) inside of a multi-line variable definition for as long as possible. For example:
-
+The simplest approach to template definition is to simply make use of a
+multi-line variable definition. For example:
 
 ```makefile
 define util
@@ -31,34 +31,39 @@ $1.depends = common
 endef
 ```
 
-This eliminates duplication of the table name and is quite readable.
-Expansion is performed as late as possible in the build process to ensure that tables can be compiled and composed as a single variable definition. Error handling may be more difficult or cryptic, since syntax errors during evaluation won't be traceable back to a specific line in the definition. This disadvantage must be weighed against the advantages of the approach.
+This eliminates duplication of the template name and is quite readable.  Expansion
+is performed as late as possible in the build process to ensure that template can
+be compiled and composed as a single variable definition. Error handling may be
+more difficult or cryptic, since syntax errors during evaluation won't be
+traceable back to a specific line in the definition. This disadvantage must be
+weighed against the advantages of the approach.
 
-Cloning the table is as simple as assigning the variable:
+Cloning the template is as simple as assigning the variable:
 
 ```makefile
 another_util = $(util)
 ```
 
-### Decorated Table Definitions
+### Decorated Template Definitions
 
 In this approach, a function is invoked as part of the definition name and is used to inject a wrapper around the definition.
-For example, a table decorator could be used to define tables.
+For example, a template decorator could be used to define template.
 
 ```makefile
-define $(call table, $.with_debug)
+define $(call template, $.with_debug)
 $1.define += DEBUG
 $1.c.flags += -g
 endef
 ```
 
 The presence of the decorator enables more strict checking and debugging capabilities.
-For example, the decorator can check that only table scope assignments are made.
+For example, the decorator can check that only template scope assignments are made.
 The decorator can also include additional hooks to help with resolution of module scope names that are expanded after modules are included.
 
-### Lua Table Definition
+### Lua Template Definition
 
-Another approach to table definition is to actually use a domain-specific language to define tables outside of makefiles entirely.
+Another approach to template definition is to actually use a domain-specific
+language to define templates outside of makefiles entirely.
 
 For example, Lua's table definition syntax is compact and readable:
 
@@ -70,7 +75,7 @@ util = {
 }
 ```
 
-Some string-to-table helpers could make this even more compact:
+Some string-to-template helpers could make this even more compact:
 
 ```lua
 util = {
@@ -80,18 +85,25 @@ util = {
 }
 ```
 
-It would be necessary to define an approach for including these definitions into a makefile. For example, a gnumake extension (e.g. `$(lua ...)`) might be used to include an external Lua module with table definitions.
+It would be necessary to define an approach for including these definitions into a makefile. For example, a gnumake extension (e.g. `$(lua ...)`) might be used to include an external Lua module with template definitions.
 
 The disadvantage here is that the solution cannot be implemented in pure gnumake, which was one of the stated goals of the project. However, there are significant advantages in terms of syntax checking and flexibility. From a pure character count metric, the approach may be slightly (but not significantly) more compact.
 
-### YAML Table Definition
+### YAML Template Definition
 
-As an alternative, YAML files could be used as a way to create table and variable definitions with a very compact and readable syntax.
-A special gnumake extension (e.g. `$(yaml ...)`) could then be created to load YAML files as namespaced variable definitions.
-Table and template definition could then be expressed almost fully in YAML files.
-Final table composition for artifact definition would still take place in makefiles.
+As an alternative, YAML files could be used as a way to create template and
+variable definitions with a very compact and readable syntax.  A special
+gnumake extension (e.g. `$(yaml ...)`) could then be created to load YAML files
+as namespaced variable definitions.  Template definition could then be
+expressed almost fully in YAML files.  Final template composition for artifact
+definition would still take place in makefiles.
 
 ## Namespaces
+
+A significant challenge in writing large makefiles is structuring and scoping
+the large number of variable definitions required. Adding structure to this
+with namespaces can help significantly, since individual artifacts or templates
+can be defined separately without concern for definitions with the same name.
 
 Namespaces are enforced by convention using the dot (`.`) as a separator.
 The current scope determines how namespace is used.
