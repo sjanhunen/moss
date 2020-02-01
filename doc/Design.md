@@ -7,7 +7,7 @@ multiple variants, artifacts, and toolchains.
 
 ## Build Concepts
 
-A build is defined as a single (non-recursive) invocation of `make` that
+A build is a single (non-recursive) invocation of `make` that
 creates some or all makefile targets. This avoids the pitfalls of recursive
 make that have been well documented in the paper "Recursive Make Considered
 Harmful".
@@ -40,21 +40,24 @@ Pitfalls:
 - not creating each build artifact in a sandbox
 - attempting to specialize artifacts with rigid global constructs (like platform, variant, etc)
 
-### Templates 
+### Rules
 
-A template is used to define a build recipe with associated rule(s) that are used as part of artifact creation.
+Build rules define the dependency chain and recipes required to create a final
+build artifact.
 
 Pitfalls:
 - not separating definition of rules from definition of artifacts
 - not specializing rules and recipes for each artifact
 
-### Tables
+### Templates
 
-A table is a set of related definitions used to define an artifact.
-Table definitions follow a variable namespace convention within make.
+A template is a special kind of generic definition that may be easily cloned
+and composed.  Templates follow definition namespace conventions that keep the
+definitions within a template from polluting the global namespace.
 
-Tables make is easy to define and customize artifacts for multiple build variants.
-A given table may be used to produce multiple artifacts without requiring duplication of the common definitions.
+Templates make is easy to define and customize artifacts for multiple build
+variants.  A given template may be used to produce multiple artifacts without
+requiring duplication of the common definitions.
 
 Pitfalls:
 - global variables that are hard to understand and debug
@@ -70,25 +73,24 @@ Pitfalls:
 
 ## Build Processes
 
-Three proceses are carried out during a build to produce the required artifacts.
-These concepts can be put into perspective by way of a genetic analogy of protein synthesis.
+Three processes are carried out during a build to produce the required
+artifacts.  These concepts can be put into perspective by way of a genetic
+analogy of protein synthesis.
 
 ### Mutation
 
-In mutation, a table definition is modified in some way to produce another
-table definition. The original table is left intact and a new (modified)
-clone is created.
+In mutation, a definition is modified in some way to produce another definition.
+The original definition is left intact and a new (modified) clone is created.
 
-Analogy: table (dna) -> table' (dna)
+Analogy: definition (dna) -> definition' (dna)
 
 ### Transcription
 
-In transcription, a table is transcribed into a recipe containing build
-commands. Template rules are used to contol when recipes are expanded and
-tools are invoked. Templates are composed and configured using tables and
-mutations.
+In transcription, a definition is transcribed into rules and recipes containing
+build commands. Rules determine when recipes are expanded and tools are
+invoked.
 
-Analogy: table (dna) -> recipe (rna)
+Analogy: definition (dna) -> recipe (rna)
 
 While the rules and recipes are actually created at this stage, they are only
 fully expanded by make during the final build process.
@@ -96,8 +98,8 @@ fully expanded by make during the final build process.
 ### Translation
 
 During translation, make invokes one or more tools according to the rules and
-recipe to create the artifact. The recipe provides all necessary inputs to a
-tool to produce the required artifact.
+recipe to create the final artifact. The recipe provides all necessary inputs
+to a tool to produce the required artifact.
 
 Analogy: recipe (rna) -> artifact (protein)
 
