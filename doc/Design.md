@@ -44,10 +44,13 @@ Pitfalls:
 
 Build rules define the dependency chain and recipes required to create a final
 build artifact.
+Recipes are used to invoke the build tools that create the build artifacts.
 
 Pitfalls:
 - not separating definition of rules from definition of artifacts
 - not specializing rules and recipes for each artifact
+- hardcoding recipes and rules for specific tool configurations
+- mixing tool configuration with artifact definition
 
 ### Templates
 
@@ -60,16 +63,18 @@ variants.  A given template may be used to produce multiple artifacts without
 requiring duplication of the common definitions.
 
 Pitfalls:
-- global variables that are hard to understand and debug
+- many global variables that are hard to understand and debug
 - no way to compose and mutate definitions with granular building blocks
 
-### Tools
+### Modules
 
-Tools are programs used to create all final and intermediate build artifacts.
+Modules are reusable, independent makefile snippets that can be imported into
+specific namespaces.  Control over namespace at import time is the key
+differentiator over and above the `include` directive of GNU make.
 
 Pitfalls:
-- hardcoding recipes and rules for specific tool configurations
-- mixing tool configuration with artifact definition
+- many global variables that are hard to understand and debug
+- including makefiles that clobber the global namespace
 
 ## Build Processes
 
