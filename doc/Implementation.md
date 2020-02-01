@@ -32,7 +32,7 @@ endef
 ```
 
 This eliminates duplication of the table name and is quite readable.
-Expansion is performed as late as possible in the build process to ensure that tables can be compied and composed as a single variable definitoin. Error handling may be more difficult or cryptic, since syntax errors during evaluation won't be tracable back to a specific line in the definition. This disadvantage must be weighed against the advantages of the approach.
+Expansion is performed as late as possible in the build process to ensure that tables can be compiled and composed as a single variable definition. Error handling may be more difficult or cryptic, since syntax errors during evaluation won't be traceable back to a specific line in the definition. This disadvantage must be weighed against the advantages of the approach.
 
 Cloning the table is as simple as assigning the variable:
 
@@ -40,11 +40,27 @@ Cloning the table is as simple as assigning the variable:
 another_util = $(util)
 ```
 
+### Decorated Table Definitions
+
+In this approach, a function is invoked as part of the definition name and is used to inject a wrapper around the definition.
+For example, a table decorator could be used to define tables.
+
+```makefile
+define $(call table, $.with_debug)
+$1.define += DEBUG
+$1.c.flags += -g
+endef
+```
+
+The presence of the decorator enables more strict checking and debugging capabilities.
+For example, the decorator can check that only table scope assignments are made.
+The decorator can also include additional hooks to help with resolution of module scope names that are expanded after modules are included.
+
 ### Lua Table Definition
 
 Another approach to table definition is to actually use a domain-specific language to define tables outside of makefiles entirely.
 
-For exmaple, Lua's table definition syntax is compact and readable:
+For example, Lua's table definition syntax is compact and readable:
 
 ```lua
 util = {
@@ -66,7 +82,7 @@ util = {
 
 It would be necessary to define an approach for including these definitions into a makefile. For example, a gnumake extension (e.g. `$(lua ...)`) might be used to include an external Lua module with table definitions.
 
-The disadvantage here is that the solutoin cannot be implemented in pure gnumake, which was one of the stated goals of the project. However, there are significant advantages in terms of syntax checking and flexibility. From a pure character count metric, the approach may be slightly (but not significantly) more compact.
+The disadvantage here is that the solution cannot be implemented in pure gnumake, which was one of the stated goals of the project. However, there are significant advantages in terms of syntax checking and flexibility. From a pure character count metric, the approach may be slightly (but not significantly) more compact.
 
 ### YAML Table Definition
 
