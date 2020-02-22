@@ -1,4 +1,4 @@
-ifndef __import__
+ifndef _import
 
 # Modular imports with namespace support for gnumake.
 # Any module following the module scope convention may be imported

@@ -1,4 +1,4 @@
-ifndef __unittest__
+ifndef _unittest
 
 _unittest.case = test_$(strip $1)
 _unittest.file = $(strip $(firstword $(MAKEFILE_LIST)))

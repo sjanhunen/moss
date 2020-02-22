@@ -1,4 +1,6 @@
-ifndef __assert__
+ifndef _assert
+
+_assert =
 
 # Collection of helpful assert functions for gnumake
 
