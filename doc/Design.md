@@ -25,32 +25,32 @@ makefile-based build systems.
 
 ### Artifacts
 
-An artifact is a single fully realized build product. Common examples include
-libraries and executables.
+An artifact is a single fully realized build product.
+Unlike a build target, a build artifact is always ultimately realized as a file in the build tree.
+There are no phony artifacts.
+Common examples of build artifacts include executables, libraries, and packages.
 
-Moss intentionally avoids formalizing support for multiple architectures,
-platforms, or variants. Instead, this type of specialization is handled
-explicitly on a case by case basis for each artifact that is defined.
+A specific artifact within the build tree can only be created one way.
+Build specialization is handled explicitly on a case by case basis for each artifact that is defined.
 
-Furthermore, the build for each artifact is performed in an isolated sandbox.
-This guarantees that object and artifact files from one variant will never be
-clobbered by another build target.
+The build for each artifact is performed in an isolated sandbox.
+This guarantees that object and output files for one artifact will never be clobbered or corrupted by another build artifact.
 
 Pitfalls:
-- not creating each build artifact in a sandbox
+- building multiple variants of the same artifact in the same location
 - attempting to specialize artifacts with rigid global constructs (like platform, variant, etc)
+- not creating each build artifact in a sandbox
 
 ### Rules
 
-Build rules define the dependency chain and recipes required to create a final
-build artifact.
-Recipes are used to invoke the build tools that create the build artifacts.
+Build rules define both the dependencies and the recipes required to create a build artifact.
+Recipes invoke the build tools that create the build artifacts.
+Recipes may also create intermediate build artifacts as needed by chains of implicit rules.
+Build rule definition is intentionally kept separate from artifact definition.
 
 Pitfalls:
 - not separating definition of rules from definition of artifacts
 - not specializing rules and recipes for each artifact
-- hardcoding recipes and rules for specific tool configurations
-- mixing tool configuration with artifact definition
 
 ### Templates
 
