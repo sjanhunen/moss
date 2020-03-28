@@ -4,11 +4,15 @@ ifndef _import
 # Any module following the module scope convention may be imported
 # with all variable definitions prefixed in the specified namespace.
 #
-# Usage: $(call import, module, prefix)
+# Usage: $(call import, module, namespace)
+#
+# If namespace is omitted, all module definitions are placed in the
+# global namespace.
 
 # TODO:
 # - add support for $/ relative paths
 # - implement nested import support
+# - add import guard to avoid multiple imports into same namespace
 
 # NOTES
 #
@@ -21,11 +25,10 @@ ifndef _import
 # CAVIETS
 #
 # can't capture module name or path unless we immediately expand
-# can't reference path $/ directly within variable definitions
-# can reference $. or $/ within table definitions that are expanded via call
+# must expand $. and $/ using call
+# might be able to use $. and $/ within decorated template definitions
 
-# TODO: why can't we undefine in here?
-# We get missing separator errors
+# TODO: why can't we undefine in here? We get missing separator errors.
 
 # Positional arguments for _import
 _import.module = $(strip $1)
