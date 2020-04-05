@@ -41,22 +41,12 @@ Pitfalls:
 - attempting to specialize artifacts with rigid global constructs (like platform, variant, etc)
 - not creating each build artifact in a sandbox
 
-### Rules
-
-Build rules define both the dependencies and the recipes required to create a build artifact.
-Recipes invoke the build tools that create the build artifacts.
-Recipes may also create intermediate build artifacts as needed by chains of implicit rules.
-Build rule definition is intentionally kept separate from artifact definition.
-
-Pitfalls:
-- not separating definition of rules from definition of artifacts
-- not specializing rules and recipes for each artifact
-
 ### Templates
 
-A template is a special kind of generic definition that may be easily cloned
-and composed.  Templates follow definition namespace conventions that keep the
-definitions within a template from polluting the global namespace.
+A template is a snipped of a Makefile that may be easily cloned and composed.
+Templates define definition namespace conventions that keep the definitions within a template from polluting the global namespace.
+Templates may contain both variable and rule definitions, however, in most cases, variables and
+rules should be kept in separate template definitions.
 
 Templates make is easy to define and customize artifacts for multiple build
 variants.  A given template may be used to produce multiple artifacts without
@@ -65,6 +55,8 @@ requiring duplication of the common definitions.
 Pitfalls:
 - many global variables that are hard to understand and debug
 - no way to compose and mutate definitions with granular building blocks
+- not separating definition of rules from definition of artifacts
+- not specializing rules and recipes for each artifact
 
 ### Modules
 
@@ -89,22 +81,23 @@ The original definition is left intact and a new (modified) clone is created.
 
 Analogy: definition (dna) -> definition' (dna)
 
+Templates enable the creation of granular, re-usable mutations.
+
 ### Transcription
 
 In transcription, a definition is transcribed into rules and recipes containing
 build commands. Rules determine when recipes are expanded and tools are
 invoked.
 
-Analogy: definition (dna) -> recipe (rna)
+Analogy: definition (dna) -> rules with recipes (rna)
 
-While the rules and recipes are actually created at this stage, they are only
-fully expanded by make during the final build process.
+While the recipes are created at this stage, they are not fully expanded by make during the final build process.
+Templates enable the creation of granular, re-usable rules and recipes.
 
 ### Translation
 
-During translation, make invokes one or more tools according to the rules and
-recipe to create the final artifact. The recipe provides all necessary inputs
-to a tool to produce the required artifact.
+During translation, make invokes one or more tools according to the rules and recipes to create the final build artifacts.
+The recipe provides all necessary inputs to a tool to produce the required artifact.
 
 Analogy: recipe (rna) -> artifact (protein)
 
