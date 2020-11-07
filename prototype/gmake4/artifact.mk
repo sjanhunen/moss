@@ -7,6 +7,11 @@ ifndef _artifact
 # for rules.
 
 # TODO: add support for default name
+# TODO: integrate object directory generation from build.mk
+# TODO: integrate rule existence check from build.mk
+# TODO: extend artifact to accept pattern like target_% or bin/xyz/%
+# TODO: summarize design/implementation notest from build.mk
+# TODO: delete build.mk and Makefile
 
 define _artifact
 $(eval $(call $1,$1))
