@@ -1,6 +1,7 @@
 require("compose")
 require("mutations")
 
+-- TODO: try expanding nested definitions into namespaces
 local function dumptable(bt, tablename)
     local tabledef = {}
     local output = {}
