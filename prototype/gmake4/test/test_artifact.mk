@@ -34,10 +34,16 @@ $1.name = larry
 $1.rules = chained_rule_1 chained_rule_2
 endef
 
+# Artifact using default name
+define default_name
+$1.rules = single_rule
+endef
+
 .PHONY: target
 target: $(call artifact, simple_artifact)
 $(call artifact, chained_artifact):
 $(call artifact, explicit_artifact):
+$(call artifact, default_name):
 
 ifdef $(call unittest,with_explicit_definition)
 $(call assert_equal,$(shell make -f $(firstword $(MAKEFILE_LIST)) sue),sue!)
@@ -57,5 +63,9 @@ endif
 
 ifdef $(call unittest,with_two_rules)
 $(call assert_equal,$(shell make -f $(firstword $(MAKEFILE_LIST)) larry),larry!)
+endif
+
+ifdef $(call unittest,with_default_name)
+$(call assert_equal,$(shell make -f $(firstword $(MAKEFILE_LIST)) default_name),default_name!)
 endif
 

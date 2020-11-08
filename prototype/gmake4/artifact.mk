@@ -6,7 +6,6 @@ ifndef _artifact
 # module.  For example, the <artifact>.<rule> namespace could contain settings
 # for rules.
 
-# TODO: add support for default name
 # TODO: integrate object directory generation from build.mk
 # TODO: integrate rule existence check from build.mk
 # TODO: extend artifact to accept pattern like target_% or bin/xyz/%
@@ -15,6 +14,7 @@ ifndef _artifact
 
 define _artifact
 $(eval $(call $1,$1))
+$(eval $1.name ?= $1)
 $(foreach rule,$($1.rules),$(eval $(call $(rule),$1)))
 $($1.name)
 endef
