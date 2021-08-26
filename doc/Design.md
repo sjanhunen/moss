@@ -12,61 +12,63 @@ creates some or all makefile targets. This avoids the pitfalls of recursive
 make that have been well documented in the paper "Recursive Make Considered
 Harmful".
 
-The design of Moss is based on a few fundamental concepts that encourage a
-healthy separation of several important concerns:
-
-1. Layout and naming of the build artifacts 
-2. Definition of the build rules and recipes
-3. Definition of the build artifact itself
-4. Selection and configuration of the build tools
-
-This separation of concerns helps avoid many pitfalls of more traditional
-makefile-based build systems.
+Moss introduces three simple but powerful concepts that may be applied selectively as necessary to solve complex build problems.
+These concepts make it much easier to manage namespaces for definitions and complicated build tree structures.
 
 ### Artifacts
 
-An artifact is a single fully realized build product.
-Unlike a build target, a build artifact is always ultimately realized as a file in the build tree.
+An artifact is a single, fully realized build product.
+Unlike a build target, a build artifact is always ultimately realized as one or more files in the build tree.
 There are no phony artifacts.
 Common examples of build artifacts include executables, libraries, and packages.
 
-A specific artifact within the build tree can only be created one way.
+A specific artifact within the build tree can only every be created in one way.
 Build specialization is handled explicitly on a case by case basis for each artifact that is defined.
+Thus, a "production" build will always have a separate output path from a "debug" build.
 
-The build for each artifact is performed in an isolated sandbox.
+All definitions required to build a specific artifact are created within a unique namespace.
+The build outputs generated for each artifact are placed within a specific path of the build tree.
 This guarantees that object and output files for one artifact will never be clobbered or corrupted by another build artifact.
 
-Pitfalls:
-- building multiple variants of the same artifact in the same location
-- attempting to specialize artifacts with rigid global constructs (like platform, variant, etc)
-- not creating each build artifact in a sandbox
+Artifacts are defined in-line by calling the `artifact` function as part of the dependencies of a build target. Calling this function creates the rules necessary for the specific artifact defined within the given namespace.
 
-### Templates
+Problems solved by Artifacts:
 
-A template is a snipped of a Makefile that may be easily cloned and composed.
-Templates define definition namespace conventions that keep the definitions within a template from polluting the global namespace.
-Templates may contain both variable and rule definitions, however, in most cases, variables and
-rules should be kept in separate template definitions.
-
-Templates make is easy to define and customize artifacts for multiple build
-variants.  A given template may be used to produce multiple artifacts without
-requiring duplication of the common definitions.
-
-Pitfalls:
-- many global variables that are hard to understand and debug
-- no way to compose and mutate definitions with granular building blocks
-- not separating definition of rules from definition of artifacts
-- not specializing rules and recipes for each artifact
+- rigid global constructs like platform, variant, etc. that don't fully capture subtleties of builds
+- unreliable environment or global variables that control build outputs
+- global variables that unexpectedly change multiple outputs when modified
+- build tree sandbox for build variants
+- creation and expansion of rules unique to each artifact
 
 ### Modules
 
-Modules are reusable, independent makefile snippets that can be imported into
-specific namespaces.  Control over namespace at import time is the key
+Modules are simply makefiles that are imported into specific namespaces.
+This makes it possible to define things in one place that can be reliably imported into different paths and even reused multiple times within the same `Makefile`.
+
+Control over the module definition namespace at import time is the key
 differentiator over and above the `include` directive of GNU make.
 
-Pitfalls:
+Two special variables are present within modules to designate the module namespace prefix and the module path prefix.
+
+Problems solved by Modules:
+
 - many global variables that are hard to understand and debug
 - including makefiles that clobber the global namespace
+- no easy way to reference paths relative to module definition 
+- no way to include the same snippet multiple times in different namespace
+
+### Templates
+
+A template is a `Makefile` snippet that may be easily applied to multiple namespaces.
+All definitions within a template are expanded within a namespace.
+
+Templates are implemented using a "decorated" definition with the gnumake `define` directive. The `template` function is called as part of the definition directive itself.
+
+Problems solved by Templates:
+
+- no easy way to mutate definitions with focused operations 
+- duplication required for artifacts that have definitions in common
+- no easy way to debug nested define directives when expanded by make 
 
 ## Build Processes
 
